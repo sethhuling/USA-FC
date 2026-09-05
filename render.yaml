@@ -1,0 +1,14 @@
+# Render blueprint — deploy USA FC as a single web service.
+# In the Render dashboard: New + > Blueprint > select this repo,
+# then set API_FOOTBALL_KEY when prompted (it is never stored in git).
+services:
+  - type: web
+    name: usa-fc
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/meta
+    envVars:
+      - key: API_FOOTBALL_KEY
+        sync: false

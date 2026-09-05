@@ -1,0 +1,702 @@
+[
+  {
+    "id": "pines-c-donovan",
+    "name": "Donovan C. Pines",
+    "club": "Grazer AK",
+    "league": "Austrian Bundesliga",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 50760
+  },
+  {
+    "id": "murray-drew",
+    "name": "Drew Murray",
+    "club": "WSG Wattens",
+    "league": "Austrian Bundesliga",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 370904
+  },
+  {
+    "id": "bello-george",
+    "name": "George Bello",
+    "club": "Lask Linz",
+    "league": "Austrian Bundesliga",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 50873
+  },
+  {
+    "id": "adeniran-samuel",
+    "name": "Samuel Adeniran",
+    "club": "Lask Linz",
+    "league": "Austrian Bundesliga",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 107151
+  },
+  {
+    "id": "kayo-bryang",
+    "name": "Bryang Kayo",
+    "club": "OH Leuven",
+    "league": "Belgian Pro League",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 71109
+  },
+  {
+    "id": "fossey-marlon",
+    "name": "Marlon Fossey",
+    "club": "Standard Liege",
+    "league": "Belgian Pro League",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 129706
+  },
+  {
+    "id": "scally-joe",
+    "name": "Joe Scally",
+    "club": "Borussia Mönchengladbach",
+    "league": "Bundesliga",
+    "position": "RB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 50852
+  },
+  {
+    "id": "maloney-lennard",
+    "name": "Lennard Maloney",
+    "club": "FSV Mainz 05",
+    "league": "Bundesliga",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 24842
+  },
+  {
+    "id": "tillman-malik",
+    "name": "Malik Tillman",
+    "club": "Bayer Leverkusen",
+    "league": "Bundesliga",
+    "position": "AM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 162037
+  },
+  {
+    "id": "albert-mathis",
+    "name": "Mathis Albert",
+    "club": "Borussia Dortmund",
+    "league": "Bundesliga",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 486522
+  },
+  {
+    "id": "banks-noahkai",
+    "name": "Noahkai Banks",
+    "club": "FC Augsburg",
+    "league": "Bundesliga",
+    "position": "CB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 413065
+  },
+  {
+    "id": "castaneda-santiago",
+    "name": "Santiago Castañeda",
+    "club": "SC Paderborn 07",
+    "league": "Bundesliga",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 363156
+  },
+  {
+    "id": "chandler-timothy",
+    "name": "Timothy Chandler",
+    "club": "Eintracht Frankfurt",
+    "league": "Bundesliga",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 1803
+  },
+  {
+    "id": "campbell-william",
+    "name": "William Campbell",
+    "club": "SV Elversberg",
+    "league": "Bundesliga",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 328617
+  },
+  {
+    "id": "morris-aidan",
+    "name": "Aidan Morris",
+    "club": "Middlesbrough",
+    "league": "Championship",
+    "position": "CM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 201714
+  },
+  {
+    "id": "wiley-caleb",
+    "name": "Caleb Wiley",
+    "club": "Preston",
+    "league": "Championship",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 265733
+  },
+  {
+    "id": "campbell-george",
+    "name": "George Campbell",
+    "club": "West Brom",
+    "league": "Championship",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 102508
+  },
+  {
+    "id": "bombino-luca",
+    "name": "Luca Bombino",
+    "club": "Stoke City",
+    "league": "Championship",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 418851
+  },
+  {
+    "id": "arfsten-maximilian",
+    "name": "Maximilian Arfsten",
+    "club": "Middlesbrough",
+    "league": "Championship",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 362400
+  },
+  {
+    "id": "agyemang-patrick",
+    "name": "Patrick Agyemang",
+    "club": "Derby County",
+    "league": "Championship",
+    "position": "ST",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 360681
+  },
+  {
+    "id": "berhalter-sebastian",
+    "name": "Sebastian Berhalter",
+    "club": "Middlesbrough",
+    "league": "Championship",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 201713
+  },
+  {
+    "id": "bajraktarevic-esmir",
+    "name": "Esmir Bajraktarević",
+    "club": "PSV Eindhoven",
+    "league": "Eredivisie",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 329409
+  },
+  {
+    "id": "hawkins-jalen",
+    "name": "Jalen Hawkins",
+    "club": "ADO Den Haag",
+    "league": "Eredivisie",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 202745
+  },
+  {
+    "id": "paredes-kevin",
+    "name": "Kevin Paredes",
+    "club": "Utrecht",
+    "league": "Eredivisie",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 149557
+  },
+  {
+    "id": "pepi-ricardo",
+    "name": "Ricardo Pepi",
+    "club": "PSV Eindhoven",
+    "league": "Eredivisie",
+    "position": "ST",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 73868
+  },
+  {
+    "id": "dest-sergino",
+    "name": "Sergiño Dest",
+    "club": "PSV Eindhoven",
+    "league": "Eredivisie",
+    "position": "RB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 38735
+  },
+  {
+    "id": "freeman-alexander",
+    "name": "Alexander Freeman",
+    "club": "Villarreal",
+    "league": "La Liga",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 355994
+  },
+  {
+    "id": "cardoso-johnny",
+    "name": "Johnny Cardoso",
+    "club": "Atletico Madrid",
+    "league": "La Liga",
+    "position": "DM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 133185
+  },
+  {
+    "id": "gooch-lynden",
+    "name": "Lynden Gooch",
+    "club": "Huddersfield",
+    "league": "League One",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 19901
+  },
+  {
+    "id": "zendejas-alejandro",
+    "name": "Alejandro Zendejas",
+    "club": "Club América",
+    "league": "Liga MX",
+    "position": "RW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 35885
+  },
+  {
+    "id": "gutierrez-brian",
+    "name": "Brian Gutiérrez",
+    "club": "Guadalajara Chivas",
+    "league": "Liga MX",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 212233
+  },
+  {
+    "id": "aguirre-daniel",
+    "name": "Daniel Aguirre",
+    "club": "Guadalajara Chivas",
+    "league": "Liga MX",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 312907
+  },
+  {
+    "id": "leyva-daniel",
+    "name": "Daniel Leyva",
+    "club": "Necaxa",
+    "league": "Liga MX",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 51111
+  },
+  {
+    "id": "uribe-rodriguez-david",
+    "name": "David Rodríguez Uribe",
+    "club": "Atletico San Luis",
+    "league": "Liga MX",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 203413
+  },
+  {
+    "id": "cerrillo-edwin",
+    "name": "Edwin Cerrillo",
+    "club": "Club America",
+    "league": "Liga MX",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 51132
+  },
+  {
+    "id": "juarez-arce-fernando",
+    "name": "Fernando Arce Juárez",
+    "club": "Toluca",
+    "league": "Liga MX",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 36169
+  },
+  {
+    "id": "cuevas-aimar-mauricio",
+    "name": "Mauricio Aimar Cuevas",
+    "club": "Santos Laguna",
+    "league": "Liga MX",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 71219
+  },
+  {
+    "id": "ledezma-richard",
+    "name": "Richard Ledezma",
+    "club": "Guadalajara Chivas",
+    "league": "Liga MX",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 102851
+  },
+  {
+    "id": "castillo-aguayo-sergio",
+    "name": "Sergio Aguayo Castillo",
+    "club": "Guadalajara Chivas",
+    "league": "Liga MX",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 454038
+  },
+  {
+    "id": "portales-walter",
+    "name": "Walter Portales",
+    "club": "Atlante FC",
+    "league": "Liga MX",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 265899
+  },
+  {
+    "id": "sonora-alan",
+    "name": "Alan Soñora",
+    "club": "Newells Old Boys",
+    "league": "Liga Profesional (Argentina)",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 129885
+  },
+  {
+    "id": "miljevic-matko",
+    "name": "Matko Miljevic",
+    "club": "Racing Club",
+    "league": "Liga Profesional (Argentina)",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 6719
+  },
+  {
+    "id": "schelotto-barros-nicolas",
+    "name": "Nicolas Barros Schelotto",
+    "club": "Gimnasia L.P.",
+    "league": "Liga Profesional (Argentina)",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 413241
+  },
+  {
+    "id": "jr-reynolds-bryan",
+    "name": "Bryan Reynolds Jr.",
+    "club": "Rennes",
+    "league": "Ligue 1",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 51144
+  },
+  {
+    "id": "balogun-folarin",
+    "name": "Folarin Balogun",
+    "club": "Monaco",
+    "league": "Ligue 1",
+    "position": "ST",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 138835
+  },
+  {
+    "id": "reyna-gio",
+    "name": "Gio Reyna",
+    "club": "Strasbourg",
+    "league": "Ligue 1",
+    "position": "AM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 161921
+  },
+  {
+    "id": "mckenzie-mark",
+    "name": "Mark McKenzie",
+    "club": "Toulouse",
+    "league": "Ligue 1",
+    "position": "CB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 50735
+  },
+  {
+    "id": "tessmann-tanner",
+    "name": "Tanner Tessmann",
+    "club": "Lyon",
+    "league": "Ligue 1",
+    "position": "CM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 80752
+  },
+  {
+    "id": "weah-timothy",
+    "name": "Timothy Weah",
+    "club": "Marseille",
+    "league": "Ligue 1",
+    "position": "RW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 1138
+  },
+  {
+    "id": "robinson-antonee",
+    "name": "Antonee Robinson",
+    "club": "Fulham",
+    "league": "Premier League",
+    "position": "LB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 19549
+  },
+  {
+    "id": "aaronson-brenden",
+    "name": "Brenden Aaronson",
+    "club": "Leeds",
+    "league": "Premier League",
+    "position": "AM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 50739
+  },
+  {
+    "id": "richards-chris",
+    "name": "Chris Richards",
+    "club": "Crystal Palace",
+    "league": "Premier League",
+    "position": "CB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 126949
+  },
+  {
+    "id": "wright-haji",
+    "name": "Haji Wright",
+    "club": "Coventry City",
+    "league": "Premier League",
+    "position": "ST",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 427
+  },
+  {
+    "id": "adams-tyler",
+    "name": "Tyler Adams",
+    "club": "Bournemouth",
+    "league": "Premier League",
+    "position": "DM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 1150
+  },
+  {
+    "id": "gozo-zavier",
+    "name": "Zavier Gozo",
+    "club": "Crystal Palace",
+    "league": "Premier League",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 412227
+  },
+  {
+    "id": "blesa-miller-jalen",
+    "name": "Jalen Miller Blesa",
+    "club": "Rio Ave",
+    "league": "Primeira Liga",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 404056
+  },
+  {
+    "id": "osundina-oluwakorede",
+    "name": "Oluwakorede Osundina",
+    "club": "Casa Pia",
+    "league": "Primeira Liga",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 359436
+  },
+  {
+    "id": "trusty-auston",
+    "name": "Auston Trusty",
+    "club": "Celtic",
+    "league": "Scottish Premiership",
+    "position": "CB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 50737
+  },
+  {
+    "id": "fodrey-calvin",
+    "name": "Calvin Fodrey",
+    "club": "Falkirk",
+    "league": "Scottish Premiership",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 313360
+  },
+  {
+    "id": "carter-vickers-cameron",
+    "name": "Cameron Carter-Vickers",
+    "club": "Celtic",
+    "league": "Scottish Premiership",
+    "position": "CB",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 19314
+  },
+  {
+    "id": "brown-ethan",
+    "name": "Ethan Brown",
+    "club": "Kilmarnock",
+    "league": "Scottish Premiership",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 418054
+  },
+  {
+    "id": "murrell-jacob",
+    "name": "Jacob Murrell",
+    "club": "Falkirk",
+    "league": "Scottish Premiership",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 458452
+  },
+  {
+    "id": "jr-williams-jerome",
+    "name": "Jerome Williams Jr.",
+    "club": "Heart Of Midlothian",
+    "league": "Scottish Premiership",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 50843
+  },
+  {
+    "id": "akinmboni-matai",
+    "name": "Matai Akinmboni",
+    "club": "Dundee",
+    "league": "Scottish Premiership",
+    "position": "DF",
+    "positionGroup": "DF",
+    "nationality": "USA",
+    "apiFootballId": 359942
+  },
+  {
+    "id": "cremaschi-benjamin",
+    "name": "Benjamin Cremaschi",
+    "club": "Parma",
+    "league": "Serie A",
+    "position": "AM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 362061
+  },
+  {
+    "id": "pulisic-christian",
+    "name": "Christian Pulisic",
+    "club": "AC Milan",
+    "league": "Serie A",
+    "position": "RW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 17
+  },
+  {
+    "id": "busio-gianluca",
+    "name": "Gianluca Busio",
+    "club": "Venezia",
+    "league": "Serie A",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 51266
+  },
+  {
+    "id": "marzi-de-giorgio",
+    "name": "Giorgio De Marzi",
+    "club": "AS Roma",
+    "league": "Serie A",
+    "position": "GK",
+    "positionGroup": "GK",
+    "nationality": "USA",
+    "apiFootballId": 483676
+  },
+  {
+    "id": "mckennie-weston",
+    "name": "Weston McKennie",
+    "club": "Juventus",
+    "league": "Serie A",
+    "position": "CM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 415
+  },
+  {
+    "id": "musah-yunus",
+    "name": "Yunus Musah",
+    "club": "AC Milan",
+    "league": "Serie A",
+    "position": "CM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 162106
+  }
+]

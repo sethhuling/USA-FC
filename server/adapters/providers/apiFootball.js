@@ -1,0 +1,284 @@
+// API-Football (api-sports.io) provider. Active when API_FOOTBALL_KEY is set.
+// Docs: https://www.api-football.com/documentation-v3
+// NOTE: current-season data requires a paid plan; the free tier serves 2021-2023 only.
+const BASE = 'https://v3.football.api-sports.io';
+
+const LEAGUE_IDS = {
+  'Premier League': 39,
+  'La Liga': 140,
+  'Serie A': 135,
+  'Bundesliga': 78,
+  'Ligue 1': 61,
+  'Liga MX': 262,
+  'Eredivisie': 88,
+  'Champions League': 2,
+  'Europa League': 3,
+  'Championship': 40,
+  'League One': 41,
+  'Scottish Premiership': 179,
+  'Primeira Liga': 94,
+  'Belgian Pro League': 144,
+  'Süper Lig': 203,
+  'Brasileirão': 71,
+  'Austrian Bundesliga': 218,
+  'Liga Profesional (Argentina)': 128,
+};
+
+// The API reuses names across countries (Brazil's league is literally "Serie A",
+// Austria's is "Bundesliga"), so always label fixtures with our canonical name.
+const ID_TO_NAME = Object.fromEntries(
+  Object.entries(LEAGUE_IDS).map(([name, id]) => [id, name])
+);
+
+function season() {
+  if (process.env.SEASON) return Number(process.env.SEASON);
+  const d = new Date();
+  return d.getMonth() >= 7 ? d.getFullYear() : d.getFullYear() - 1; // Aug rollover
+}
+
+// Global throttle: space upstream calls out (the API enforces a per-minute burst
+// limit even on paid plans). Retries with backoff when the limit still trips.
+const MIN_INTERVAL_MS = Number(process.env.API_MIN_INTERVAL_MS || 250);
+let nextSlot = 0;
+async function throttle() {
+  const now = Date.now();
+  const wait = Math.max(0, nextSlot - now);
+  nextSlot = Math.max(now, nextSlot) + MIN_INTERVAL_MS;
+  if (wait) await new Promise((r) => setTimeout(r, wait));
+}
+
+async function api(path, params = {}, attempt = 0) {
+  await throttle();
+  const url = new URL(BASE + path);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  const res = await fetch(url, {
+    headers: { 'x-apisports-key': process.env.API_FOOTBALL_KEY },
+  });
+  const retryable = res.status === 429;
+  if (!res.ok && !retryable) throw new Error(`api-football ${path}: HTTP ${res.status}`);
+  const body = retryable ? { errors: { rateLimit: 'HTTP 429' } } : await res.json();
+  if (body.errors && Object.keys(body.errors).length) {
+    const msg = JSON.stringify(body.errors);
+    if (/rate ?limit|too many requests|429/i.test(msg) && attempt < 3) {
+      const backoff = 10_000 * (attempt + 1);
+      console.warn(`[api-football] rate limited on ${path}, retrying in ${backoff / 1000}s`);
+      await new Promise((r) => setTimeout(r, backoff));
+      return api(path, params, attempt + 1);
+    }
+    throw new Error(`api-football ${path}: ${msg}`);
+  }
+  return body.response;
+}
+
+// Limit concurrent upstream calls to stay polite on rate limits.
+async function mapLimit(items, limit, fn) {
+  const out = [];
+  let i = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (i < items.length) { const idx = i++; out[idx] = await fn(items[idx]); }
+    })
+  );
+  return out;
+}
+
+function aggregateStats(entries) {
+  // A player can have stat lines per competition; sum countables, weight pass accuracy.
+  const s = { appearances: 0, minutes: 0, goals: 0, assists: 0, tackles: 0,
+    interceptions: 0, clearances: 0, passesCompleted: 0, passAccuracy: null,
+    yellow: 0, red: 0 };
+  let accWeighted = 0, accWeight = 0;
+  for (const e of entries) {
+    const g = e.games || {}, gl = e.goals || {}, t = e.tackles || {}, pa = e.passes || {}, c = e.cards || {};
+    s.appearances += g.appearences || 0;
+    s.minutes += g.minutes || 0;
+    s.goals += gl.total || 0;
+    s.assists += gl.assists || 0;
+    s.tackles += t.total || 0;
+    s.interceptions += t.interceptions || 0;
+    s.clearances += t.blocks || 0; // API-Football exposes blocks, not clearances; see README
+    s.passesCompleted += pa.total || 0;
+    s.yellow += c.yellow || 0;
+    s.red += c.red || 0;
+    const acc = parseFloat(pa.accuracy);
+    if (!Number.isNaN(acc) && pa.total) { accWeighted += acc * pa.total; accWeight += pa.total; }
+  }
+  s.passAccuracy = accWeight ? Math.round((accWeighted / accWeight) * 10) / 10 : null;
+  return s;
+}
+
+function mapFixture(fx, tracked, playerEvents = new Map()) {
+  const teams = fx.teams || {};
+  const short = fx.fixture.status?.short || 'NS';
+  const status = ['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'].includes(short) ? 'live'
+    : ['FT', 'AET', 'PEN'].includes(short) ? 'finished' : 'scheduled';
+  const clubNames = [teams.home?.name, teams.away?.name];
+  const inMatch = tracked.filter((p) => clubNames.some((n) => clubMatches(n, p.club)));
+  const leagueName = ID_TO_NAME[fx.league?.id] || fx.league?.name;
+  return {
+    id: String(fx.fixture.id),
+    competition: leagueName,
+    league: leagueName,
+    kickoff: fx.fixture.date,
+    home: teams.home?.name, away: teams.away?.name,
+    status,
+    minute: status === 'live' ? fx.fixture.status?.elapsed ?? null : null,
+    homeScore: fx.goals?.home ?? null,
+    awayScore: fx.goals?.away ?? null,
+    trackedPlayers: inMatch.map((p) => ({
+      playerId: p.id, name: p.name, club: p.club,
+      inSquad: playerEvents.get(fx.fixture.id)?.squad?.has(p.apiFootballId) ?? null,
+      goals: playerEvents.get(fx.fixture.id)?.goals?.get(p.apiFootballId) || [],
+    })),
+  };
+}
+
+const fs = require('fs');
+const path = require('path');
+const PLAYERS_FILE = path.join(__dirname, '..', '..', 'data', 'players.json');
+
+function norm(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// Loose club-name comparison: the API's names differ from ours in accents and
+// suffixes ("Club America" vs "Club América", "PSV Eindhoven" vs "PSV").
+function clubMatches(a, b) {
+  const na = norm(a), nb = norm(b);
+  return !!na && !!nb && (na === nb || na.includes(nb) || nb.includes(na));
+}
+
+// Find a tracked player's API-Football id via /players/profiles (season-independent,
+// so it also finds players with zero league minutes). Same-name candidates are
+// disambiguated by probing their stats for the expected club.
+async function resolveId(p) {
+  const tokens = p.name.trim().split(/\s+/);
+  const last = norm(tokens[tokens.length - 1]);
+  const firstInitial = norm(tokens[0]).charAt(0);
+  // The search endpoint only accepts alphanumerics and spaces (no hyphens).
+  const terms = [...new Set([last.replace(/[^a-z0-9 ]/g, ' ').trim(), last.split('-').pop()])]
+    .filter((t) => t.length >= 3);
+  for (const term of terms) {
+    let resp;
+    try { resp = await api('/players/profiles', { search: term }); }
+    catch (e) { console.warn(`[api-football] search '${term}' failed: ${e.message}`); continue; }
+    let cands = resp.filter((it) => {
+      const pl = it.player || {};
+      return norm(pl.lastname).includes(term) || norm(pl.name).includes(term);
+    });
+    const usa = cands.filter((it) => it.player?.nationality === 'USA');
+    if (usa.length) cands = usa;
+    const fi = cands.filter(
+      (it) => norm(it.player?.firstname || it.player?.name || '').charAt(0) === firstInitial
+    );
+    if (fi.length) cands = fi;
+    if (cands.length === 1) return cands[0].player.id;
+    for (const c of cands.slice(0, 4)) {
+      for (const yr of [season(), season() - 1]) {
+        const st = await api('/players', { id: c.player.id, season: yr }).catch(() => []);
+        const teams = (st[0]?.statistics || []).map((x) => x.team?.name);
+        if (teams.some((t) => clubMatches(t, p.club))) return c.player.id;
+      }
+    }
+  }
+  return null;
+}
+
+module.exports = {
+  name: 'api-football',
+  LEAGUE_IDS,
+  api,
+  season,
+
+  async seasonStats(tracked) {
+    const resolved = new Map();
+    const out = await mapLimit(tracked, 2, async (p) => {
+      let id = p.apiFootballId;
+      if (!id) {
+        try {
+          id = await resolveId(p);
+          if (id) resolved.set(p.id, id);
+          else console.warn(`[api-football] could not resolve id for ${p.name} (${p.league})`);
+        } catch (e) {
+          console.warn(`[api-football] id lookup failed for ${p.name}: ${e.message}`);
+        }
+      }
+      if (!id) return { ...p, stats: null };
+      try {
+        const resp = await api('/players', { id, season: season() });
+        // Current-club stats only. This drops national-team lines (World Cup,
+        // friendlies) AND stats from a prior club in the same season — e.g. a
+        // summer signing from MLS would otherwise bring their MLS numbers along.
+        const entries = (resp[0]?.statistics || []).filter(
+          (st) => clubMatches(st.team?.name, p.club)
+        );
+        return { ...p, apiFootballId: id, stats: aggregateStats(entries) };
+      } catch (e) {
+        console.warn(`[api-football] stats failed for ${p.name}: ${e.message}`);
+        return { ...p, apiFootballId: id, stats: null };
+      }
+    });
+    // Persist resolved ids so the lookup is a one-time cost.
+    if (resolved.size) {
+      try {
+        const cur = JSON.parse(fs.readFileSync(PLAYERS_FILE, 'utf8'));
+        for (const entry of cur) {
+          if (resolved.has(entry.id)) entry.apiFootballId = resolved.get(entry.id);
+        }
+        fs.writeFileSync(PLAYERS_FILE, JSON.stringify(cur, null, 2) + '\n');
+        console.log(`[api-football] saved ${resolved.size} resolved player ids to players.json`);
+      } catch (e) {
+        console.warn(`[api-football] could not persist resolved ids: ${e.message}`);
+      }
+    }
+    return out;
+  },
+
+  async getFixtures(tracked) {
+    const leagues = [...new Set(tracked.map((p) => p.league))]
+      .map((l) => LEAGUE_IDS[l]).filter(Boolean);
+    const cupIds = [LEAGUE_IDS['Champions League'], LEAGUE_IDS['Europa League']];
+    const now = new Date();
+    const from = new Date(now - 7 * 864e5).toISOString().slice(0, 10);
+    const to = new Date(+now + 7 * 864e5).toISOString().slice(0, 10);
+    const all = await mapLimit([...leagues, ...cupIds], 3, (id) =>
+      api('/fixtures', { league: id, season: season(), from, to })
+        .catch((e) => { console.warn(`[api-football] fixtures league ${id}: ${e.message}`); return []; })
+    );
+    return all.flat()
+      .filter((fx) => tracked.some((p) =>
+        clubMatches(fx.teams?.home?.name, p.club) || clubMatches(fx.teams?.away?.name, p.club)))
+      .map((fx) => mapFixture(fx, tracked));
+  },
+
+  async getLive(tracked) {
+    const live = await api('/fixtures', { live: 'all' });
+    const relevant = live.filter((fx) => tracked.some((p) =>
+      clubMatches(fx.teams?.home?.name, p.club) || clubMatches(fx.teams?.away?.name, p.club)));
+    // Fetch events + lineups per relevant live fixture for tracked-player goals/squad.
+    const playerEvents = new Map();
+    await mapLimit(relevant, 3, async (fx) => {
+      try {
+        const detail = await api('/fixtures', { id: fx.fixture.id });
+        const d = detail[0] || {};
+        const goals = new Map();
+        for (const ev of d.events || []) {
+          if (ev.type === 'Goal' && ev.player?.id) {
+            if (!goals.has(ev.player.id)) goals.set(ev.player.id, []);
+            goals.get(ev.player.id).push(ev.time?.elapsed);
+          }
+        }
+        const squad = new Set();
+        for (const lineup of d.lineups || []) {
+          for (const x of [...(lineup.startXI || []), ...(lineup.substitutes || [])]) {
+            if (x.player?.id) squad.add(x.player.id);
+          }
+        }
+        playerEvents.set(fx.fixture.id, { goals, squad });
+      } catch (e) {
+        console.warn(`[api-football] live detail ${fx.fixture.id}: ${e.message}`);
+      }
+    });
+    return relevant.map((fx) => mapFixture(fx, tracked, playerEvents));
+  },
+};
