@@ -6,7 +6,9 @@ const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
 });
 
-const SQUAD_BADGES = { start: 'XI', bench: 'SUB', out: 'OUT' };
+const SQUAD_BADGES = { start: 'XI', on: 'ON', bench: 'SUB', out: 'OUT' };
+const SQUAD_RANK = { start: 0, on: 1, bench: 2, out: 3 };
+const byStatus = (a, b) => (SQUAD_RANK[a.squadStatus] ?? 4) - (SQUAD_RANK[b.squadStatus] ?? 4);
 
 const norm = (x) => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const sameClub = (a, b) => {
@@ -54,9 +56,9 @@ function MatchRow({ m, playersById, onOpen }) {
             </span>
           );
         };
-        const home = m.trackedPlayers.filter((p) => sameClub(p.club, m.home));
-        const away = m.trackedPlayers.filter((p) => !home.includes(p) && sameClub(p.club, m.away));
-        const rest = m.trackedPlayers.filter((p) => !home.includes(p) && !away.includes(p));
+        const home = m.trackedPlayers.filter((p) => sameClub(p.club, m.home)).sort(byStatus);
+        const away = m.trackedPlayers.filter((p) => !home.includes(p) && sameClub(p.club, m.away)).sort(byStatus);
+        const rest = m.trackedPlayers.filter((p) => !home.includes(p) && !away.includes(p)).sort(byStatus);
         return (
           <div className="chips-split">
             <div className="chips side home">{home.map(renderChip)}</div>

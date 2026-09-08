@@ -161,7 +161,9 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
       const pe = playerEvents.get(fx.fixture.id);
       const squadStatus = pe?.hasLineups
         ? (pe.start.has(p.apiFootballId) ? 'start'
-          : pe.bench.has(p.apiFootballId) ? 'bench' : 'out')
+          : pe.bench.has(p.apiFootballId)
+            ? (pe.played?.has(p.apiFootballId) ? 'on' : 'bench')
+            : 'out')
         : null;
       return {
         playerId: p.id, name: p.name, club: p.club,
@@ -424,13 +426,23 @@ module.exports = {
             goals.get(ev.player.id).push(ev.time?.elapsed);
           }
         }
-        const start = new Set(), bench = new Set();
+        const start = new Set(), bench = new Set(), played = new Set();
         for (const lineup of d.lineups || []) {
           for (const x of lineup.startXI || []) if (x.player?.id) start.add(x.player.id);
           for (const x of lineup.substitutes || []) if (x.player?.id) bench.add(x.player.id);
         }
+        // Per-player minutes: a bench player with minutes on the board has been
+        // subbed on (more reliable than parsing subst events, whose in/out field
+        // order is ambiguous in this API).
+        for (const teamBlock of d.players || []) {
+          for (const pp of teamBlock.players || []) {
+            if (pp.player?.id && (pp.statistics?.[0]?.games?.minutes || 0) > 0) {
+              played.add(pp.player.id);
+            }
+          }
+        }
         playerEvents.set(fx.fixture.id, {
-          goals, start, bench, hasLineups: (d.lineups || []).length > 0,
+          goals, start, bench, played, hasLineups: (d.lineups || []).length > 0,
         });
       } catch (e) {
         console.warn(`[api-football] live detail ${fx.fixture.id}: ${e.message}`);

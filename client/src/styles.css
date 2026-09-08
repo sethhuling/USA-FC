@@ -335,6 +335,7 @@ section h2.section-live { color: var(--live); }
   font-size: 0.6rem; font-weight: 800; letter-spacing: 0.03em; vertical-align: 1px;
 }
 .squad-badge.start { background: var(--accent); color: #fff; }
+.squad-badge.on { background: var(--live); color: #fff; }
 .squad-badge.bench { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
 .squad-badge.out { background: var(--border); color: var(--muted); }
 .chip.benched-out { opacity: 0.55; }
