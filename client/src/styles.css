@@ -192,7 +192,8 @@ section h2.section-live { color: var(--live); }
 /* Player sheet */
 .sheet-backdrop {
   position: fixed; inset: 0; background: rgba(0,0,0,0.45);
-  display: flex; align-items: flex-end; justify-content: center; z-index: 20;
+  /* Above the sticky topbar (40) and hovercards (60): modals own the screen. */
+  display: flex; align-items: flex-end; justify-content: center; z-index: 100;
 }
 .sheet {
   background: var(--card); width: 100%; max-width: 720px;
