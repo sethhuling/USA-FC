@@ -1,0 +1,16 @@
+{
+  "name": "USA FC — Americans Abroad",
+  "short_name": "USA FC",
+  "description": "Tracks American soccer players at clubs outside the United States: live scores, stats, and where to watch.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A3161",
+  "theme_color": "#0A3161",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
