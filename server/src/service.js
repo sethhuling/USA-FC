@@ -21,6 +21,7 @@ async function getMeta() {
     provider: provider.name,
     demo: provider.name === 'demo',
     trackedCount: trackedPlayers().length,
+    upstream: provider.diag || null,
   };
 }
 

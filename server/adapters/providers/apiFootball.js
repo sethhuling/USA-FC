@@ -36,6 +36,10 @@ function season() {
   return d.getMonth() >= 7 ? d.getFullYear() : d.getFullYear() - 1; // Aug rollover
 }
 
+// Diagnostics: remember the most recent upstream failure so /api/meta can
+// report it (message only — never the key).
+const diag = { lastError: null, lastErrorAt: null, lastSuccessAt: null };
+
 // Global throttle: space upstream calls out (the API enforces a per-minute burst
 // limit even on paid plans). Retries with backoff when the limit still trips.
 const MIN_INTERVAL_MS = Number(process.env.API_MIN_INTERVAL_MS || 250);
@@ -55,7 +59,11 @@ async function api(path, params = {}, attempt = 0) {
     headers: { 'x-apisports-key': process.env.API_FOOTBALL_KEY },
   });
   const retryable = res.status === 429;
-  if (!res.ok && !retryable) throw new Error(`api-football ${path}: HTTP ${res.status}`);
+  if (!res.ok && !retryable) {
+    diag.lastError = `${path}: HTTP ${res.status}`;
+    diag.lastErrorAt = new Date().toISOString();
+    throw new Error(`api-football ${path}: HTTP ${res.status}`);
+  }
   const body = retryable ? { errors: { rateLimit: 'HTTP 429' } } : await res.json();
   if (body.errors && Object.keys(body.errors).length) {
     const msg = JSON.stringify(body.errors);
@@ -65,8 +73,11 @@ async function api(path, params = {}, attempt = 0) {
       await new Promise((r) => setTimeout(r, backoff));
       return api(path, params, attempt + 1);
     }
+    diag.lastError = `${path}: ${msg}`;
+    diag.lastErrorAt = new Date().toISOString();
     throw new Error(`api-football ${path}: ${msg}`);
   }
+  diag.lastSuccessAt = new Date().toISOString();
   return body.response;
 }
 
@@ -189,6 +200,7 @@ module.exports = {
   LEAGUE_IDS,
   api,
   season,
+  diag,
 
   async seasonStats(tracked) {
     const resolved = new Map();
@@ -241,10 +253,17 @@ module.exports = {
     const now = new Date();
     const from = new Date(now - 7 * 864e5).toISOString().slice(0, 10);
     const to = new Date(+now + 7 * 864e5).toISOString().slice(0, 10);
-    const all = await mapLimit([...leagues, ...cupIds], 3, (id) =>
+    let failures = 0;
+    const ids = [...leagues, ...cupIds];
+    const all = await mapLimit(ids, 3, (id) =>
       api('/fixtures', { league: id, season: season(), from, to })
-        .catch((e) => { console.warn(`[api-football] fixtures league ${id}: ${e.message}`); return []; })
+        .catch((e) => { failures++; console.warn(`[api-football] fixtures league ${id}: ${e.message}`); return []; })
     );
+    if (failures === ids.length) {
+      // Total upstream failure: throw so the cache serves stale data instead
+      // of storing an empty schedule for an hour.
+      throw new Error('all fixture requests failed — see /api/meta diagnostics');
+    }
     return all.flat()
       .filter((fx) => tracked.some((p) =>
         clubMatches(fx.teams?.home?.name, p.club) || clubMatches(fx.teams?.away?.name, p.club)))
