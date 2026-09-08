@@ -12,7 +12,7 @@ async function forMatch(match) {
   }
   const fallback = config.forCompetition(match.competition);
   if (fallback) return { service: fallback, source: 'league-config' };
-  return { service: 'Unknown — check LiveSoccerTV', source: 'none' };
+  return { service: 'Unknown', source: 'none' };
 }
 
 module.exports = { forMatch };

@@ -71,10 +71,6 @@ function MatchRow({ m, playersById, onOpen }) {
       <div className="match-bottom">
         <span className="stream">
           📺 {m.streaming?.service || 'Unknown'}
-          <span className="stream-source">
-            {m.streaming?.source === 'league-config' ? ' (league default)'
-              : m.streaming?.source === 'livesoccertv' ? ' (LiveSoccerTV)' : ''}
-          </span>
         </span>
       </div>
     </div>
