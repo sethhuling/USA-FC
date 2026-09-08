@@ -3,6 +3,7 @@ import { fetchMeta, fetchPlayers, fetchMatches } from './api.js';
 import ScheduleTab from './components/ScheduleTab.jsx';
 import StatsTab from './components/StatsTab.jsx';
 import PlayersTab from './components/PlayersTab.jsx';
+import { ProfileProvider } from './components/PlayerProfile.jsx';
 
 const TABS = [
   { key: 'schedule', label: 'Schedule', icon: '📅' },
@@ -45,6 +46,7 @@ export default function App() {
   }, [anyLive, loadMatches]);
 
   return (
+    <ProfileProvider>
     <div className="app">
       <header className="topbar">
         <img src="/crest.svg" alt="USA FC crest" className="crest" />
@@ -82,5 +84,6 @@ export default function App() {
         ))}
       </nav>
     </div>
+    </ProfileProvider>
   );
 }

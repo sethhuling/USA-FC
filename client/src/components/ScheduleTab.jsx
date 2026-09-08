@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
+import { PlayerLink } from './PlayerProfile.jsx';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
 });
 
-function MatchRow({ m }) {
+function MatchRow({ m, playersById }) {
   const kickoff = new Date(m.kickoff);
   const scorers = m.trackedPlayers.filter((p) => p.goals?.length > 0);
   return (
@@ -27,12 +28,18 @@ function MatchRow({ m }) {
       </div>
       {m.trackedPlayers.length > 0 && (
         <div className="chips">
-          {m.trackedPlayers.map((p) => (
-            <span key={p.playerId} className={p.goals?.length ? 'chip scored' : 'chip'}>
+          {m.trackedPlayers.map((p) => {
+            const full = playersById.get(p.playerId);
+            const label = <>
               {p.name}
               {p.goals?.length > 0 && ` ⚽ ${p.goals.map((g) => `${g}′`).join(' ')}`}
-            </span>
-          ))}
+            </>;
+            return (
+              <span key={p.playerId} className={p.goals?.length ? 'chip scored' : 'chip'}>
+                {full ? <PlayerLink player={full}>{label}</PlayerLink> : label}
+              </span>
+            );
+          })}
         </div>
       )}
       <div className="match-bottom">
@@ -54,6 +61,7 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
 
   const leagues = useMemo(
     () => [...new Set(matches.map((m) => m.league))].sort(), [matches]);
+  const playersById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 
   const filtered = useMemo(() => matches.filter((m) => {
     if (league !== 'all' && m.league !== league) return false;
@@ -83,19 +91,19 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
       {live.length > 0 && (
         <section>
           <h2 className="section-live">Live now</h2>
-          {live.map((m) => <MatchRow key={m.id} m={m} />)}
+          {live.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} />)}
         </section>
       )}
       {upcoming.length > 0 && (
         <section>
           <h2>Upcoming</h2>
-          {upcoming.map((m) => <MatchRow key={m.id} m={m} />)}
+          {upcoming.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} />)}
         </section>
       )}
       {finished.length > 0 && (
         <section>
           <h2>Results</h2>
-          {finished.map((m) => <MatchRow key={m.id} m={m} />)}
+          {finished.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} />)}
         </section>
       )}
       {filtered.length === 0 && <p className="empty">No matches for this filter.</p>}

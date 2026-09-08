@@ -195,12 +195,57 @@ async function resolveId(p) {
   return null;
 }
 
+// Full player profile: bio + photo, per-season career rows, transfer history.
+// Costs up to ~15 throttled calls the first time; the service layer caches it.
+async function playerProfile(p) {
+  const id = p.apiFootballId;
+  if (!id) return { player: p, bio: null, career: [], national: [], transfers: [] };
+
+  const [profResp, seasonsResp, transfersResp] = [
+    await api('/players/profiles', { player: id }).catch(() => []),
+    await api('/players/seasons', { player: id }).catch(() => []),
+    await api('/transfers', { player: id }).catch(() => []),
+  ];
+
+  const bio = profResp[0]?.player || null;
+
+  const years = (seasonsResp || []).filter((y) => Number.isInteger(y)).sort((a, b) => b - a).slice(0, 12);
+  const career = [];
+  const national = [];
+  for (const year of years) {
+    const resp = await api('/players', { id, season: year }).catch(() => []);
+    const byTeam = new Map();
+    for (const st of resp[0]?.statistics || []) {
+      const team = st.team?.name || '?';
+      const row = byTeam.get(team) || { season: year, team, leagues: new Set(),
+        apps: 0, goals: 0, assists: 0, minutes: 0 };
+      row.leagues.add(st.league?.name);
+      row.apps += st.games?.appearences || 0;
+      row.goals += st.goals?.total || 0;
+      row.assists += st.goals?.assists || 0;
+      row.minutes += st.games?.minutes || 0;
+      byTeam.set(team, row);
+    }
+    for (const row of byTeam.values()) {
+      row.leagues = [...row.leagues].filter(Boolean).join(', ');
+      (norm(row.team) === 'usa' ? national : career).push(row);
+    }
+  }
+
+  const transfers = (transfersResp[0]?.transfers || [])
+    .map((t) => ({ date: t.date, from: t.teams?.out?.name, to: t.teams?.in?.name, type: t.type }))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  return { player: p, bio, career, national, transfers };
+}
+
 module.exports = {
   name: 'api-football',
   LEAGUE_IDS,
   api,
   season,
   diag,
+  playerProfile,
 
   async seasonStats(tracked) {
     const resolved = new Map();

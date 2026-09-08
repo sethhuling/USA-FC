@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { leagueCountry, leagueCountryCode } from '../leagues.js';
+import { leagueCountryCode } from '../leagues.js';
+import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
 
 const PRESETS = [
   { key: 'goals', label: 'Goals' },
@@ -28,50 +29,11 @@ function statValue(p, key) {
   return p.stats[key] ?? -1;
 }
 
-function PlayerSheet({ player, onClose }) {
-  if (!player) return null;
-  const s = player.stats;
-  const rows = s ? [
-    ['Appearances', s.appearances], ['Minutes', s.minutes], ['Goals', s.goals],
-    ['Assists', s.assists], ['Tackles', s.tackles], ['Interceptions', s.interceptions],
-    ['Clearances/blocks', s.clearances],
-    ['Defensive actions', (s.tackles || 0) + (s.interceptions || 0) + (s.clearances || 0)],
-    ['Passes completed', s.passesCompleted],
-    ['Pass accuracy', s.passAccuracy != null ? `${s.passAccuracy}%` : '—'],
-    ['Yellow cards', s.yellow], ['Red cards', s.red],
-  ] : [];
-  return (
-    <div className="sheet-backdrop" onClick={onClose}>
-      <div className="sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-header">
-          <div>
-            <h3>{player.name}</h3>
-            <p className="sheet-sub">
-              {player.position} · {player.club}
-              {leagueCountry(player.league) && ` (${leagueCountry(player.league)})`} · {player.league}
-            </p>
-          </div>
-          <button className="close" onClick={onClose} aria-label="Close">✕</button>
-        </div>
-        {s ? (
-          <table className="statline">
-            <tbody>
-              {rows.map(([k, v]) => (
-                <tr key={k}><td>{k}</td><td className="num">{v}</td></tr>
-              ))}
-            </tbody>
-          </table>
-        ) : <p className="empty">No season stats available for this player.</p>}
-      </div>
-    </div>
-  );
-}
-
 export default function StatsTab({ players }) {
   const [sortKey, setSortKey] = useState('goals');
   const [league, setLeague] = useState('all');
   const [pos, setPos] = useState('all');
-  const [selected, setSelected] = useState(null);
+  const openProfile = useOpenProfile();
 
   const leagues = useMemo(() => [...new Set(players.map((p) => p.league))].sort(), [players]);
 
@@ -121,9 +83,9 @@ export default function StatsTab({ players }) {
           </thead>
           <tbody>
             {rows.map((p) => (
-              <tr key={p.id} onClick={() => setSelected(p)}>
+              <tr key={p.id} onClick={() => openProfile(p)}>
                 <td className="sticky-col">
-                  <div className="cell-name">{p.name}</div>
+                  <div className="cell-name"><PlayerLink player={p} /></div>
                   <div className="cell-sub">
                     {p.club}
                     {leagueCountryCode(p.league) && ` · ${leagueCountryCode(p.league)}`}
@@ -140,7 +102,6 @@ export default function StatsTab({ players }) {
         </table>
       </div>
       {rows.length === 0 && <p className="empty">No players match this filter.</p>}
-      <PlayerSheet player={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }

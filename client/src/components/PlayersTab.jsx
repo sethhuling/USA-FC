@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
+import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
 
 export default function PlayersTab({ players }) {
   const [q, setQ] = useState('');
+  const openProfile = useOpenProfile();
 
   const grouped = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -34,8 +36,8 @@ export default function PlayersTab({ players }) {
           <h2>{league} <span className="count">({list.length})</span></h2>
           <div className="player-grid">
             {list.map((p) => (
-              <div key={p.id} className="player-card">
-                <div className="cell-name">{p.name}</div>
+              <div key={p.id} className="player-card clickable" onClick={() => openProfile(p)}>
+                <div className="cell-name"><PlayerLink player={p} /></div>
                 <div className="cell-sub">{p.position} · {p.club}</div>
               </div>
             ))}

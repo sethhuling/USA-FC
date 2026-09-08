@@ -61,6 +61,10 @@ function scoreFromScript(script, upToMin) {
 
 module.exports = {
   name: 'demo',
+  async playerProfile(p) {
+    return { player: { ...p, stats: STATS[p.id] || null }, bio: null,
+      career: [], national: [], transfers: [], demo: true };
+  },
   async seasonStats(tracked) {
     return tracked.map((p) => ({ ...p, stats: STATS[p.id] || null }));
   },

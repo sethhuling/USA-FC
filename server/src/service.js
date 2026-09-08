@@ -5,6 +5,8 @@ const provider = require('../adapters/providers');
 const streaming = require('../adapters/streaming');
 
 const TTL = {
+  profile: 7 * 24 * 60 * 60 * 1000, // bio/career: weekly
+
   stats: 24 * 60 * 60 * 1000, // player season stats: daily
   schedule: 60 * 60 * 1000,   // fixtures: hourly
   live: 60 * 1000,            // live matches: 60s
@@ -49,4 +51,17 @@ async function getMatches() {
   return { source: provider.name, matches: withStreaming };
 }
 
-module.exports = { getPlayers, getMatches, getMeta };
+async function getPlayerProfile(id) {
+  const p = trackedPlayers().find((x) => x.id === id);
+  if (!p) return null;
+  const profile = await cache.wrap(`profile:${id}`, TTL.profile, () => provider.playerProfile(p));
+  // Current-season stats come from the (fresher) players cache when available.
+  try {
+    const { players } = await getPlayers();
+    const cur = players.find((x) => x.id === id);
+    if (cur?.stats) return { ...profile, player: { ...profile.player, stats: cur.stats } };
+  } catch { /* fall through with profile as-is */ }
+  return profile;
+}
+
+module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile };
