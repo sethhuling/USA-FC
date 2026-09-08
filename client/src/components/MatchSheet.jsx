@@ -82,24 +82,27 @@ export default function MatchSheet({ match, playersById, onClose }) {
   return createPortal(
     <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet profile-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-header">
-          <div>
-            <h3>{m.competition}</h3>
-            <p className="sheet-sub">
-              {m.status === 'live' ? `${m.minute}′ LIVE` : m.status === 'finished' ? 'Full time' : kickoffFmt.format(kickoff)}
-            </p>
+        <div className="match-hero">
+          <div className="sheet-header">
+            <div>
+              <h3>{m.competition}</h3>
+              <p className="sheet-sub">
+                {m.status === 'live' ? `${m.minute}′ LIVE` : m.status === 'finished' ? 'Full time' : kickoffFmt.format(kickoff)}
+              </p>
+            </div>
+            <button className="close" onClick={onClose} aria-label="Close">✕</button>
           </div>
-          <button className="close" onClick={onClose} aria-label="Close">✕</button>
+          <div className="score-block">
+            <span className="team-name"><TeamLink id={m.homeId} name={m.home} /></span>
+            <span className={m.status === 'live' ? 'big-score live' : 'big-score'}>
+              {m.status === 'scheduled' ? 'vs' : `${m.homeScore} – ${m.awayScore}`}
+            </span>
+            <span className="team-name"><TeamLink id={m.awayId} name={m.away} /></span>
+          </div>
         </div>
 
-        <div className="score-block">
-          <span className="team-name"><TeamLink id={m.homeId} name={m.home} /></span>
-          <span className={m.status === 'live' ? 'big-score live' : 'big-score'}>
-            {m.status === 'scheduled' ? 'vs' : `${m.homeScore} – ${m.awayScore}`}
-          </span>
-          <span className="team-name"><TeamLink id={m.awayId} name={m.away} /></span>
-        </div>
-
+        <section className="p-section">
+        <h4 className="profile-h">Match info</h4>
         <div className="match-meta">
           {detail?.venue && (
             <div>📍 {detail.venue.name}{detail.venue.city ? `, ${detail.venue.city}` : ''}</div>
@@ -110,13 +113,14 @@ export default function MatchSheet({ match, playersById, onClose }) {
             <div><a className="ticket-link" href={ticketUrl} target="_blank" rel="noreferrer">🎟 Find tickets</a></div>
           )}
         </div>
+        </section>
 
         {!detail && !failed && <p className="empty">Loading match details…</p>}
         {failed && <p className="empty">Couldn’t load match details right now.</p>}
         {detail?.demo && <p className="empty">Demo mode — lineups and match stats need an API key.</p>}
 
         {events.length > 0 && (
-          <>
+          <section className="p-section">
             <h4 className="profile-h">Events</h4>
             <ul className="event-list">
               {events.map((e, i) => (
@@ -129,23 +133,23 @@ export default function MatchSheet({ match, playersById, onClose }) {
                 </li>
               ))}
             </ul>
-          </>
+          </section>
         )}
 
         {detail?.lineups ? (
-          <>
+          <section className="p-section">
             <h4 className="profile-h">Lineups</h4>
             <div className="lineups">
               <LineupSide side={detail.lineups.home} playersById={playersById} />
               <LineupSide side={detail.lineups.away} playersById={playersById} />
             </div>
-          </>
+          </section>
         ) : detail && !detail.demo && m.status === 'scheduled' ? (
           <p className="empty">Lineups not announced yet — usually ~1 hour before kickoff.</p>
         ) : null}
 
         {statRows.length > 0 && (
-          <>
+          <section className="p-section">
             <h4 className="profile-h">Match stats</h4>
             <table className="match-stats">
               <tbody>
@@ -158,7 +162,7 @@ export default function MatchSheet({ match, playersById, onClose }) {
                 ))}
               </tbody>
             </table>
-          </>
+          </section>
         )}
       </div>
     </div>,

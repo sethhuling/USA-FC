@@ -425,3 +425,18 @@ section h2.section-live { color: var(--live); }
 .fx-opp { flex: 1; font-weight: 600; }
 .fx-score { font-weight: 800; font-variant-numeric: tabular-nums; }
 .fx-comp { color: var(--muted); font-size: 0.68rem; text-align: right; max-width: 90px; }
+
+/* Match sheet hero band */
+.match-hero {
+  background: linear-gradient(135deg, #0A3161 0%, #17457f 100%);
+  margin: -16px -16px 12px; padding: 16px 16px 18px;
+  border-radius: 18px 18px 0 0; color: #fff;
+}
+.match-hero h3 { color: #fff; }
+.match-hero .sheet-sub { color: #c9d6ec; }
+.match-hero .close { background: rgba(255,255,255,0.16); color: #fff; border: none; }
+.match-hero .score-block { margin: 12px 0 0; }
+.match-hero .team-name { color: #fff; }
+.match-hero .big-score { background: rgba(255,255,255,0.14); color: #fff; }
+.match-hero .big-score.live { background: var(--live); color: #fff; }
+.p-section .match-meta { margin-bottom: 0; }
