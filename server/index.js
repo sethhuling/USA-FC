@@ -2,7 +2,7 @@ require('./src/env');
 const express = require('express');
 const path = require('path');
 const rateLimit = require('./src/rateLimit');
-const { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail, getLeagues } = require('./src/service');
+const { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail, getLeagues, getTeamOverview } = require('./src/service');
 
 const app = express();
 app.set('trust proxy', 1); // real client IPs behind cloud proxies (Render, etc.)
@@ -20,6 +20,13 @@ app.get('/api/matches', async (req, res) => {
 });
 app.get('/api/leagues', async (req, res) => {
   try { res.json(await getLeagues()); } catch (e) { res.status(502).json({ error: e.message }); }
+});
+app.get('/api/team/:id', async (req, res) => {
+  try {
+    const team = await getTeamOverview(Number(req.params.id));
+    if (!team) return res.status(404).json({ error: 'unknown team' });
+    res.json(team);
+  } catch (e) { res.status(502).json({ error: e.message }); }
 });
 app.get('/api/match/:id', async (req, res) => {
   try {

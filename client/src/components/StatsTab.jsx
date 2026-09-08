@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { fetchLeagues } from '../api.js';
 import { leagueCountryCode } from '../leagues.js';
 import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
+import { TeamLink } from './TeamSheet.jsx';
 
 const PRESETS = [
   { key: 'goals', label: 'Goals' },
@@ -125,7 +126,7 @@ export default function StatsTab({ players }) {
                 <td className="sticky-col">
                   <div className="cell-name"><PlayerLink player={p} /></div>
                   <div className="cell-sub">
-                    {p.club}
+                    <TeamLink id={p.apiFootballTeamId} name={p.club} />
                     {leagueCountryCode(p.league) && ` · ${leagueCountryCode(p.league)}`}
                   </div>
                 </td>

@@ -153,6 +153,7 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
     league: leagueName,
     kickoff: fx.fixture.date,
     home: teams.home?.name, away: teams.away?.name,
+    homeId: teams.home?.id ?? null, awayId: teams.away?.id ?? null,
     status,
     minute: status === 'live' ? fx.fixture.status?.elapsed ?? null : null,
     homeScore: fx.goals?.home ?? null,
@@ -255,6 +256,48 @@ async function leagueRounds(leagueNames) {
   return out;
 }
 
+// Team overview: club info + venue, standings across competitions, tracked
+// Americans, recent results, and upcoming schedule. 4 upstream calls, cached.
+async function teamOverview(teamId, tracked) {
+  const infoResp = await api('/teams', { id: teamId }).catch(() => []);
+  const info = infoResp[0];
+  if (!info) return null;
+  const standingsResp = await api('/standings', { season: season(), team: teamId }).catch(() => []);
+  const next = await api('/fixtures', { team: teamId, next: 7 }).catch(() => []);
+  const last = await api('/fixtures', { team: teamId, last: 5 }).catch(() => []);
+
+  const standings = [];
+  for (const entry of standingsResp) {
+    for (const group of entry.league?.standings || []) {
+      const row = group.find((r) => r.team?.id === teamId);
+      if (row) {
+        standings.push({
+          competition: ID_TO_NAME[entry.league?.id] || entry.league?.name,
+          rank: row.rank, points: row.points, played: row.all?.played,
+          win: row.all?.win, draw: row.all?.draw, lose: row.all?.lose,
+          goalsFor: row.all?.goals?.for, goalsAgainst: row.all?.goals?.against,
+          form: row.form || null,
+        });
+      }
+    }
+  }
+
+  return {
+    id: teamId,
+    name: info.team?.name, logo: info.team?.logo || null,
+    country: info.team?.country || null, founded: info.team?.founded || null,
+    venue: info.venue?.name
+      ? { name: info.venue.name, city: info.venue.city || null, capacity: info.venue.capacity || null }
+      : null,
+    standings,
+    americans: tracked
+      .filter((p) => p.apiFootballTeamId === teamId)
+      .map((p) => ({ playerId: p.id, name: p.name, position: p.position })),
+    recent: last.map((fx) => mapFixture(fx, tracked)),
+    upcoming: next.map((fx) => mapFixture(fx, tracked)),
+  };
+}
+
 // Full player profile: bio + photo, per-season career rows, transfer history.
 // Costs up to ~15 throttled calls the first time; the service layer caches it.
 async function playerProfile(p) {
@@ -355,6 +398,7 @@ module.exports = {
   playerProfile,
   matchDetail,
   leagueRounds,
+  teamOverview,
 
   async seasonStats(tracked) {
     const resolved = new Map();

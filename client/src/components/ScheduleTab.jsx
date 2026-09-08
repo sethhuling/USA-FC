@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { PlayerLink } from './PlayerProfile.jsx';
 import MatchSheet from './MatchSheet.jsx';
+import { TeamLink } from './TeamSheet.jsx';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
@@ -31,11 +32,11 @@ function MatchRow({ m, playersById, onOpen }) {
         {m.status === 'scheduled' && <span className="kickoff">{timeFmt.format(kickoff)}</span>}
       </div>
       <div className="match-teams">
-        <span className="team home">{m.home}</span>
+        <span className="team home"><TeamLink id={m.homeId} name={m.home} /></span>
         <span className="score">
           {m.status === 'scheduled' ? 'vs' : `${m.homeScore} – ${m.awayScore}`}
         </span>
-        <span className="team away">{m.away}</span>
+        <span className="team away"><TeamLink id={m.awayId} name={m.away} /></span>
       </div>
       {m.trackedPlayers.length > 0 && (() => {
         const renderChip = (p) => {

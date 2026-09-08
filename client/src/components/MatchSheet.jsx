@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { fetchMatchDetail } from '../api.js';
 import { PlayerLink } from './PlayerProfile.jsx';
+import { TeamLink } from './TeamSheet.jsx';
 
 const kickoffFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
@@ -92,11 +93,11 @@ export default function MatchSheet({ match, playersById, onClose }) {
         </div>
 
         <div className="score-block">
-          <span className="team-name">{m.home}</span>
+          <span className="team-name"><TeamLink id={m.homeId} name={m.home} /></span>
           <span className={m.status === 'live' ? 'big-score live' : 'big-score'}>
             {m.status === 'scheduled' ? 'vs' : `${m.homeScore} – ${m.awayScore}`}
           </span>
-          <span className="team-name">{m.away}</span>
+          <span className="team-name"><TeamLink id={m.awayId} name={m.away} /></span>
         </div>
 
         <div className="match-meta">

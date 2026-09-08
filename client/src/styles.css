@@ -365,3 +365,34 @@ section h2.section-live { color: var(--live); }
 }
 .league-toggle.off .lt-round { opacity: 0.6; }
 .league-toggle.reset { background: var(--live); border-color: var(--live); }
+
+/* ---------- Team pages ---------- */
+.team-link { cursor: pointer; }
+.team-link:hover { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+.team-logo {
+  width: 56px; height: 56px; object-fit: contain; flex-shrink: 0;
+  border-radius: 12px; background: var(--accent-soft); padding: 4px;
+}
+.team-logo.placeholder { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.standing-line {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding: 6px 0; border-top: 1px solid var(--border); font-size: 0.84rem;
+}
+.form-run { display: flex; gap: 3px; }
+.wdl {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 5px;
+  font-size: 0.62rem; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.wdl.W { background: var(--accent); }
+.wdl.D { background: var(--muted); }
+.wdl.L { background: var(--live); }
+.fixture-list { list-style: none; margin: 0; padding: 0; }
+.fixture-line {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; border-top: 1px solid var(--border); font-size: 0.8rem;
+}
+.fx-date { color: var(--muted); min-width: 88px; }
+.fx-opp { flex: 1; font-weight: 600; }
+.fx-score { font-weight: 800; font-variant-numeric: tabular-nums; }
+.fx-comp { color: var(--muted); font-size: 0.68rem; text-align: right; max-width: 90px; }

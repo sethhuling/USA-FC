@@ -4,6 +4,7 @@ import ScheduleTab from './components/ScheduleTab.jsx';
 import StatsTab from './components/StatsTab.jsx';
 import PlayersTab from './components/PlayersTab.jsx';
 import { ProfileProvider } from './components/PlayerProfile.jsx';
+import { TeamProvider } from './components/TeamSheet.jsx';
 
 const TABS = [
   { key: 'schedule', label: 'Schedule', icon: '📅' },
@@ -53,8 +54,11 @@ export default function App() {
     return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); };
   }, [anyLive, loadMatches]);
 
+  const playersById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
+
   return (
     <ProfileProvider>
+    <TeamProvider playersById={playersById}>
     <div className="app">
       <header className={scrolled ? "topbar scrolled" : "topbar"}>
         <img src="/crest.svg" alt="USA FC crest" className="crest" />
@@ -97,6 +101,7 @@ export default function App() {
         ))}
       </nav>
     </div>
+    </TeamProvider>
     </ProfileProvider>
   );
 }

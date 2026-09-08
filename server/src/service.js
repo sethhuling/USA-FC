@@ -88,6 +88,12 @@ async function getLeagues() {
   return { leagues: names.map((n) => ({ name: n, round: rounds[n] ?? null })) };
 }
 
+async function getTeamOverview(teamId) {
+  if (!provider.teamOverview) return null;
+  const tracked = trackedPlayers();
+  return cache.wrap(`team:${teamId}`, 6 * 60 * 60 * 1000, () => provider.teamOverview(teamId, tracked));
+}
+
 async function getMatchDetail(id) {
   const tracked = trackedPlayers();
   const detail = await cache.wrap(`match:${id}`, TTL.live, () => provider.matchDetail(id, tracked));
@@ -108,4 +114,4 @@ async function getPlayerProfile(id) {
   return profile;
 }
 
-module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail, getLeagues };
+module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail, getLeagues, getTeamOverview };

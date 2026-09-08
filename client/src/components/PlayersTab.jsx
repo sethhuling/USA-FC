@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
+import { TeamLink } from './TeamSheet.jsx';
 
 export default function PlayersTab({ players }) {
   const [q, setQ] = useState('');
@@ -38,7 +39,7 @@ export default function PlayersTab({ players }) {
             {list.map((p) => (
               <div key={p.id} className="player-card clickable" onClick={() => openProfile(p)}>
                 <div className="cell-name"><PlayerLink player={p} /></div>
-                <div className="cell-sub">{p.position} · {p.club}</div>
+                <div className="cell-sub">{p.position} · <TeamLink id={p.apiFootballTeamId} name={p.club} /></div>
               </div>
             ))}
           </div>

@@ -30,3 +30,13 @@ export async function fetchMatchDetail(id) {
 }
 
 export const fetchLeagues = () => get('/api/leagues');
+
+const teamCache = new Map();
+export function fetchTeamOverview(id) {
+  if (!teamCache.has(id)) {
+    const p = get(`/api/team/${encodeURIComponent(id)}`)
+      .catch((e) => { teamCache.delete(id); throw e; });
+    teamCache.set(id, p);
+  }
+  return teamCache.get(id);
+}
