@@ -32,7 +32,8 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+html, html { background: #0A3161; }
+body { margin: 0; padding: 0; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -50,13 +51,26 @@ body {
 }
 
 .topbar {
+  position: sticky; top: 0; z-index: 40;
   display: flex; align-items: center; gap: 10px;
-  margin: 8px 12px 4px; padding: 10px 14px;
-  background: #0A3161; border-radius: 14px;
+  margin: 0 0 6px;
+  /* Tall at rest: clears the iPhone camera/notch in standalone mode
+     (safe-area inset is 0 in a regular browser tab). */
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px 14px;
+  background: #0A3161; border-radius: 0 0 14px 14px;
+  transition: padding 0.25s ease;
 }
-.topbar h1 { font-size: 1.3rem; margin: 0; letter-spacing: 0.02em; color: #fff; font-style: italic; }
-.crest { height: 36px; width: auto; }
+.topbar h1 {
+  font-size: 1.3rem; margin: 0; letter-spacing: 0.02em; color: #fff; font-style: italic;
+  transition: opacity 0.25s ease;
+}
+.crest { height: 40px; width: auto; transition: height 0.25s ease; }
 .topbar .live-dot { margin-left: auto; color: #ff8098; }
+/* Scrolled: shrink to the old compact height; title fades, crest stays.
+   Safe-area padding is kept so the bar never rides under the camera. */
+.topbar.scrolled { padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 8px; }
+.topbar.scrolled h1 { opacity: 0; }
+.topbar.scrolled .crest { height: 30px; }
 .live-dot { color: var(--live); font-size: 0.75rem; font-weight: 700; animation: pulse 1.6s infinite; }
 @keyframes pulse { 50% { opacity: 0.45; } }
 

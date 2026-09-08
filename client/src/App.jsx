@@ -18,6 +18,14 @@ export default function App() {
   const [matches, setMatches] = useState([]);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const loadMatches = useCallback(async () => {
     try {
@@ -48,7 +56,7 @@ export default function App() {
   return (
     <ProfileProvider>
     <div className="app">
-      <header className="topbar">
+      <header className={scrolled ? "topbar scrolled" : "topbar"}>
         <img src="/crest.svg" alt="USA FC crest" className="crest" />
         <h1>USA FC</h1>
         {anyLive && <span className="live-dot" title="Live matches in progress">● LIVE</span>}
