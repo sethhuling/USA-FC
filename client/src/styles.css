@@ -346,3 +346,22 @@ section h2.section-live { color: var(--live); }
 .chips-split .side.home { flex: 1; justify-content: flex-start; align-content: flex-start; }
 .chips-split .side.away { flex: 1; justify-content: flex-end; align-content: flex-start; }
 .chips-split .side.rest { width: 100%; justify-content: center; }
+
+/* League toggle pills with current matchweek */
+.league-row {
+  display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 8px;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.league-row::-webkit-scrollbar { display: none; }
+.league-toggle {
+  flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+  gap: 1px; padding: 5px 11px; border-radius: 999px;
+  border: 1px solid var(--accent); background: var(--accent); color: #fff;
+  font-size: 0.72rem; font-weight: 700; cursor: pointer; line-height: 1.15;
+}
+.league-toggle .lt-round { font-size: 0.62rem; font-weight: 600; opacity: 0.85; }
+.league-toggle.off {
+  background: transparent; color: var(--muted); border-color: var(--border);
+}
+.league-toggle.off .lt-round { opacity: 0.6; }
+.league-toggle.reset { background: var(--live); border-color: var(--live); }

@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { fetchLeagues } from '../api.js';
 import { leagueCountryCode } from '../leagues.js';
 import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
 
@@ -21,6 +22,16 @@ const COLUMNS = [
   { key: 'defensive', label: 'Def' },
 ];
 
+// "Regular Season - 4" -> "Wk 4"; "Apertura - 8" -> "Ap 8"; else show as-is, shortened.
+function roundLabel(round) {
+  if (!round) return null;
+  let m = round.match(/Regular Season\s*-\s*(\d+)/i);
+  if (m) return `Wk ${m[1]}`;
+  m = round.match(/(Apertura|Clausura)\s*-\s*(\d+)/i);
+  if (m) return `${m[1].slice(0, 2)} ${m[2]}`;
+  return round.length > 14 ? `${round.slice(0, 13)}…` : round;
+}
+
 function statValue(p, key) {
   if (!p.stats) return -1;
   if (key === 'defensive') {
@@ -31,17 +42,30 @@ function statValue(p, key) {
 
 export default function StatsTab({ players }) {
   const [sortKey, setSortKey] = useState('goals');
-  const [league, setLeague] = useState('all');
   const [pos, setPos] = useState('all');
+  const [disabled, setDisabled] = useState(() => new Set());
+  const [rounds, setRounds] = useState({});
   const openProfile = useOpenProfile();
+
+  useEffect(() => {
+    fetchLeagues()
+      .then((d) => setRounds(Object.fromEntries(d.leagues.map((l) => [l.name, l.round]))))
+      .catch(() => {});
+  }, []);
 
   const leagues = useMemo(() => [...new Set(players.map((p) => p.league))].sort(), [players]);
 
+  const toggleLeague = (name) => setDisabled((prev) => {
+    const next = new Set(prev);
+    if (next.has(name)) next.delete(name); else next.add(name);
+    return next;
+  });
+
   const rows = useMemo(() => players
-    .filter((p) => (league === 'all' || p.league === league))
+    .filter((p) => !disabled.has(p.league))
     .filter((p) => (pos === 'all' || p.positionGroup === pos))
     .sort((a, b) => statValue(b, sortKey) - statValue(a, sortKey)),
-  [players, league, pos, sortKey]);
+  [players, disabled, pos, sortKey]);
 
   return (
     <div>
@@ -54,11 +78,25 @@ export default function StatsTab({ players }) {
           >{pr.label}</button>
         ))}
       </div>
+      <div className="league-row" role="group" aria-label="Toggle leagues">
+        {leagues.map((l) => (
+          <button
+            key={l}
+            className={disabled.has(l) ? 'league-toggle off' : 'league-toggle'}
+            onClick={() => toggleLeague(l)}
+            aria-pressed={!disabled.has(l)}
+          >
+            <span className="lt-name">{l}</span>
+            {roundLabel(rounds[l]) && <span className="lt-round">{roundLabel(rounds[l])}</span>}
+          </button>
+        ))}
+        {disabled.size > 0 && (
+          <button className="league-toggle reset" onClick={() => setDisabled(new Set())}>
+            <span className="lt-name">All on</span>
+          </button>
+        )}
+      </div>
       <div className="filters">
-        <select value={league} onChange={(e) => setLeague(e.target.value)} aria-label="Filter by league">
-          <option value="all">All leagues</option>
-          {leagues.map((l) => <option key={l} value={l}>{l}</option>)}
-        </select>
         <select value={pos} onChange={(e) => setPos(e.target.value)} aria-label="Filter by position">
           <option value="all">All positions</option>
           <option value="DF">Defenders</option>

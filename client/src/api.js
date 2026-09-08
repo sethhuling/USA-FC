@@ -28,3 +28,5 @@ export async function fetchMatchDetail(id) {
   matchDetailCache.set(id, { t: Date.now(), p });
   try { return await p; } catch (e) { matchDetailCache.delete(id); throw e; }
 }
+
+export const fetchLeagues = () => get('/api/leagues');

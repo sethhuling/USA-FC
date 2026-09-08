@@ -237,6 +237,24 @@ async function resolveId(p) {
   return null;
 }
 
+// Current round/matchweek per league, e.g. "Regular Season - 4".
+async function leagueRounds(leagueNames) {
+  const out = {};
+  const known = leagueNames.filter((n) => LEAGUE_IDS[n]);
+  await mapLimit(known, 3, async (name) => {
+    try {
+      const resp = await api('/fixtures/rounds', {
+        league: LEAGUE_IDS[name], season: season(), current: 'true',
+      });
+      out[name] = resp[0] || null;
+    } catch (e) {
+      console.warn(`[api-football] rounds failed for ${name}: ${e.message}`);
+      out[name] = null;
+    }
+  });
+  return out;
+}
+
 // Full player profile: bio + photo, per-season career rows, transfer history.
 // Costs up to ~15 throttled calls the first time; the service layer caches it.
 async function playerProfile(p) {
@@ -336,6 +354,7 @@ module.exports = {
   diag,
   playerProfile,
   matchDetail,
+  leagueRounds,
 
   async seasonStats(tracked) {
     const resolved = new Map();

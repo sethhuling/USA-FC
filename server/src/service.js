@@ -80,6 +80,14 @@ async function annotateSquadStatus(matches) {
   }
 }
 
+async function getLeagues() {
+  const names = [...new Set(trackedPlayers().map((p) => p.league))].sort();
+  const rounds = provider.leagueRounds
+    ? await cache.wrap('league-rounds', 6 * 60 * 60 * 1000, () => provider.leagueRounds(names))
+    : {};
+  return { leagues: names.map((n) => ({ name: n, round: rounds[n] ?? null })) };
+}
+
 async function getMatchDetail(id) {
   const tracked = trackedPlayers();
   const detail = await cache.wrap(`match:${id}`, TTL.live, () => provider.matchDetail(id, tracked));
@@ -100,4 +108,4 @@ async function getPlayerProfile(id) {
   return profile;
 }
 
-module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail };
+module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail, getLeagues };
