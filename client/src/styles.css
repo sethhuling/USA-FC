@@ -338,3 +338,10 @@ section h2.section-live { color: var(--live); }
 .squad-badge.bench { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
 .squad-badge.out { background: var(--border); color: var(--muted); }
 .chip.benched-out { opacity: 0.55; }
+
+/* Players grouped under the team they play for */
+.chips-split { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.chips-split .side { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 0; }
+.chips-split .side.home { flex: 1; justify-content: flex-start; align-content: flex-start; }
+.chips-split .side.away { flex: 1; justify-content: flex-end; align-content: flex-start; }
+.chips-split .side.rest { width: 100%; justify-content: center; }

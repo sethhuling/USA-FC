@@ -8,6 +8,12 @@ const timeFmt = new Intl.DateTimeFormat(undefined, {
 
 const SQUAD_BADGES = { start: 'XI', bench: 'SUB', out: 'OUT' };
 
+const norm = (x) => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const sameClub = (a, b) => {
+  const na = norm(a), nb = norm(b);
+  return !!na && !!nb && (na === nb || na.includes(nb) || nb.includes(na));
+};
+
 function MatchRow({ m, playersById, onOpen }) {
   const kickoff = new Date(m.kickoff);
   const scorers = m.trackedPlayers.filter((p) => p.goals?.length > 0);
@@ -29,28 +35,36 @@ function MatchRow({ m, playersById, onOpen }) {
         </span>
         <span className="team away">{m.away}</span>
       </div>
-      {m.trackedPlayers.length > 0 && (
-        <div className="chips">
-          {m.trackedPlayers.map((p) => {
-            const full = playersById.get(p.playerId);
-            const label = <>
-              {p.name}
-              {p.goals?.length > 0 && ` ⚽ ${p.goals.map((g) => `${g}′`).join(' ')}`}
-            </>;
-            return (
-              <span
-                key={p.playerId}
-                className={`chip${p.goals?.length ? ' scored' : ''}${p.squadStatus === 'out' ? ' benched-out' : ''}`}
-              >
-                {p.squadStatus && (
-                  <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
-                )}
-                {full ? <PlayerLink player={full}>{label}</PlayerLink> : label}
-              </span>
-            );
-          })}
-        </div>
-      )}
+      {m.trackedPlayers.length > 0 && (() => {
+        const renderChip = (p) => {
+          const full = playersById.get(p.playerId);
+          const label = <>
+            {p.name}
+            {p.goals?.length > 0 && ` ⚽ ${p.goals.map((g) => `${g}′`).join(' ')}`}
+          </>;
+          return (
+            <span
+              key={p.playerId}
+              className={`chip${p.goals?.length ? ' scored' : ''}${p.squadStatus === 'out' ? ' benched-out' : ''}`}
+            >
+              {p.squadStatus && (
+                <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
+              )}
+              {full ? <PlayerLink player={full}>{label}</PlayerLink> : label}
+            </span>
+          );
+        };
+        const home = m.trackedPlayers.filter((p) => sameClub(p.club, m.home));
+        const away = m.trackedPlayers.filter((p) => !home.includes(p) && sameClub(p.club, m.away));
+        const rest = m.trackedPlayers.filter((p) => !home.includes(p) && !away.includes(p));
+        return (
+          <div className="chips-split">
+            <div className="chips side home">{home.map(renderChip)}</div>
+            <div className="chips side away">{away.map(renderChip)}</div>
+            {rest.length > 0 && <div className="chips side rest">{rest.map(renderChip)}</div>}
+          </div>
+        );
+      })()}
       <div className="match-bottom">
         <span className="stream">
           📺 {m.streaming?.service || 'Unknown'}
