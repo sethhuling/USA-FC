@@ -68,10 +68,18 @@ body {
 .crest { height: 52px; width: auto; transition: height 0.25s ease; }
 .motto {
   margin-left: auto; max-width: 44%;
-  font-family: 'Pinyon Script', cursive;
-  font-size: 1.5rem; line-height: 1.05; text-align: right;
-  color: #f8f4e8; /* parchment white */
+  display: flex; flex-direction: column; align-items: center;
+  color: #E0455F; /* brand red, brightened for legibility on navy */
   transition: opacity 0.25s ease;
+}
+.motto-line {
+  font-family: 'Pinyon Script', cursive;
+  font-size: 1.3rem; line-height: 1;
+}
+.motto-yanks {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.02rem; font-weight: 700; letter-spacing: 0.14em;
+  line-height: 1.25; margin-left: 0.14em; /* optically recenter the letterspacing */
 }
 .topbar .live-dot { color: #ff8098; }
 .topbar.scrolled .motto { opacity: 0; }
