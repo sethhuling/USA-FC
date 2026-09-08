@@ -4,6 +4,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import { fetchPlayerProfile } from '../api.js';
 import { leagueCountry } from '../leagues.js';
+import { FixtureLine } from './TeamSheet.jsx';
 
 const ProfileContext = createContext(() => {});
 export const useOpenProfile = () => useContext(ProfileContext);
@@ -193,6 +194,17 @@ function ProfileSheet({ player, onClose }) {
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {profile?.upcoming?.length > 0 && (
+          <section className="p-section">
+            <h4 className="profile-h">Upcoming games · {player.club}</h4>
+            <ul className="fixture-list">
+              {profile.upcoming.map((mm) => (
+                <FixtureLine key={mm.id} m={mm} teamId={profile.player?.apiFootballTeamId} />
+              ))}
+            </ul>
           </section>
         )}
 

@@ -104,7 +104,18 @@ async function getMatchDetail(id) {
 async function getPlayerProfile(id) {
   const p = trackedPlayers().find((x) => x.id === id);
   if (!p) return null;
-  const profile = await cache.wrap(`profile:${id}`, TTL.profile, () => provider.playerProfile(p));
+  let profile = await cache.wrap(`profile:${id}`, TTL.profile, () => provider.playerProfile(p));
+  // Upcoming club fixtures live outside the long-lived profile cache (they change
+  // hourly) and are shared by teammates via the team-keyed cache entry.
+  if (provider.teamUpcoming && p.apiFootballTeamId) {
+    try {
+      const upcoming = await cache.wrap(
+        `team-upcoming:${p.apiFootballTeamId}`, TTL.schedule,
+        () => provider.teamUpcoming(p.apiFootballTeamId, trackedPlayers())
+      );
+      profile = { ...profile, upcoming };
+    } catch { /* profile still useful without fixtures */ }
+  }
   // Current-season stats come from the (fresher) players cache when available.
   try {
     const { players } = await getPlayers();

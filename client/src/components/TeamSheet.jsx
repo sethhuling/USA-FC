@@ -26,7 +26,7 @@ export function TeamLink({ id, name, className, children }) {
 const dayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 const clockFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
 
-function FixtureLine({ m, teamId }) {
+export function FixtureLine({ m, teamId }) {
   const home = m.homeId === teamId;
   const oppName = home ? m.away : m.home;
   const oppId = home ? m.awayId : m.homeId;

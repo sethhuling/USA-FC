@@ -298,6 +298,12 @@ async function teamOverview(teamId, tracked) {
   };
 }
 
+// Next N fixtures for a club (used by player profiles; team pages fetch their own).
+async function teamUpcoming(teamId, tracked, n = 5) {
+  const resp = await api('/fixtures', { team: teamId, next: n });
+  return resp.map((fx) => mapFixture(fx, tracked));
+}
+
 // Full player profile: bio + photo, per-season career rows, transfer history.
 // Costs up to ~15 throttled calls the first time; the service layer caches it.
 async function playerProfile(p) {
@@ -399,6 +405,7 @@ module.exports = {
   matchDetail,
   leagueRounds,
   teamOverview,
+  teamUpcoming,
 
   async seasonStats(tracked) {
     const resolved = new Map();
