@@ -131,19 +131,19 @@ function ProfileSheet({ player, onClose }) {
   const bio = profile?.bio;
   const s = profile?.player?.stats || player.stats;
   const statRows = s ? [
-    ['Appearances', s.appearances], ['Minutes', s.minutes], ['Goals', s.goals],
-    ['Assists', s.assists], ['Tackles', s.tackles], ['Interceptions', s.interceptions],
-    ['Clearances/blocks', s.clearances],
-    ['Defensive actions', (s.tackles || 0) + (s.interceptions || 0) + (s.clearances || 0)],
-    ['Passes completed', s.passesCompleted],
-    ['Pass accuracy', s.passAccuracy != null ? `${s.passAccuracy}%` : '—'],
-    ['Yellow cards', s.yellow], ['Red cards', s.red],
+    ['Apps', s.appearances], ['Minutes', s.minutes], ['Goals', s.goals],
+    ['Assists', s.assists], ['Tackles', s.tackles], ['Intercepts', s.interceptions],
+    ['Clr/Blocks', s.clearances],
+    ['Def. actions', (s.tackles || 0) + (s.interceptions || 0) + (s.clearances || 0)],
+    ['Passes', s.passesCompleted],
+    ['Pass %', s.passAccuracy != null ? `${s.passAccuracy}%` : '—'],
+    ['Yellows', s.yellow], ['Reds', s.red],
   ] : [];
 
   return (
     <div className="sheet-backdrop" onClick={onClose}>
       <div className="sheet profile-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="sheet-header">
+        <div className="sheet-header player-hero">
           <div className="profile-id">
             {bio?.photo
               ? <img src={bio.photo} alt="" className="profile-photo" />
@@ -166,6 +166,8 @@ function ProfileSheet({ player, onClose }) {
         )}
 
         {bio && (
+          <section className="p-section">
+          <h4 className="profile-h">Profile</h4>
           <div className="bio-grid">
             {bio.birth?.date && (
               <div><span className="bio-label">Born</span>
@@ -177,23 +179,25 @@ function ProfileSheet({ player, onClose }) {
             {bio.weight && <div><span className="bio-label">Weight</span>{imperialWeight(bio.weight)}</div>}
             <div><span className="bio-label">Nationality</span>{player.nationality}</div>
           </div>
+          </section>
         )}
 
         {s && (
-          <>
+          <section className="p-section">
             <h4 className="profile-h">This season</h4>
-            <table className="statline">
-              <tbody>
-                {statRows.map(([k, v]) => (
-                  <tr key={k}><td>{k}</td><td className="num">{v ?? '—'}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </>
+            <div className="stat-tiles">
+              {statRows.map(([k, v]) => (
+                <div key={k} className="stat-tile">
+                  <span className="val">{v ?? '—'}</span>
+                  <span className="lab">{k}</span>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
 
         {profile?.career?.length > 0 && (
-          <>
+          <section className="p-section">
             <h4 className="profile-h">Career</h4>
             <div className="table-wrap">
               <table className="career">
@@ -215,11 +219,11 @@ function ProfileSheet({ player, onClose }) {
                 </tbody>
               </table>
             </div>
-          </>
+          </section>
         )}
 
         {profile?.national?.length > 0 && (
-          <>
+          <section className="p-section">
             <h4 className="profile-h">USA national team</h4>
             <div className="table-wrap">
               <table className="career">
@@ -237,11 +241,11 @@ function ProfileSheet({ player, onClose }) {
                 </tbody>
               </table>
             </div>
-          </>
+          </section>
         )}
 
         {profile?.transfers?.length > 0 && (
-          <>
+          <section className="p-section">
             <h4 className="profile-h">Transfers</h4>
             <ul className="transfer-list">
               {profile.transfers.map((t, i) => (
@@ -254,7 +258,7 @@ function ProfileSheet({ player, onClose }) {
                 </li>
               ))}
             </ul>
-          </>
+          </section>
         )}
       </div>
     </div>

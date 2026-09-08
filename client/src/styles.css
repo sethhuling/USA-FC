@@ -282,7 +282,36 @@ section h2.section-live { color: var(--live); }
   margin: 12px 0; font-size: 0.85rem;
 }
 .bio-label { display: block; color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; }
-.profile-h { margin: 16px 0 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+.profile-h {
+  display: flex; align-items: center; gap: 7px; margin: 2px 0 8px;
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+}
+.profile-h::before {
+  content: ''; width: 3px; height: 12px; border-radius: 2px;
+  background: var(--live); flex-shrink: 0;
+}
+.p-section {
+  border: 1px solid var(--border); border-radius: 14px;
+  background: var(--bg); padding: 10px 12px 12px; margin: 10px 0;
+}
+.p-section .bio-grid { margin: 2px 0 0; }
+.player-hero {
+  background: linear-gradient(135deg, #0A3161 0%, #17457f 100%);
+  margin: -16px -16px 12px; padding: 16px; border-radius: 18px 18px 0 0;
+  color: #fff; align-items: center;
+}
+.player-hero h3 { color: #fff; }
+.player-hero .sheet-sub { color: #c9d6ec; }
+.player-hero .close { background: rgba(255,255,255,0.16); color: #fff; border: none; }
+.player-hero .profile-photo { border: 2px solid rgba(255,255,255,0.75); background: #fff; }
+.stat-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.stat-tile {
+  display: flex; flex-direction: column; gap: 1px; text-align: center;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 2px;
+}
+.stat-tile .val { font-size: 1.02rem; font-weight: 800; }
+.stat-tile .lab { font-size: 0.58rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
 .career { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
 .career th { text-align: left; color: var(--muted); font-size: 0.7rem; padding: 4px 6px; }
 .career td { padding: 5px 6px; border-top: 1px solid var(--border); white-space: nowrap; }
