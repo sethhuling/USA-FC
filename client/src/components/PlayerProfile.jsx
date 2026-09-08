@@ -25,6 +25,20 @@ function hometown(bio) {
   return [bio.birth.place, bio.birth.country].filter(Boolean).join(', ');
 }
 
+// API values are metric (cm / kg, sometimes with units attached). Show imperial.
+function imperialHeight(h) {
+  const cm = parseInt(String(h), 10);
+  if (!cm || Number.isNaN(cm)) return String(h);
+  const totalIn = Math.round(cm / 2.54);
+  return `${Math.floor(totalIn / 12)}′${totalIn % 12}″`;
+}
+
+function imperialWeight(w) {
+  const kg = parseInt(String(w), 10);
+  if (!kg || Number.isNaN(kg)) return String(w);
+  return `${Math.round(kg * 2.20462)} lbs`;
+}
+
 function seasonLabel(y) {
   return `${y}/${String((y + 1) % 100).padStart(2, '0')}`;
 }
@@ -159,8 +173,8 @@ function ProfileSheet({ player, onClose }) {
                 {` (${ageFrom(bio.birth.date)})`}</div>
             )}
             {hometown(bio) && <div><span className="bio-label">Hometown</span>{hometown(bio)}</div>}
-            {bio.height && <div><span className="bio-label">Height</span>{/^\d+$/.test(String(bio.height)) ? `${bio.height} cm` : bio.height}</div>}
-            {bio.weight && <div><span className="bio-label">Weight</span>{/^\d+$/.test(String(bio.weight)) ? `${bio.weight} kg` : bio.weight}</div>}
+            {bio.height && <div><span className="bio-label">Height</span>{imperialHeight(bio.height)}</div>}
+            {bio.weight && <div><span className="bio-label">Weight</span>{imperialWeight(bio.weight)}</div>}
             <div><span className="bio-label">Nationality</span>{player.nationality}</div>
           </div>
         )}
