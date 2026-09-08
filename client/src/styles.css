@@ -66,7 +66,15 @@ body {
   transition: opacity 0.25s ease, font-size 0.25s ease;
 }
 .crest { height: 52px; width: auto; transition: height 0.25s ease; }
-.topbar .live-dot { margin-left: auto; color: #ff8098; }
+.motto {
+  margin-left: auto; max-width: 44%;
+  font-family: 'Pinyon Script', cursive;
+  font-size: 1.5rem; line-height: 1.05; text-align: right;
+  color: #f8f4e8; /* parchment white */
+  transition: opacity 0.25s ease;
+}
+.topbar .live-dot { color: #ff8098; }
+.topbar.scrolled .motto { opacity: 0; }
 /* Scrolled: shrink to the old compact height; title fades, crest stays.
    Safe-area padding is kept so the bar never rides under the camera. */
 .topbar.scrolled { padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 8px; }

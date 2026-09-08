@@ -59,6 +59,7 @@ export default function App() {
       <header className={scrolled ? "topbar scrolled" : "topbar"}>
         <img src="/crest.svg" alt="USA FC crest" className="crest" />
         <h1>USA FC</h1>
+        <span className="motto">Oh when the Yanks go marching in</span>
         {anyLive && <span className="live-dot" title="Live matches in progress">● LIVE</span>}
       </header>
 
