@@ -136,11 +136,19 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
     minute: status === 'live' ? fx.fixture.status?.elapsed ?? null : null,
     homeScore: fx.goals?.home ?? null,
     awayScore: fx.goals?.away ?? null,
-    trackedPlayers: inMatch.map((p) => ({
-      playerId: p.id, name: p.name, club: p.club,
-      inSquad: playerEvents.get(fx.fixture.id)?.squad?.has(p.apiFootballId) ?? null,
-      goals: playerEvents.get(fx.fixture.id)?.goals?.get(p.apiFootballId) || [],
-    })),
+    trackedPlayers: inMatch.map((p) => {
+      const pe = playerEvents.get(fx.fixture.id);
+      const squadStatus = pe?.hasLineups
+        ? (pe.start.has(p.apiFootballId) ? 'start'
+          : pe.bench.has(p.apiFootballId) ? 'bench' : 'out')
+        : null;
+      return {
+        playerId: p.id, name: p.name, club: p.club,
+        squadStatus,
+        inSquad: squadStatus === null ? null : squadStatus !== 'out',
+        goals: pe?.goals?.get(p.apiFootballId) || [],
+      };
+    }),
   };
 }
 
@@ -239,6 +247,52 @@ async function playerProfile(p) {
   return { player: p, bio, career, national, transfers };
 }
 
+// Full match detail: score, venue, lineups, events, team stats — one API call.
+async function matchDetail(fixtureId, tracked) {
+  const resp = await api('/fixtures', { id: fixtureId });
+  const d = resp[0];
+  if (!d) return null;
+  const trackedByApiId = new Map(
+    tracked.filter((p) => p.apiFootballId).map((p) => [p.apiFootballId, p])
+  );
+  function mkPlayer(pl) {
+    return {
+      apiId: pl?.id ?? null, name: pl?.name, number: pl?.number ?? null,
+      pos: pl?.pos ?? null,
+      trackedId: trackedByApiId.get(pl?.id)?.id || null,
+    };
+  }
+  function mapLineup(lu) {
+    if (!lu) return null;
+    return {
+      team: lu.team?.name, formation: lu.formation || null, coach: lu.coach?.name || null,
+      startXI: (lu.startXI || []).map((x) => mkPlayer(x.player)),
+      substitutes: (lu.substitutes || []).map((x) => mkPlayer(x.player)),
+    };
+  }
+  const lus = d.lineups || [];
+  const homeLu = lus.find((l) => l.team?.name === d.teams?.home?.name) || lus[0] || null;
+  const awayLu = lus.find((l) => l !== homeLu) || null;
+  const base = mapFixture(d, tracked);
+  return {
+    ...base,
+    venue: d.fixture?.venue?.name
+      ? { name: d.fixture.venue.name, city: d.fixture.venue.city || null } : null,
+    referee: d.fixture?.referee || null,
+    lineups: homeLu || awayLu ? { home: mapLineup(homeLu), away: mapLineup(awayLu) } : null,
+    events: (d.events || []).map((e) => ({
+      minute: e.time?.elapsed ?? null, extra: e.time?.extra ?? null,
+      team: e.team?.name, player: e.player?.name, assist: e.assist?.name || null,
+      type: e.type, detail: e.detail,
+      trackedId: trackedByApiId.get(e.player?.id)?.id || null,
+    })),
+    stats: (d.statistics || []).map((st) => ({
+      team: st.team?.name,
+      items: (st.statistics || []).map((x) => ({ type: x.type, value: x.value })),
+    })),
+  };
+}
+
 module.exports = {
   name: 'api-football',
   LEAGUE_IDS,
@@ -246,6 +300,7 @@ module.exports = {
   season,
   diag,
   playerProfile,
+  matchDetail,
 
   async seasonStats(tracked) {
     const resolved = new Map();
@@ -332,13 +387,14 @@ module.exports = {
             goals.get(ev.player.id).push(ev.time?.elapsed);
           }
         }
-        const squad = new Set();
+        const start = new Set(), bench = new Set();
         for (const lineup of d.lineups || []) {
-          for (const x of [...(lineup.startXI || []), ...(lineup.substitutes || [])]) {
-            if (x.player?.id) squad.add(x.player.id);
-          }
+          for (const x of lineup.startXI || []) if (x.player?.id) start.add(x.player.id);
+          for (const x of lineup.substitutes || []) if (x.player?.id) bench.add(x.player.id);
         }
-        playerEvents.set(fx.fixture.id, { goals, squad });
+        playerEvents.set(fx.fixture.id, {
+          goals, start, bench, hasLineups: (d.lineups || []).length > 0,
+        });
       } catch (e) {
         console.warn(`[api-football] live detail ${fx.fixture.id}: ${e.message}`);
       }

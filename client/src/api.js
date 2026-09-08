@@ -18,3 +18,13 @@ export function fetchPlayerProfile(id) {
   }
   return profileCache.get(id);
 }
+
+// Match details refresh fast during live games; short client-side memo only.
+const matchDetailCache = new Map();
+export async function fetchMatchDetail(id) {
+  const hit = matchDetailCache.get(id);
+  if (hit && Date.now() - hit.t < 60_000) return hit.p;
+  const p = get(`/api/match/${encodeURIComponent(id)}`);
+  matchDetailCache.set(id, { t: Date.now(), p });
+  try { return await p; } catch (e) { matchDetailCache.delete(id); throw e; }
+}

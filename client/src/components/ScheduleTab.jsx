@@ -1,15 +1,18 @@
 import React, { useMemo, useState } from 'react';
 import { PlayerLink } from './PlayerProfile.jsx';
+import MatchSheet from './MatchSheet.jsx';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
 });
 
-function MatchRow({ m, playersById }) {
+const SQUAD_BADGES = { start: 'XI', bench: 'SUB', out: 'OUT' };
+
+function MatchRow({ m, playersById, onOpen }) {
   const kickoff = new Date(m.kickoff);
   const scorers = m.trackedPlayers.filter((p) => p.goals?.length > 0);
   return (
-    <div className={`match ${m.status}`}>
+    <div className={`match ${m.status}`} onClick={() => onOpen(m)} role="button" tabIndex={0}>
       <div className="match-top">
         <span className="competition">
           {m.competition}
@@ -35,7 +38,13 @@ function MatchRow({ m, playersById }) {
               {p.goals?.length > 0 && ` ⚽ ${p.goals.map((g) => `${g}′`).join(' ')}`}
             </>;
             return (
-              <span key={p.playerId} className={p.goals?.length ? 'chip scored' : 'chip'}>
+              <span
+                key={p.playerId}
+                className={`chip${p.goals?.length ? ' scored' : ''}${p.squadStatus === 'out' ? ' benched-out' : ''}`}
+              >
+                {p.squadStatus && (
+                  <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
+                )}
                 {full ? <PlayerLink player={full}>{label}</PlayerLink> : label}
               </span>
             );
@@ -58,6 +67,7 @@ function MatchRow({ m, playersById }) {
 export default function ScheduleTab({ matches, players, lastUpdated }) {
   const [league, setLeague] = useState('all');
   const [playerId, setPlayerId] = useState('all');
+  const [selectedMatch, setSelectedMatch] = useState(null);
 
   const leagues = useMemo(
     () => [...new Set(matches.map((m) => m.league))].sort(), [matches]);
@@ -91,24 +101,31 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
       {live.length > 0 && (
         <section>
           <h2 className="section-live">Live now</h2>
-          {live.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} />)}
+          {live.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
         </section>
       )}
       {upcoming.length > 0 && (
         <section>
           <h2>Upcoming</h2>
-          {upcoming.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} />)}
+          {upcoming.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
         </section>
       )}
       {finished.length > 0 && (
         <section>
           <h2>Results</h2>
-          {finished.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} />)}
+          {finished.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
         </section>
       )}
       {filtered.length === 0 && <p className="empty">No matches for this filter.</p>}
       {lastUpdated && (
         <p className="updated">Updated {lastUpdated.toLocaleTimeString()}</p>
+      )}
+      {selectedMatch && (
+        <MatchSheet
+          match={selectedMatch}
+          playersById={playersById}
+          onClose={() => setSelectedMatch(null)}
+        />
       )}
     </div>
   );

@@ -61,6 +61,13 @@ function scoreFromScript(script, upToMin) {
 
 module.exports = {
   name: 'demo',
+  async matchDetail(id, tracked) {
+    const now = Date.now();
+    const fx = FIXTURES.find((f) => f.id === id);
+    if (!fx) return null;
+    const base = materialize(fx, tracked, now);
+    return { ...base, venue: null, referee: null, lineups: null, events: [], stats: [], demo: true };
+  },
   async playerProfile(p) {
     return { player: { ...p, stats: STATS[p.id] || null }, bio: null,
       career: [], national: [], transfers: [], demo: true };

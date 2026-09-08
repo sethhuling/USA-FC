@@ -48,7 +48,43 @@ async function getMatches() {
   const withStreaming = await Promise.all(
     matches.map(async (m) => ({ ...m, streaming: await streaming.forMatch(m) }))
   );
+  await annotateSquadStatus(withStreaming);
   return { source: provider.name, matches: withStreaming };
+}
+
+// Lineups publish ~an hour before kickoff: for scheduled matches close to kickoff,
+// pull match detail (cached) and mark each tracked player start/bench/out.
+// Live matches already carry this from the live-overlay path.
+async function annotateSquadStatus(matches) {
+  if (!provider.matchDetail) return;
+  const soon = matches.filter((m) =>
+    m.status === 'scheduled' &&
+    new Date(m.kickoff) - Date.now() < 90 * 60 * 1000 &&
+    new Date(m.kickoff) - Date.now() > -30 * 60 * 1000
+  ).slice(0, 6); // cap upstream cost
+  for (const m of soon) {
+    try {
+      const det = await getMatchDetail(m.id);
+      if (!det?.lineups) continue;
+      const start = new Set(), bench = new Set();
+      for (const side of [det.lineups.home, det.lineups.away]) {
+        for (const pl of side?.startXI || []) if (pl.trackedId) start.add(pl.trackedId);
+        for (const pl of side?.substitutes || []) if (pl.trackedId) bench.add(pl.trackedId);
+      }
+      m.trackedPlayers = m.trackedPlayers.map((tp) => {
+        const squadStatus = start.has(tp.playerId) ? 'start'
+          : bench.has(tp.playerId) ? 'bench' : 'out';
+        return { ...tp, squadStatus, inSquad: squadStatus !== 'out' };
+      });
+    } catch { /* leave un-annotated */ }
+  }
+}
+
+async function getMatchDetail(id) {
+  const tracked = trackedPlayers();
+  const detail = await cache.wrap(`match:${id}`, TTL.live, () => provider.matchDetail(id, tracked));
+  if (!detail) return null;
+  return { ...detail, streaming: await streaming.forMatch(detail) };
 }
 
 async function getPlayerProfile(id) {
@@ -64,4 +100,4 @@ async function getPlayerProfile(id) {
   return profile;
 }
 
-module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile };
+module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail };

@@ -291,3 +291,50 @@ section h2.section-live { color: var(--live); }
 .transfer-list li { padding: 6px 0; border-top: 1px solid var(--border); }
 .transfer-date { color: var(--muted); margin-right: 8px; font-size: 0.75rem; }
 .transfer-type { color: var(--muted); }
+
+/* ---------- Match detail sheet ---------- */
+.match { cursor: pointer; }
+.score-block {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin: 10px 0 12px; text-align: center;
+}
+.score-block .team-name { flex: 1; font-weight: 700; font-size: 1.05rem; }
+.big-score {
+  font-size: 1.6rem; font-weight: 800; padding: 4px 14px; border-radius: 12px;
+  background: var(--accent-soft); color: var(--accent); white-space: nowrap;
+}
+.big-score.live { background: var(--live-soft); color: var(--live); }
+.match-meta { display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; }
+.ticket-link { color: var(--accent); font-weight: 600; }
+.event-list { list-style: none; margin: 0; padding: 0; font-size: 0.84rem; }
+.event-list li { padding: 5px 0; border-top: 1px solid var(--border); }
+.event-list li.american { color: var(--live); font-weight: 700; }
+.event-min { display: inline-block; min-width: 38px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.event-sub, .event-team { color: var(--muted); font-weight: 400; font-size: 0.78rem; }
+.lineups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lineup-col h5 { margin: 6px 0 2px; font-size: 0.85rem; }
+.lineup-col h6 { margin: 8px 0 2px; font-size: 0.7rem; text-transform: uppercase; color: var(--muted); }
+.lineup-col .coach { margin: 0 0 6px; font-size: 0.72rem; color: var(--muted); }
+.lineup-col ul { list-style: none; margin: 0; padding: 0; }
+.lineup-player { padding: 3px 0; font-size: 0.8rem; border-top: 1px solid var(--border); }
+.lineup-player.american { color: var(--live); font-weight: 800; }
+.lineup-col .bench .lineup-player { color: var(--muted); }
+.lineup-col .bench .lineup-player.american { color: var(--live); }
+.shirt-no {
+  display: inline-block; min-width: 22px; color: var(--muted);
+  font-variant-numeric: tabular-nums; font-weight: 600; font-size: 0.72rem;
+}
+.match-stats { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.match-stats td { padding: 5px 6px; border-top: 1px solid var(--border); }
+.match-stats .stat-label { text-align: center; color: var(--muted); font-size: 0.76rem; }
+.match-stats .num { width: 20%; text-align: center; font-weight: 700; }
+
+/* ---------- Squad status badges on schedule chips ---------- */
+.squad-badge {
+  display: inline-block; margin-right: 5px; padding: 0 4px; border-radius: 4px;
+  font-size: 0.6rem; font-weight: 800; letter-spacing: 0.03em; vertical-align: 1px;
+}
+.squad-badge.start { background: var(--accent); color: #fff; }
+.squad-badge.bench { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
+.squad-badge.out { background: var(--border); color: var(--muted); }
+.chip.benched-out { opacity: 0.55; }
