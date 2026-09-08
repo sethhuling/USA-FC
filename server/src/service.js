@@ -44,6 +44,44 @@ async function getMatches() {
     const live = await cache.wrap('live', TTL.live, () => provider.getLive(tracked));
     const byId = new Map(live.map((m) => [m.id, m]));
     matches = schedule.map((m) => byId.get(m.id) || m);
+    // Reconcile: a match the cache thinks is live (or should have kicked off)
+    // that's absent from the live feed has probably finished — re-check it so it
+    // doesn't sit frozen at a stale minute until the hourly schedule refresh.
+    // Detail-derived rows also carry squad statuses, so badges survive full time.
+    const stale = matches.filter((m) =>
+      !byId.has(m.id) && (
+        m.status === 'live' ||
+        (m.status === 'scheduled' && Date.now() - new Date(m.kickoff) > 5 * 60 * 1000)
+      )
+    ).slice(0, 8);
+    for (const m of stale) {
+      try {
+        const det = await getMatchDetail(m.id);
+        if (det) {
+          const { lineups, events, stats, venue, referee, ...light } = det;
+          const idx = matches.findIndex((x) => x.id === m.id);
+          if (idx >= 0) matches[idx] = light;
+        }
+      } catch { /* keep the cached row */ }
+    }
+  }
+  // Backfill badges on recently finished matches served from the schedule cache:
+  // final lineups never change, so cache these long.
+  const finishedNoBadges = matches.filter((m) =>
+    m.status === 'finished' &&
+    m.trackedPlayers.length > 0 &&
+    m.trackedPlayers.every((tp) => tp.squadStatus == null)
+  ).slice(0, 12);
+  for (const m of finishedNoBadges) {
+    try {
+      const det = await cache.wrap(`match-final:${m.id}`, 12 * 60 * 60 * 1000,
+        () => provider.matchDetail(m.id, tracked));
+      if (det?.status === 'finished') {
+        const { lineups, events, stats, venue, referee, ...light } = det;
+        const idx = matches.findIndex((x) => x.id === m.id);
+        if (idx >= 0) matches[idx] = light;
+      }
+    } catch { /* keep the cached row */ }
   }
   const withStreaming = await Promise.all(
     matches.map(async (m) => ({ ...m, streaming: await streaming.forMatch(m) }))

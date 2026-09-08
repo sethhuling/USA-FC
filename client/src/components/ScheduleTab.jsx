@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { PlayerLink } from './PlayerProfile.jsx';
 import MatchSheet from './MatchSheet.jsx';
 import { TeamLink } from './TeamSheet.jsx';
+import { UsaBall, UsaBoot } from './icons.jsx';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
@@ -41,18 +42,30 @@ function MatchRow({ m, playersById, onOpen }) {
       {m.trackedPlayers.length > 0 && (() => {
         const renderChip = (p) => {
           const full = playersById.get(p.playerId);
+          const feats = (p.goals?.length || 0) + (p.assists?.length || 0) > 0;
           const label = <>
-            {p.name}
-            {p.goals?.length > 0 && ` ⚽ ${p.goals.map((g) => `${g}′`).join(' ')}`}
+            <span className="chip-name">
+              {p.squadStatus && (
+                <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
+              )}
+              {p.name}
+            </span>
+            {feats && (
+              <span className="chip-feats">
+                {(p.goals || []).map((g, i) => (
+                  <span key={`g${i}`} className="feat"><UsaBall /> {g}′</span>
+                ))}
+                {(p.assists || []).map((a, i) => (
+                  <span key={`a${i}`} className="feat"><UsaBoot /> {a}′</span>
+                ))}
+              </span>
+            )}
           </>;
           return (
             <span
               key={p.playerId}
               className={`chip${p.goals?.length ? ' scored' : ''}${p.squadStatus === 'out' ? ' benched-out' : ''}`}
             >
-              {p.squadStatus && (
-                <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
-              )}
               {full ? <PlayerLink player={full}>{label}</PlayerLink> : label}
             </span>
           );

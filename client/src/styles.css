@@ -440,3 +440,10 @@ section h2.section-live { color: var(--live); }
 .match-hero .big-score { background: rgba(255,255,255,0.14); color: #fff; }
 .match-hero .big-score.live { background: var(--live); color: #fff; }
 .p-section .match-meta { margin-bottom: 0; }
+
+/* Goal/assist feat icons under the player name inside chips */
+.chip .player-link { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.chip-name { display: inline-flex; align-items: center; }
+.chip-feats { display: flex; gap: 8px; align-items: center; }
+.feat { display: inline-flex; align-items: center; gap: 3px; font-size: 0.68rem; font-weight: 700; }
+.feat svg { display: block; }
