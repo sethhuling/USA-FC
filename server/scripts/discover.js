@@ -54,7 +54,6 @@ async function discoverFromApi() {
   const provider = require('../adapters/providers/apiFootball');
   const found = [];
   for (const [leagueName, leagueId] of Object.entries(provider.LEAGUE_IDS)) {
-    if (['Champions League', 'Europa League'].includes(leagueName)) continue;
     let page = 1, totalPages = 1;
     while (page <= totalPages) {
       let body;

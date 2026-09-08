@@ -11,8 +11,6 @@ const LEAGUE_IDS = {
   'Ligue 1': 61,
   'Liga MX': 262,
   'Eredivisie': 88,
-  'Champions League': 2,
-  'Europa League': 3,
   'Championship': 40,
   'League One': 41,
   'Scottish Premiership': 179,
@@ -24,10 +22,34 @@ const LEAGUE_IDS = {
   'Liga Profesional (Argentina)': 128,
 };
 
+// Cup competitions: fetched for fixtures but excluded from player discovery and
+// the league directory. Canonical names are ours — the API calls Belgium's and
+// Austria's cups literally "Cup", and England/Scotland both have a "League Cup".
+const CUP_IDS = {
+  'Champions League': 2,
+  'Europa League': 3,
+  'Conference League': 848,
+  'FA Cup': 45,
+  'EFL Cup': 48,
+  'Copa del Rey': 143,
+  'Coppa Italia': 137,
+  'DFB Pokal': 81,
+  'Coupe de France': 66,
+  'KNVB Beker': 90,
+  'Taça de Portugal': 96,
+  'Belgian Cup': 147,
+  'Turkish Cup': 206,
+  'Copa do Brasil': 73,
+  'Copa Argentina': 130,
+  'Scottish Cup': 181,
+  'Scottish League Cup': 185,
+  'Austrian Cup': 220,
+};
+
 // The API reuses names across countries (Brazil's league is literally "Serie A",
 // Austria's is "Bundesliga"), so always label fixtures with our canonical name.
 const ID_TO_NAME = Object.fromEntries(
-  Object.entries(LEAGUE_IDS).map(([name, id]) => [id, name])
+  [...Object.entries(LEAGUE_IDS), ...Object.entries(CUP_IDS)].map(([name, id]) => [id, name])
 );
 
 function season() {
@@ -123,8 +145,7 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
   const short = fx.fixture.status?.short || 'NS';
   const status = ['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'].includes(short) ? 'live'
     : ['FT', 'AET', 'PEN'].includes(short) ? 'finished' : 'scheduled';
-  const clubNames = [teams.home?.name, teams.away?.name];
-  const inMatch = tracked.filter((p) => clubNames.some((n) => clubMatches(n, p.club)));
+  const inMatch = tracked.filter((p) => playerInFixture(p, fx));
   const leagueName = ID_TO_NAME[fx.league?.id] || fx.league?.name;
   return {
     id: String(fx.fixture.id),
@@ -165,6 +186,17 @@ function norm(s) {
 function clubMatches(a, b) {
   const na = norm(a), nb = norm(b);
   return !!na && !!nb && (na === nb || na.includes(nb) || nb.includes(na));
+}
+
+// Is this tracked player's club in the fixture? Prefer exact team-id matching
+// (cup draws are full of similarly named small clubs — "Racing Club Warwick" is
+// not Racing Club of Avellaneda); fall back to loose names until an id is known.
+function playerInFixture(p, fx) {
+  const hid = fx.teams?.home?.id, aid = fx.teams?.away?.id;
+  if (p.apiFootballTeamId && (hid || aid)) {
+    return p.apiFootballTeamId === hid || p.apiFootballTeamId === aid;
+  }
+  return clubMatches(fx.teams?.home?.name, p.club) || clubMatches(fx.teams?.away?.name, p.club);
 }
 
 // Find a tracked player's API-Football id via /players/profiles (season-independent,
@@ -296,6 +328,7 @@ async function matchDetail(fixtureId, tracked) {
 module.exports = {
   name: 'api-football',
   LEAGUE_IDS,
+  CUP_IDS,
   api,
   season,
   diag,
@@ -304,6 +337,7 @@ module.exports = {
 
   async seasonStats(tracked) {
     const resolved = new Map();
+    const resolvedTeams = new Map();
     const out = await mapLimit(tracked, 2, async (p) => {
       let id = p.apiFootballId;
       if (!id) {
@@ -324,21 +358,26 @@ module.exports = {
         const entries = (resp[0]?.statistics || []).filter(
           (st) => clubMatches(st.team?.name, p.club)
         );
-        return { ...p, apiFootballId: id, stats: aggregateStats(entries) };
+        const teamId = entries.find((st) => st.team?.id)?.team?.id ?? null;
+        if (teamId && teamId !== p.apiFootballTeamId) resolvedTeams.set(p.id, teamId);
+        return { ...p, apiFootballId: id,
+          apiFootballTeamId: teamId ?? p.apiFootballTeamId ?? null,
+          stats: aggregateStats(entries) };
       } catch (e) {
         console.warn(`[api-football] stats failed for ${p.name}: ${e.message}`);
         return { ...p, apiFootballId: id, stats: null };
       }
     });
-    // Persist resolved ids so the lookup is a one-time cost.
-    if (resolved.size) {
+    // Persist resolved player/team ids so lookups are a one-time cost.
+    if (resolved.size || resolvedTeams.size) {
       try {
         const cur = JSON.parse(fs.readFileSync(PLAYERS_FILE, 'utf8'));
         for (const entry of cur) {
           if (resolved.has(entry.id)) entry.apiFootballId = resolved.get(entry.id);
+          if (resolvedTeams.has(entry.id)) entry.apiFootballTeamId = resolvedTeams.get(entry.id);
         }
         fs.writeFileSync(PLAYERS_FILE, JSON.stringify(cur, null, 2) + '\n');
-        console.log(`[api-football] saved ${resolved.size} resolved player ids to players.json`);
+        console.log(`[api-football] saved ${resolved.size} player ids, ${resolvedTeams.size} team ids to players.json`);
       } catch (e) {
         console.warn(`[api-football] could not persist resolved ids: ${e.message}`);
       }
@@ -349,7 +388,7 @@ module.exports = {
   async getFixtures(tracked) {
     const leagues = [...new Set(tracked.map((p) => p.league))]
       .map((l) => LEAGUE_IDS[l]).filter(Boolean);
-    const cupIds = [LEAGUE_IDS['Champions League'], LEAGUE_IDS['Europa League']];
+    const cupIds = Object.values(CUP_IDS);
     const now = new Date();
     const from = new Date(now - 7 * 864e5).toISOString().slice(0, 10);
     const to = new Date(+now + 7 * 864e5).toISOString().slice(0, 10);
@@ -365,15 +404,13 @@ module.exports = {
       throw new Error('all fixture requests failed — see /api/meta diagnostics');
     }
     return all.flat()
-      .filter((fx) => tracked.some((p) =>
-        clubMatches(fx.teams?.home?.name, p.club) || clubMatches(fx.teams?.away?.name, p.club)))
+      .filter((fx) => tracked.some((p) => playerInFixture(p, fx)))
       .map((fx) => mapFixture(fx, tracked));
   },
 
   async getLive(tracked) {
     const live = await api('/fixtures', { live: 'all' });
-    const relevant = live.filter((fx) => tracked.some((p) =>
-      clubMatches(fx.teams?.home?.name, p.club) || clubMatches(fx.teams?.away?.name, p.club)));
+    const relevant = live.filter((fx) => tracked.some((p) => playerInFixture(p, fx)));
     // Fetch events + lineups per relevant live fixture for tracked-player goals/squad.
     const playerEvents = new Map();
     await mapLimit(relevant, 3, async (fx) => {
