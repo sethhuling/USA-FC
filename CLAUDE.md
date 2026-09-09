@@ -33,6 +33,15 @@ caches are in-memory, so a restart also clears them — the startup warm refills
 everything over ~6 min of throttled upstream calls; players/matches come back first).
 Client changes require `npm run build`.
 
+For local verification that must not spend real API-Football requests, use the
+`americans-abroad-demo` launch config (`.claude/launch.json`): it runs the server on
+port 8791 with `API_FOOTBALL_KEY=` empty (demo provider, zero upstream calls) and
+`ADMIN_KEY=demo-admin-key`. Caution: the Claude browser preview tool has launched the
+first/real config on 8787 even when the demo config was requested by name (observed
+Sept 2026, spending real API calls on the startup warm) — after starting a preview,
+check the reported port/name and `preview_logs` before letting it run; running the
+demo server via a plain background `node` command is a safe fallback.
+
 ## Environment
 
 - Secrets live in `.env` locally (git-ignored) and in the Render dashboard in
@@ -42,6 +51,11 @@ Client changes require `npm run build`.
   upstream request counts and cache hit rate; endpoint returns 503 if unset).
   `/admin` serves a human-friendly page (`server/admin.html`) for the same stats:
   it asks for the key once and stores it in localStorage.
+- Adding a new secret takes BOTH steps: declare the key in `render.yaml` under
+  `envVars` with `sync: false`, and set its value in the Render dashboard
+  (Environment tab on the usa-fc service). A dashboard-only var on this
+  Blueprint-managed service didn't reach the server when ADMIN_KEY was added
+  (Sept 2026) until it was declared in `render.yaml` too.
 - `SEASON` is blank in `.env` and absent from `render.yaml`, so the server
   auto-computes it (`season()` in `server/adapters/providers/apiFootball.js`:
   calendar year, rolling over each August — 2026 as of Sept 2026). No manual summer
@@ -61,6 +75,14 @@ Request flow: `server/index.js` (routes, rate limit) → `server/src/service.js`
 (`apiFootball.js` when `API_FOOTBALL_KEY` is set, else `demo.js` with bundled simulated
 data) → `server/adapters/streaming/` (auto lookup stub, then `server/config/streaming.json`
 league→US-broadcaster fallback).
+
+Admin stats (`server/src/metrics.js`): in-memory counters — API-Football request
+timestamps (rolling 24h window) recorded in `api()` (retries count separately, matching
+what the API bills), cache hit/miss counted in `cache.wrap()` (fresh hit or in-flight
+join = hit). Served by token-protected `/api/admin/stats` (Authorization: Bearer or
+x-admin-key header, timing-safe compare, 503 when ADMIN_KEY unset) and the `/admin`
+page. Like the caches, counters reset on every restart (`serverStartedAt` in the
+response says when).
 
 Cache TTLs (service.js): player stats 24h, schedules 1h, live overlay 60s, player
 profiles 7d (upcoming fixtures separately at 1h), team pages 6h, finished-match
