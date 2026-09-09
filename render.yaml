@@ -12,3 +12,5 @@ services:
     envVars:
       - key: API_FOOTBALL_KEY
         sync: false
+      - key: ADMIN_KEY # bearer token for /api/admin/stats and the /admin page
+        sync: false
