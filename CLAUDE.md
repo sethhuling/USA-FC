@@ -88,10 +88,6 @@ fetches at most 15 uncached per request, newest first).
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   original USAFC crest (deliberately NOT the trademarked USMNT logo). Squad badge
   labels: XI / ON / BENCH / OUT.
-- While any sheet is open, `body:has(.sheet-backdrop)` CSS forces the topbar compact —
-  iPad Safari can paint the sticky bar above the overlay despite z-index, hiding the
-  sheet's close button behind the expanded header. Keep those `:has()` rules standalone
-  (not merged into `.topbar.scrolled` selector lists).
 - Collapsing topbar: the collapse removes ~124px of layout height, so it MUST keep
   `overflow-anchor: none` on `html` (styles.css) and the hysteresis thresholds in
   App.jsx (collapse past 24px, re-expand under 8px). A single scroll threshold
@@ -109,3 +105,72 @@ cold start uses ~100 calls, the finished-match backfill a few hundred once per 4
 When verifying scroll/animation behavior in the Claude browser pane, the tab must be
 visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their
 start value and suppresses scroll-event dispatch — tests read as false failures.
+
+## What this is
+USA FC — a web app tracking American soccer players at clubs outside the US.
+Tabs: Schedule (past/live/upcoming, with US streaming info), Stats
+(leaderboards), Players (profiles with bio and season stats).
+Primary user is Seth, mostly on an iPad and phone. Mobile/tablet layout is
+the priority, not desktop.
+
+## Data sources
+Five sources in three adapter groups under server/adapters/. Each has one job.
+
+Providers (providers/) — match/player data. index.js picks ONE at startup:
+- API-Football (apiFootball.js): the real source for everything — season
+  stats, fixtures, live scores, match detail, profiles, transfers, rounds.
+  Pro plan ($19/mo): 7,500 requests/day, 300/min. Daily count resets every
+  24h. Responses include x-ratelimit-requests-remaining headers — check
+  them before assuming budget. Daily cap is comfortable for stat refreshes;
+  the 300/min limit is the real risk during live polling. Batch or space
+  live requests; never add a new poll loop without estimating req/min.
+  All calls go through the throttled api() helper with rate-limit backoff —
+  never bypass it. Active when API_FOOTBALL_KEY is set.
+- Demo (demo.js): keyless stand-in with bundled data; one match is always
+  "live" so the 60-second poll path can be developed offline. Returns
+  demo: true on everything.
+
+Streaming (streaming/) — "what US service is this match on?"
+- configFallback: hand-maintained server/config/streaming.json mapping
+  competition → US broadcaster (e.g. Championship → Paramount+). Fuzzy name
+  matching. Re-read on every lookup, so edits need no restart.
+  THIS IS WHAT ACTUALLY ANSWERS IN PRODUCTION.
+- liveSoccerTv: intentional stub, always returns null. Placeholder for a
+  licensed match-level lookup (LiveSoccerTV forbids scraping).
+  ENABLE_STREAMING_AUTO=1 — leave off.
+
+Scrapers (scrapers/)
+- FotMob: opt-in (ENABLE_FOTMOB_SCRAPER=1), best-effort only. Adds
+  clearances and interceptions that API-Football lacks, via an unofficial
+  endpoint. Treat as optional; may break without notice.
+
+In production only two sources are live: API-Football + streaming.json.
+
+## Environment
+- Secrets live in .env locally and in the Render dashboard in production.
+  Never commit .env. Never print API keys in output.
+- Key vars: API_FOOTBALL_KEY, SEASON, PORT, ENABLE_STREAMING_AUTO,
+  ENABLE_FOTMOB_SCRAPER.
+- SEASON is left blank — the server auto-computes it (current year, rolls
+  over each August; 2026 now). Only set it to pin a specific season.
+
+## Deploy
+- Hosted on Render, deploys automatically on push to `main` (the repo's
+  default branch; render.yaml Blueprint).
+- To ship a change: commit, push, wait for Render build, then hard-relaunch
+  the app on the iPad/phone to see it.
+
+## Conventions
+- Player profiles use imperial units (feet/inches, pounds), never metric.
+- Player bios read like an American scouting card (set Sept 2026).
+
+## Known issues / next up
+- streaming.json is hand-maintained by competition. Review each August when
+  US rights change. Finding a licensed broadcast-data source is a future
+  task, not something to attempt ad hoc.
+
+## Working style
+- Explain changes in plain language; Seth is not a professional developer.
+- Check in before adding new dependencies or external services.
+- Keep this file updated when a durable decision is made. Remove items from
+  Known issues once they are fixed.
