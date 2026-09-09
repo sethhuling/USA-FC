@@ -84,6 +84,12 @@ fetches at most 15 uncached per request, newest first).
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   original USAFC crest (deliberately NOT the trademarked USMNT logo). Squad badge
   labels: XI / ON / BENCH / OUT.
+- Collapsing topbar: the collapse removes ~124px of layout height, so it MUST keep
+  `overflow-anchor: none` on `html` (styles.css) and the hysteresis thresholds in
+  App.jsx (collapse past 24px, re-expand under 8px). A single scroll threshold
+  oscillates on Android — Chrome's scroll anchoring shifts scrollY to compensate for
+  the shrink, re-crossing the threshold in a loop. iOS Safari has no scroll anchoring,
+  so iPhone testing will never catch a regression here.
 
 ## Testing against real data
 
@@ -91,3 +97,7 @@ Football data changes constantly — verify claims against the live API rather t
 memory (e.g. a player showing zero stats may genuinely be injured or frozen out, not a
 bug: check their career rows). The account is a paid Pro plan (7,500 req/day); a full
 cold start uses ~100 calls, the finished-match backfill a few hundred once per 48h.
+
+When verifying scroll/animation behavior in the Claude browser pane, the tab must be
+visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their
+start value and suppresses scroll-event dispatch — tests read as false failures.
