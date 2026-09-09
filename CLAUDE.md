@@ -67,7 +67,8 @@ actually `finished` (a null or still-live detail must never be long-cached).
 While a live match's detail is being viewed, a single server-side timer
 (`watchedLive` in service.js) refreshes it every 60s and all viewers read the
 shared cache — N concurrent viewers cost 1 upstream call per interval, and the
-timer stops when the match finishes or nobody has viewed it for 3 minutes.
+timer stops when the match finishes or nobody has viewed it for 3 minutes. Each
+tick logs `[live-detail] refreshed N watched match(es)` (visible in Render logs).
 
 `getMatches` layers three passes on the cached schedule each request: a 60s live
 overlay, a reconcile for matches the cache thinks are live but the live feed dropped
@@ -141,6 +142,10 @@ Scrapers (`scrapers/`)
   bare service names (no parentheticals) — user preference.
 - The service worker (`public/sw.js`) is network-first for `/api/` and navigations so
   deploys and live scores are never stale; bump its cache name if you change caching.
+- An open `MatchSheet` on a live match re-pulls detail every 60s
+  (`fetchMatchDetail(id, { fresh: true })` skips the 60s client memo but still
+  updates it). These polls are server cache reads — the server's shared timer does
+  the upstream fetching, so per-viewer polling adds no API-Football cost.
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   original USAFC crest (deliberately NOT the trademarked USMNT logo). Squad badge
   labels: XI / ON / BENCH / OUT.
