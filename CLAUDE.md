@@ -27,6 +27,10 @@ of throttled upstream calls). Client changes require `npm run build`.
 Deploys: push to `main` on GitHub → Render auto-deploys (~3 min). Confirm a deploy landed
 by grepping the served HTML for the new hashed bundle name from `client/dist/assets/`.
 `API_FOOTBALL_KEY` lives in `.env` locally (git-ignored) and in Render env vars — never in git.
+`SEASON` is blank in `.env` and absent from `render.yaml`, so the server auto-computes it
+(`season()` in `server/adapters/providers/apiFootball.js`: calendar year, rolling over each
+August — 2026 as of Sept 2026). No manual summer bump is needed unless `SEASON` is set to
+pin a specific year.
 
 ## Architecture
 
@@ -84,6 +88,10 @@ fetches at most 15 uncached per request, newest first).
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   original USAFC crest (deliberately NOT the trademarked USMNT logo). Squad badge
   labels: XI / ON / BENCH / OUT.
+- While any sheet is open, `body:has(.sheet-backdrop)` CSS forces the topbar compact —
+  iPad Safari can paint the sticky bar above the overlay despite z-index, hiding the
+  sheet's close button behind the expanded header. Keep those `:has()` rules standalone
+  (not merged into `.topbar.scrolled` selector lists).
 - Collapsing topbar: the collapse removes ~124px of layout height, so it MUST keep
   `overflow-anchor: none` on `html` (styles.css) and the hysteresis thresholds in
   App.jsx (collapse past 24px, re-expand under 8px). A single scroll threshold
