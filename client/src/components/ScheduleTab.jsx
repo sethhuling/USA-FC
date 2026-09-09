@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { PlayerLink } from './PlayerProfile.jsx';
 import MatchSheet from './MatchSheet.jsx';
 import { TeamLink } from './TeamSheet.jsx';
@@ -8,7 +8,7 @@ const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
 });
 
-const SQUAD_BADGES = { start: 'XI', on: 'ON', bench: 'SUB', out: 'OUT' };
+const SQUAD_BADGES = { start: 'XI', on: 'ON', bench: 'BENCH', out: 'OUT' };
 const SQUAD_RANK = { start: 0, on: 1, bench: 2, out: 3 };
 const byStatus = (a, b) => (SQUAD_RANK[a.squadStatus] ?? 4) - (SQUAD_RANK[b.squadStatus] ?? 4);
 
@@ -48,6 +48,7 @@ function MatchRow({ m, playersById, onOpen }) {
               {p.squadStatus && (
                 <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
               )}
+              {p.outInjured && <span className="inj-cross" title="Injured">✚</span>}
               {p.name}
             </span>
             {feats && (
@@ -94,6 +95,12 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
   const [league, setLeague] = useState('all');
   const [playerId, setPlayerId] = useState('all');
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [view, setView] = useState('upcoming');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    window.dispatchEvent(new Event('scroll'));
+  }, [view]);
 
   const leagues = useMemo(
     () => [...new Set(matches.map((m) => m.league))].sort(), [matches]);
@@ -113,6 +120,23 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
 
   return (
     <div>
+      <div className="subtabs" role="tablist" aria-label="Schedule view">
+        <button
+          role="tab" aria-selected={view === 'upcoming'}
+          className={view === 'upcoming' ? 'subtab active' : 'subtab'}
+          onClick={() => setView('upcoming')}
+        >
+          Live & Upcoming
+          {live.length > 0 && <span className="live-count">{live.length} live</span>}
+        </button>
+        <button
+          role="tab" aria-selected={view === 'results'}
+          className={view === 'results' ? 'subtab active' : 'subtab'}
+          onClick={() => setView('results')}
+        >
+          Results
+        </button>
+      </div>
       <div className="filters">
         <select value={league} onChange={(e) => setLeague(e.target.value)} aria-label="Filter by league">
           <option value="all">All leagues</option>
@@ -124,25 +148,33 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
         </select>
       </div>
 
-      {live.length > 0 && (
-        <section>
-          <h2 className="section-live">Live now</h2>
-          {live.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
-        </section>
+      {view === 'upcoming' && (
+        <>
+          {live.length > 0 && (
+            <section>
+              <h2 className="section-live">Live now</h2>
+              {live.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
+            </section>
+          )}
+          {upcoming.length > 0 && (
+            <section>
+              <h2>Upcoming</h2>
+              {upcoming.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
+            </section>
+          )}
+          {live.length + upcoming.length === 0 && (
+            <p className="empty">No live or upcoming matches for this filter.</p>
+          )}
+        </>
       )}
-      {upcoming.length > 0 && (
-        <section>
-          <h2>Upcoming</h2>
-          {upcoming.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
-        </section>
+      {view === 'results' && (
+        finished.length > 0 ? (
+          <section>
+            <h2>Results — last 30 days</h2>
+            {finished.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
+          </section>
+        ) : <p className="empty">No results for this filter.</p>
       )}
-      {finished.length > 0 && (
-        <section>
-          <h2>Results</h2>
-          {finished.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
-        </section>
-      )}
-      {filtered.length === 0 && <p className="empty">No matches for this filter.</p>}
       {lastUpdated && (
         <p className="updated">Updated {lastUpdated.toLocaleTimeString()}</p>
       )}

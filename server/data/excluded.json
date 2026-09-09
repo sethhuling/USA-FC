@@ -1,0 +1,6 @@
+{
+  "note": "Players the API lists as USA-nationality but who chose another national team. npm run discover skips these ids.",
+  "excluded": [
+    "bajraktarevic-esmir"
+  ]
+}

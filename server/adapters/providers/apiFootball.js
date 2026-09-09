@@ -117,13 +117,14 @@ async function mapLimit(items, limit, fn) {
 
 function aggregateStats(entries) {
   // A player can have stat lines per competition; sum countables, weight pass accuracy.
-  const s = { appearances: 0, minutes: 0, goals: 0, assists: 0, tackles: 0,
+  const s = { appearances: 0, starts: 0, minutes: 0, goals: 0, assists: 0, tackles: 0,
     interceptions: 0, clearances: 0, passesCompleted: 0, passAccuracy: null,
     yellow: 0, red: 0 };
   let accWeighted = 0, accWeight = 0;
   for (const e of entries) {
     const g = e.games || {}, gl = e.goals || {}, t = e.tackles || {}, pa = e.passes || {}, c = e.cards || {};
     s.appearances += g.appearences || 0;
+    s.starts += g.lineups || 0;
     s.minutes += g.minutes || 0;
     s.goals += gl.total || 0;
     s.assists += gl.assists || 0;
@@ -169,6 +170,7 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
       return {
         playerId: p.id, name: p.name, club: p.club,
         squadStatus,
+        outInjured: squadStatus === 'out' && !!pe?.injured?.has(p.apiFootballId),
         inSquad: squadStatus === null ? null : squadStatus !== 'out',
         goals: pe?.goals?.get(p.apiFootballId) || [],
         assists: pe?.assists?.get(p.apiFootballId) || [],
@@ -183,6 +185,18 @@ const PLAYERS_FILE = path.join(__dirname, '..', '..', 'data', 'players.json');
 
 function norm(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// Player ids reported injured/missing for a fixture.
+async function fetchInjuredSet(fixtureId) {
+  const resp = await api('/injuries', { fixture: fixtureId }).catch(() => []);
+  return new Set(resp.map((x) => x.player?.id).filter(Boolean));
+}
+
+function trackedOutExists(tracked, fx, pe) {
+  if (!pe.hasLineups) return false;
+  return tracked.some((p) => p.apiFootballId && playerInFixture(p, fx) &&
+    !pe.start.has(p.apiFootballId) && !pe.bench.has(p.apiFootballId));
 }
 
 // Pull tracked-player-relevant sets out of a full fixture detail payload.
@@ -369,7 +383,7 @@ async function playerProfile(p) {
     }
     for (const row of byTeam.values()) {
       row.leagues = [...row.leagues].filter(Boolean).join(', ');
-      (norm(row.team) === 'usa' ? national : career).push(row);
+      (/^(usa|united states)/.test(norm(row.team)) ? national : career).push(row);
     }
   }
 
@@ -406,7 +420,11 @@ async function matchDetail(fixtureId, tracked) {
   const lus = d.lineups || [];
   const homeLu = lus.find((l) => l.team?.name === d.teams?.home?.name) || lus[0] || null;
   const awayLu = lus.find((l) => l !== homeLu) || null;
-  const playerEvents = new Map([[d.fixture.id, extractPlayerEvents(d)]]);
+  const pe = extractPlayerEvents(d);
+  if (trackedOutExists(tracked, d, pe)) {
+    pe.injured = await fetchInjuredSet(d.fixture.id);
+  }
+  const playerEvents = new Map([[d.fixture.id, pe]]);
   const base = mapFixture(d, tracked, playerEvents);
   return {
     ...base,
@@ -495,7 +513,7 @@ module.exports = {
       .map((l) => LEAGUE_IDS[l]).filter(Boolean);
     const cupIds = Object.values(CUP_IDS);
     const now = new Date();
-    const from = new Date(now - 7 * 864e5).toISOString().slice(0, 10);
+    const from = new Date(now - 30 * 864e5).toISOString().slice(0, 10); // a month of results
     const to = new Date(+now + 7 * 864e5).toISOString().slice(0, 10);
     let failures = 0;
     const ids = [...leagues, ...cupIds];
@@ -522,7 +540,11 @@ module.exports = {
       try {
         const detail = await api('/fixtures', { id: fx.fixture.id });
         const d = detail[0] || {};
-        playerEvents.set(fx.fixture.id, extractPlayerEvents(d));
+        const pe = extractPlayerEvents(d);
+        if (trackedOutExists(tracked, fx, pe)) {
+          pe.injured = await fetchInjuredSet(fx.fixture.id);
+        }
+        playerEvents.set(fx.fixture.id, pe);
       } catch (e) {
         console.warn(`[api-football] live detail ${fx.fixture.id}: ${e.message}`);
       }

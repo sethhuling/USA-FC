@@ -32,7 +32,7 @@
 }
 
 * { box-sizing: border-box; }
-html, html { background: #0A3161; }
+html, html { background: #0A3161; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body { margin: 0; padding: 0; }
 body {
   background: var(--bg);
@@ -447,3 +447,20 @@ section h2.section-live { color: var(--live); }
 .chip-feats { display: flex; gap: 8px; align-items: center; }
 .feat { display: inline-flex; align-items: center; gap: 3px; font-size: 0.68rem; font-weight: 700; }
 .feat svg { display: block; }
+
+/* Schedule sub-tabs: Live & Upcoming / Results */
+.subtabs { display: flex; gap: 6px; margin-bottom: 8px; }
+.subtab {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 8px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted);
+  font-size: 0.82rem; font-weight: 700;
+}
+.subtab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.live-count {
+  background: var(--live); color: #fff; border-radius: 999px;
+  padding: 1px 7px; font-size: 0.64rem; font-weight: 800;
+}
+
+/* Injury marker next to OUT badges */
+.inj-cross { color: var(--live); font-weight: 900; margin-right: 4px; font-size: 0.72rem; }

@@ -187,6 +187,17 @@
     "apiFootballTeamId": 60
   },
   {
+    "id": "mcglynn-jack",
+    "name": "Jack McGlynn",
+    "club": "Stoke City",
+    "league": "Championship",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 207768,
+    "apiFootballTeamId": 75
+  },
+  {
     "id": "bombino-luca",
     "name": "Luca Bombino",
     "club": "Stoke City",
@@ -219,6 +230,17 @@
     "apiFootballId": 360681
   },
   {
+    "id": "pukstas-rokas",
+    "name": "Rokas Pukštas",
+    "club": "Middlesbrough",
+    "league": "Championship",
+    "position": "CM",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 340571,
+    "apiFootballTeamId": 70
+  },
+  {
     "id": "berhalter-sebastian",
     "name": "Sebastian Berhalter",
     "club": "Middlesbrough",
@@ -230,15 +252,15 @@
     "apiFootballTeamId": 70
   },
   {
-    "id": "bajraktarevic-esmir",
-    "name": "Esmir Bajraktarević",
-    "club": "PSV Eindhoven",
-    "league": "Eredivisie",
-    "position": "FW",
-    "positionGroup": "FW",
+    "id": "bindon-tyler",
+    "name": "Tyler Bindon",
+    "club": "Charlton",
+    "league": "Championship",
+    "position": "DF",
+    "positionGroup": "DF",
     "nationality": "USA",
-    "apiFootballId": 329409,
-    "apiFootballTeamId": 197
+    "apiFootballId": 430835,
+    "apiFootballTeamId": 1335
   },
   {
     "id": "hawkins-jalen",

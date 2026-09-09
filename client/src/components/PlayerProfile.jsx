@@ -132,7 +132,7 @@ function ProfileSheet({ player, onClose }) {
   const bio = profile?.bio;
   const s = profile?.player?.stats || player.stats;
   const statRows = s ? [
-    ['Apps', s.appearances], ['Minutes', s.minutes], ['Goals', s.goals],
+    ['Apps', s.appearances], ['Starts', s.starts], ['Minutes', s.minutes], ['Goals', s.goals],
     ['Assists', s.assists], ['Tackles', s.tackles], ['Intercepts', s.interceptions],
     ['Clr/Blocks', s.clearances],
     ['Def. actions', (s.tackles || 0) + (s.interceptions || 0) + (s.clearances || 0)],
@@ -243,7 +243,7 @@ function ProfileSheet({ player, onClose }) {
                   {profile.national.map((r, i) => (
                     <tr key={i}>
                       <td>{r.season}</td>
-                      <td title={r.leagues}>{r.leagues || 'USA'}</td>
+                      <td title={r.leagues}>{r.team === 'USA' ? (r.leagues || 'USA') : r.team}</td>
                       <td className="num">{r.apps} caps</td>
                       <td className="num">{r.goals} G</td>
                       <td className="num">{r.assists} A</td>

@@ -13,6 +13,9 @@ const fs = require('fs');
 const path = require('path');
 
 const OUT = path.join(__dirname, '..', 'data', 'players.json');
+const EXCLUDED = new Set(
+  JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'excluded.json'), 'utf8')).excluded
+);
 
 function slug(name) {
   return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -102,6 +105,7 @@ async function main() {
   }
   let added = 0;
   for (const p of discovered) {
+    if (EXCLUDED.has(p.id)) continue; // chose another national team
     const existing = (p.apiFootballId && byApiId.get(p.apiFootballId)) || byId.get(p.id);
     if (existing) {
       // Keep hand edits but refresh club/league and backfill the API id.
