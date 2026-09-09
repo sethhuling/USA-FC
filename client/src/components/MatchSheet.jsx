@@ -149,8 +149,16 @@ export default function MatchSheet({ match, playersById, onClose }) {
                 <li key={i} className={e.trackedId ? 'american' : ''}>
                   <span className="event-min">{e.minute}{e.extra ? `+${e.extra}` : ''}′</span>
                   {eventIcon(e)} {e.player}{e.trackedId ? ' 🇺🇸' : ''}
-                  {e.type === 'Goal' && e.assist && <span className="event-sub"> (assist: {e.assist})</span>}
-                  {e.type === 'subst' && e.assist && <span className="event-sub"> ⇄ {e.assist}</span>}
+                  {e.type === 'Goal' && e.assist && (
+                    <span className={e.assistTrackedId ? 'event-sub american' : 'event-sub'}>
+                      {' '}(assist: {e.assist}{e.assistTrackedId ? ' 🇺🇸' : ''})
+                    </span>
+                  )}
+                  {e.type === 'subst' && e.assist && (
+                    <span className={e.assistTrackedId ? 'event-sub american' : 'event-sub'}>
+                      {' '}⇄ {e.assist}{e.assistTrackedId ? ' 🇺🇸' : ''}
+                    </span>
+                  )}
                   <span className="event-team"> — {e.team}</span>
                 </li>
               ))}

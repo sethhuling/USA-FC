@@ -465,6 +465,9 @@ async function matchDetail(fixtureId, tracked) {
       team: e.team?.name, player: e.player?.name, assist: e.assist?.name || null,
       type: e.type, detail: e.detail,
       trackedId: trackedByApiId.get(e.player?.id)?.id || null,
+      // The event's second name — a goal's assister, or the player coming ON in
+      // a substitution — is tracked separately so the UI can flag him too.
+      assistTrackedId: trackedByApiId.get(e.assist?.id)?.id || null,
     })),
     stats: (d.statistics || []).map((st) => ({
       team: st.team?.name,

@@ -49,7 +49,7 @@ function MatchRow({ m, playersById, onOpen }) {
                 <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
               )}
               {p.outInjured && <span className="inj-cross" title="Injured">✚</span>}
-              {p.name} 🇺🇸
+              {p.name}
             </span>
             {feats && (
               <span className="chip-feats">
@@ -65,7 +65,7 @@ function MatchRow({ m, playersById, onOpen }) {
           return (
             <span
               key={p.playerId}
-              className={`chip american${p.goals?.length ? ' scored' : ''}${p.squadStatus === 'out' ? ' benched-out' : ''}`}
+              className={`chip${p.goals?.length ? ' scored' : ''}${p.squadStatus === 'out' ? ' benched-out' : ''}`}
             >
               {full ? <PlayerLink player={full}>{label}</PlayerLink> : label}
             </span>

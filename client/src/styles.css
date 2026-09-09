@@ -170,8 +170,6 @@ section h2.section-live { color: var(--live); }
   font-size: 0.72rem; padding: 3px 8px; border-radius: 999px;
   background: var(--accent-soft); color: var(--accent); font-weight: 600;
 }
-/* Every tracked player on a match card is American: red, flag beside the name. */
-.chip.american { background: var(--scored-soft); color: var(--scored); }
 .chip.scored { background: var(--scored-soft); color: var(--scored); }
 .match-bottom { margin-top: 8px; font-size: 0.75rem; color: var(--muted); }
 .stream-source { opacity: 0.75; }
@@ -356,6 +354,8 @@ section h2.section-live { color: var(--live); }
 .event-list li.american { color: var(--live); font-weight: 700; }
 .event-min { display: inline-block; min-width: 38px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .event-sub, .event-team { color: var(--muted); font-weight: 400; font-size: 0.78rem; }
+/* The event's second name (assister / player subbed ON) when he's a tracked American. */
+.event-sub.american { color: var(--live); font-weight: 700; }
 .lineups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .lineup-col h5 { margin: 6px 0 2px; font-size: 0.85rem; }
 .lineup-col h6 { margin: 8px 0 2px; font-size: 0.7rem; text-transform: uppercase; color: var(--muted); }
