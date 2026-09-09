@@ -32,7 +32,10 @@
 }
 
 * { box-sizing: border-box; }
-html, html { background: #0A3161; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* overflow-anchor: collapsing the topbar removes ~124px above the viewport;
+   Chrome's scroll anchoring (Android) shifts scrollY to compensate, which
+   re-crosses the collapse threshold and makes the header oscillate. */
+html { background: #0A3161; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-anchor: none; }
 body { margin: 0; padding: 0; }
 body {
   background: var(--bg);

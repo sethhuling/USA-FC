@@ -22,7 +22,11 @@ export default function App() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    // Hysteresis: collapse past 24px, re-expand only near the top. A single
+    // threshold oscillates — collapsing removes ~124px of header height, and
+    // scroll clamping/anchoring feeds that straight back into scrollY.
+    const onScroll = () =>
+      setScrolled((prev) => (prev ? window.scrollY > 8 : window.scrollY > 24));
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
