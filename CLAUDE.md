@@ -29,8 +29,9 @@ npm run discover       # scan all configured leagues for US-nationality players,
 
 There are no tests or linters. Verification is: build, restart the server, curl the API
 endpoints, and check the UI. **Server code changes require a server restart** (and most
-caches are in-memory, so a restart also clears them — first load re-warms over ~1–2 min
-of throttled upstream calls). Client changes require `npm run build`.
+caches are in-memory, so a restart also clears them — the startup warm refills
+everything over ~6 min of throttled upstream calls; players/matches come back first).
+Client changes require `npm run build`.
 
 ## Environment
 
@@ -69,6 +70,19 @@ While a live match's detail is being viewed, a single server-side timer
 shared cache — N concurrent viewers cost 1 upstream call per interval, and the
 timer stops when the match finishes or nobody has viewed it for 3 minutes. Each
 tick logs `[live-detail] refreshed N watched match(es)` (visible in Render logs).
+
+Cache warmer (`server/src/warm.js`, started from index.js): pre-fills every
+user-facing cache — players, schedule, leagues, all 55 team pages, all 72 player
+profiles (which also fill each club's `team-upcoming`) — so opens never hit
+API-Football cold. It must run in-process because the caches are in-memory.
+Three triggers: **startup** (full fill, ~1,400 calls / ~6 min cold), **daily at
+09:00 UTC** (forced refresh, ~400 calls — quiet hour between South American late
+games and European kickoffs), and **post-match** (a 5-min checker watches tracked
+kickoff times; once no tracked match has kicked off for 3h, a contiguous block of
+kickoffs is "over" and it force-refreshes stats, schedule, rounds, and the played
+teams' caches — one warm per block, not per match). Forcing uses `cache.del()` so
+unexpired-but-stale keys (24h stats right after a match) re-fetch. Logs as
+`[warm] <reason> ... done in Ns` (visible in Render logs).
 
 `getMatches` layers three passes on the cached schedule each request: a 60s live
 overlay, a reconcile for matches the cache thinks are live but the live feed dropped
@@ -165,9 +179,12 @@ Scrapers (`scrapers/`)
 
 Football data changes constantly — verify claims against the live API rather than
 memory (e.g. a player showing zero stats may genuinely be injured or frozen out, not a
-bug: check their career rows). The account is a paid Pro plan (7,500 req/day); a full
-cold start uses ~100 calls, the finished-match backfill a few hundred once per restart
-(details cache for 30d, longer than the server usually lives).
+bug: check their career rows). The account is a paid Pro plan (7,500 req/day); a fully
+cold startup warm uses ~1,400 calls (dominated by first-time player profiles, which
+then cache 7d), the daily forced warm ~400, the finished-match backfill a few hundred
+once per restart (details cache for 30d, longer than the server usually lives). Budget
+supports a few restarts per day on top of the scheduled warms — don't add new bulk
+fetch loops without re-estimating.
 
 When verifying scroll/animation behavior in the Claude browser pane, the tab must be
 visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their

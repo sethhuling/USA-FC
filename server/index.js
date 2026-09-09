@@ -56,15 +56,7 @@ const port = process.env.PORT || 8787;
 app.listen(port, () => {
   console.log(`[americans-abroad] listening on http://localhost:${port}`);
   console.log(`[americans-abroad] data provider: ${require('../server/adapters/providers').name}`);
-  // Warm caches so the first page load doesn't wait on throttled upstream calls.
-  // Players FIRST: fetching stats resolves club team ids that fixture matching
-  // depends on — building the schedule before them reverts to loose name matching.
-  (async () => {
-    const results = [];
-    for (const fn of [getPlayers, getMatches]) {
-      try { await fn(); results.push('ok'); }
-      catch (e) { results.push(`failed: ${e.message}`); }
-    }
-    console.log(`[warmup] players ${results[0]}, matches ${results[1]}`);
-  })();
+  // Cache warmer: full warm now, forced re-warm daily and after each match
+  // window, so user opens never hit API-Football cold (see src/warm.js).
+  require('./src/warm').start();
 });

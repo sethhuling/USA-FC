@@ -217,4 +217,4 @@ async function getPlayerProfile(id) {
   return profile;
 }
 
-module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail, getLeagues, getTeamOverview };
+module.exports = { getPlayers, getMatches, getMeta, getPlayerProfile, getMatchDetail, getLeagues, getTeamOverview, trackedPlayers };

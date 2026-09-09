@@ -34,4 +34,10 @@ function set(key, ttlMs, value) {
   store.set(key, { value, expires: Date.now() + ttlMs });
 }
 
-module.exports = { wrap, peek, set };
+// Drop a key so the next wrap() call fetches fresh — used by the warmer to
+// force-refresh caches whose TTL hasn't expired (e.g. stats right after a match).
+function del(key) {
+  store.delete(key);
+}
+
+module.exports = { wrap, peek, set, del };
