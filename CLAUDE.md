@@ -189,6 +189,13 @@ Scrapers (`scrapers/`)
   is safe — don't "fix" it by duplicating components.
 - League display names/countries are mapped in `leagues.js`; streaming labels must stay
   bare service names (no parentheticals) — user preference.
+- American marking (user preference, settled Sept 2026 after one revert): in the
+  MatchSheet ("game view") every tracked American is red + 🇺🇸 everywhere — lineups,
+  bench, and BOTH names of an event. Events carry `trackedId` AND `assistTrackedId`
+  (the second slot holds a goal's assister or the player subbed ON, and the API's
+  subst in/out slot order is unreliable, so both slots must be checked — this is how
+  Pukštas went unmarked when subbed on). Schedule-card chips stay navy, red only when
+  the player scored, no flags — do NOT re-add red/flags there.
 - The service worker (`public/sw.js`) is network-first for `/api/` and navigations so
   deploys and live scores are never stale; bump its cache name if you change caching.
 - An open `MatchSheet` on a live match re-pulls detail every 60s
