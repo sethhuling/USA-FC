@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["server/index.js"],
       "port": 8787
+    },
+    {
+      "name": "americans-abroad-demo",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["API_FOOTBALL_KEY=", "ADMIN_KEY=demo-admin-key", "PORT=8791", "node", "server/index.js"],
+      "port": 8791
     }
   ]
 }

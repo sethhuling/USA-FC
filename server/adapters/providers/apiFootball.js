@@ -75,6 +75,7 @@ async function throttle() {
 
 async function api(path, params = {}, attempt = 0) {
   await throttle();
+  require('../../src/metrics').recordApiCall();
   const url = new URL(BASE + path);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
   const res = await fetch(url, {

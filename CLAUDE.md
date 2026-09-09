@@ -38,7 +38,10 @@ Client changes require `npm run build`.
 - Secrets live in `.env` locally (git-ignored) and in the Render dashboard in
   production. Never commit `.env`. Never print API keys in output.
 - Key vars: `API_FOOTBALL_KEY`, `SEASON`, `PORT`, `ENABLE_STREAMING_AUTO`,
-  `ENABLE_FOTMOB_SCRAPER`.
+  `ENABLE_FOTMOB_SCRAPER`, `ADMIN_KEY` (bearer token for `/api/admin/stats` —
+  upstream request counts and cache hit rate; endpoint returns 503 if unset).
+  `/admin` serves a human-friendly page (`server/admin.html`) for the same stats:
+  it asks for the key once and stores it in localStorage.
 - `SEASON` is blank in `.env` and absent from `render.yaml`, so the server
   auto-computes it (`season()` in `server/adapters/providers/apiFootball.js`:
   calendar year, rolling over each August — 2026 as of Sept 2026). No manual summer
@@ -111,10 +114,11 @@ live: API-Football + streaming.json.
 Providers (`providers/`) — match/player data. `index.js` picks ONE at startup:
 - API-Football (`apiFootball.js`): the real source for everything — season stats,
   fixtures, live scores, match detail, profiles, transfers, rounds. Active when
-  `API_FOOTBALL_KEY` is set. Pro plan ($19/mo): 7,500 requests/day (resets every
-  24h), 300/min. Responses include `x-ratelimit-requests-remaining` headers — check
-  them before assuming budget. The daily cap is comfortable for stat refreshes; the
-  300/min limit is the real risk during live polling. Batch or space live requests;
+  `API_FOOTBALL_KEY` is set. Mega plan ($39/mo, upgraded Sept 2026): 150,000
+  requests/day. Responses include `x-ratelimit-requests-remaining` headers — check
+  them before assuming budget. The daily cap is no longer a practical constraint,
+  but a per-minute burst limit still applies (300/min on the old Pro plan; Mega's
+  exact figure unverified) — keep the throttle, batch or space live requests, and
   never add a new poll loop without estimating req/min.
 - Demo (`demo.js`): keyless stand-in with bundled data; one match is always "live" so
   the 60-second poll path can be developed offline. Returns `demo: true` on everything.
@@ -179,12 +183,14 @@ Scrapers (`scrapers/`)
 
 Football data changes constantly — verify claims against the live API rather than
 memory (e.g. a player showing zero stats may genuinely be injured or frozen out, not a
-bug: check their career rows). The account is a paid Pro plan (7,500 req/day); a fully
+bug: check their career rows). The account is a paid Mega plan (150,000 req/day since
+Sept 2026, after restarts exhausted the old 7,500 Pro cap in one day); a fully
 cold startup warm uses ~1,400 calls (dominated by first-time player profiles, which
 then cache 7d), the daily forced warm ~400, the finished-match backfill a few hundred
-once per restart (details cache for 30d, longer than the server usually lives). Budget
-supports a few restarts per day on top of the scheduled warms — don't add new bulk
-fetch loops without re-estimating.
+once per restart (details cache for 30d, longer than the server usually lives). Daily
+budget is ample now; the per-minute burst limit is what still demands care — don't add
+new bulk fetch loops without estimating req/min. `/api/admin/stats` (or the `/admin`
+page) shows live request counts and cache hit rate.
 
 When verifying scroll/animation behavior in the Claude browser pane, the tab must be
 visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their

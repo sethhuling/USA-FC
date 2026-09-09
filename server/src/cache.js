@@ -1,11 +1,13 @@
 // TTL cache. In-flight de-duplication so concurrent requests share one upstream call.
+const metrics = require('./metrics');
 const store = new Map();
 const inflight = new Map();
 
 async function wrap(key, ttlMs, fn) {
   const hit = store.get(key);
-  if (hit && hit.expires > Date.now()) return hit.value;
-  if (inflight.has(key)) return inflight.get(key);
+  if (hit && hit.expires > Date.now()) { metrics.recordCacheHit(); return hit.value; }
+  if (inflight.has(key)) { metrics.recordCacheHit(); return inflight.get(key); }
+  metrics.recordCacheMiss();
   const p = Promise.resolve()
     .then(fn)
     .then((value) => {
