@@ -23,7 +23,7 @@ function ageFrom(dateStr) {
 
 function hometown(bio) {
   if (!bio?.birth) return null;
-  return [bio.birth.place, bio.birth.country].filter(Boolean).join(', ');
+  return [bio.birth.place, bio.birth.state, bio.birth.country].filter(Boolean).join(', ');
 }
 
 // API values are metric (cm / kg, sometimes with units attached). Show imperial.

@@ -120,6 +120,9 @@ fetches at most 15 uncached per request, newest first).
 - League/cup ids live in `LEAGUE_IDS` / `CUP_IDS`; fixtures are always labeled via
   `ID_TO_NAME` because the API reuses names across countries (Brazil's league is
   literally "Serie A", Austria's is "Bundesliga", two "League Cup"s exist).
+- Venue country isn't in fixture payloads; `matchDetail` looks it up via `/venues`
+  once per stadium (`venueLocations` Map, process-lifetime — stadiums don't move),
+  falling back to the league's country unless it's "World" (UEFA cups etc.).
 - Fixture↔player matching uses `apiFootballTeamId` (exact), falling back to loose
   club-name matching only for players with no id (zero appearances this season). Cup
   draws are full of near-name collisions ("Racing Club Warwick" ≠ Racing Club de
@@ -167,6 +170,12 @@ Scrapers (`scrapers/`)
   another national team (e.g. Bajraktarević → Bosnia) are excluded here; `npm run
   discover` skips them. Season stats count only the player's current club — no
   prior-club (MLS) or national-team numbers; a mid-season transfer starts the line fresh.
+- `hometowns.json` — hand-verified US birth states (and rare country corrections)
+  keyed by player id; API-Football birth places have no state. Merged into profile
+  bios by `withHometown()` in service.js, read fresh each call so edits need no
+  restart. Only add entries verified against a real source — city names repeat
+  across states (Clovis NM vs CA, Birmingham AL vs MI). New roster additions won't
+  have an entry until one is added by hand.
 - `demo/` — demo-mode dataset (fixtures generated relative to server start, includes a
   simulated live match so the 60s poll path works keyless).
 

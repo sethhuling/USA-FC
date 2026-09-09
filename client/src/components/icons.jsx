@@ -1,20 +1,29 @@
 import React from 'react';
 
-// American-flag-themed soccer ball (goal marker).
+// Goal marker: a classic pentagon-panel soccer ball in brand colors —
+// red center pentagon, navy panels/seams on white.
 export function UsaBall({ size = 13 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-label="goal" role="img">
-      <defs><clipPath id="usaball-c"><circle cx="12" cy="12" r="10.5" /></clipPath></defs>
       <circle cx="12" cy="12" r="10.5" fill="#fff" />
-      <g clipPath="url(#usaball-c)">
-        <rect x="0" y="10" width="24" height="3.4" fill="#B31942" />
-        <rect x="0" y="16.8" width="24" height="3.4" fill="#B31942" />
-        <rect x="0" y="0" width="24" height="3.4" fill="#B31942" />
-        <rect x="0" y="0" width="13" height="10" fill="#0A3161" />
-        <circle cx="3.6" cy="3.2" r="1.1" fill="#fff" />
-        <circle cx="8.2" cy="3.2" r="1.1" fill="#fff" />
-        <circle cx="5.9" cy="6.7" r="1.1" fill="#fff" />
+      {/* seams: center-pentagon vertices out to the rim */}
+      <g stroke="#0A3161" strokeWidth="1.4" strokeLinecap="round">
+        <line x1="12" y1="7.7" x2="12" y2="1.6" />
+        <line x1="16.09" y1="10.67" x2="21.89" y2="8.79" />
+        <line x1="14.53" y1="15.48" x2="18.11" y2="20.41" />
+        <line x1="9.47" y1="15.48" x2="5.89" y2="20.41" />
+        <line x1="7.91" y1="10.67" x2="2.11" y2="8.79" />
       </g>
+      {/* half-panels along the rim between the seams */}
+      <g fill="#0A3161">
+        <path d="M15.59 2.13 L20.27 5.53 L16.12 6.34 Z" />
+        <path d="M22.49 12.37 L20.70 17.87 L18.66 14.16 Z" />
+        <path d="M14.90 22.09 L9.10 22.09 L12 19 Z" />
+        <path d="M1.51 12.37 L3.30 17.87 L5.34 14.16 Z" />
+        <path d="M8.41 2.13 L3.73 5.53 L7.88 6.34 Z" />
+      </g>
+      {/* center pentagon — the one red panel */}
+      <path d="M12 7.7 L16.09 10.67 L14.53 15.48 L9.47 15.48 L7.91 10.67 Z" fill="#B31942" />
       <circle cx="12" cy="12" r="10.5" fill="none" stroke="#0A3161" strokeWidth="1.6" />
     </svg>
   );

@@ -334,7 +334,11 @@ async function teamOverview(teamId, tracked) {
     name: info.team?.name, logo: info.team?.logo || null,
     country: info.team?.country || null, founded: info.team?.founded || null,
     venue: info.venue?.name
-      ? { name: info.venue.name, city: info.venue.city || null, capacity: info.venue.capacity || null }
+      ? {
+        name: info.venue.name, city: info.venue.city || null,
+        country: info.team?.country || null, // a club's stadium is in the club's country
+        capacity: info.venue.capacity || null,
+      }
       : null,
     standings,
     americans: tracked
@@ -395,6 +399,19 @@ async function playerProfile(p) {
   return { player: p, bio, career, national, transfers };
 }
 
+// Fixture payloads name the venue and city but not its country; /venues has it.
+// Stadiums don't move, so one lookup per venue for the life of the process.
+const venueLocations = new Map();
+async function venueLocation(venueId) {
+  if (!venueId) return null;
+  if (!venueLocations.has(venueId)) {
+    const resp = await api('/venues', { id: venueId }).catch(() => []);
+    venueLocations.set(venueId, resp[0]
+      ? { city: resp[0].city || null, country: resp[0].country || null } : null);
+  }
+  return venueLocations.get(venueId);
+}
+
 // Full match detail: score, venue, lineups, events, team stats — one API call.
 async function matchDetail(fixtureId, tracked) {
   const resp = await api('/fixtures', { id: fixtureId });
@@ -427,10 +444,20 @@ async function matchDetail(fixtureId, tracked) {
   }
   const playerEvents = new Map([[d.fixture.id, pe]]);
   const base = mapFixture(d, tracked, playerEvents);
+  let venue = null;
+  if (d.fixture?.venue?.name) {
+    const loc = await venueLocation(d.fixture.venue.id).catch(() => null);
+    venue = {
+      name: d.fixture.venue.name,
+      city: d.fixture.venue.city || loc?.city || null,
+      // Domestic league country is a safe fallback; "World" (UEFA etc.) is not.
+      country: loc?.country
+        || (d.league?.country && d.league.country !== 'World' ? d.league.country : null),
+    };
+  }
   return {
     ...base,
-    venue: d.fixture?.venue?.name
-      ? { name: d.fixture.venue.name, city: d.fixture.venue.city || null } : null,
+    venue,
     referee: d.fixture?.referee || null,
     lineups: homeLu || awayLu ? { home: mapLineup(homeLu), away: mapLineup(awayLu) } : null,
     events: (d.events || []).map((e) => ({

@@ -82,7 +82,7 @@ function TeamSheet({ team, playersById, onClose }) {
 
         {data?.venue && (
           <div className="match-meta">
-            <div>🏟 {data.venue.name}{data.venue.city ? `, ${data.venue.city}` : ''}
+            <div>🏟 {[data.venue.name, data.venue.city, data.venue.country].filter(Boolean).join(', ')}
               {data.venue.capacity ? ` (${data.venue.capacity.toLocaleString()} seats)` : ''}</div>
           </div>
         )}

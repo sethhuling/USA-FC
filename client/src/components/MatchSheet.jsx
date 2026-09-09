@@ -7,6 +7,10 @@ import { TeamLink } from './TeamSheet.jsx';
 const kickoffFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit',
 });
+const matchDateFmt = new Intl.DateTimeFormat(undefined, {
+  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+});
+const matchTimeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
 
 const EVENT_ICONS = { Goal: '⚽', Card: '🟨', subst: '🔁' };
 function eventIcon(ev) {
@@ -74,7 +78,10 @@ export default function MatchSheet({ match, playersById, onClose }) {
     return () => clearInterval(timer);
   }, [isLive, match.id]);
   const kickoff = new Date(m.kickoff);
-  const events = (detail?.events || []).filter((e) => ['Goal', 'Card', 'subst'].includes(e.type));
+  // Most recent event first (the API delivers them in match order).
+  const events = (detail?.events || [])
+    .filter((e) => ['Goal', 'Card', 'subst'].includes(e.type))
+    .reverse();
 
   let statRows = [];
   if (detail?.stats?.length === 2) {
@@ -116,8 +123,11 @@ export default function MatchSheet({ match, playersById, onClose }) {
         <section className="p-section">
         <h4 className="profile-h">Match info</h4>
         <div className="match-meta">
+          <div>📅 {matchDateFmt.format(kickoff)} · {matchTimeFmt.format(kickoff)}</div>
           {detail?.venue && (
-            <div>📍 {detail.venue.name}{detail.venue.city ? `, ${detail.venue.city}` : ''}</div>
+            <div>
+              📍 {[detail.venue.name, detail.venue.city, detail.venue.country].filter(Boolean).join(', ')}
+            </div>
           )}
           {detail?.referee && <div>🧑‍⚖️ {detail.referee}</div>}
           {m.streaming?.service && <div>📺 {m.streaming.service}</div>}
@@ -138,7 +148,7 @@ export default function MatchSheet({ match, playersById, onClose }) {
               {events.map((e, i) => (
                 <li key={i} className={e.trackedId ? 'american' : ''}>
                   <span className="event-min">{e.minute}{e.extra ? `+${e.extra}` : ''}′</span>
-                  {eventIcon(e)} {e.player}
+                  {eventIcon(e)} {e.player}{e.trackedId ? ' 🇺🇸' : ''}
                   {e.type === 'Goal' && e.assist && <span className="event-sub"> (assist: {e.assist})</span>}
                   {e.type === 'subst' && e.assist && <span className="event-sub"> ⇄ {e.assist}</span>}
                   <span className="event-team"> — {e.team}</span>

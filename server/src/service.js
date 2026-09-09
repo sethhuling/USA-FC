@@ -193,10 +193,35 @@ async function getMatchDetail(id) {
   return { ...detail, streaming: await streaming.forMatch(detail) };
 }
 
+// API-Football birth places carry no US state; merge hand-verified ones
+// (server/data/hometowns.json) into the bio. Read fresh each call so
+// hand-edits apply without a restart, like players.json.
+function withHometown(profile, id) {
+  if (!profile?.bio?.birth) return profile;
+  let entry;
+  try {
+    const file = path.join(__dirname, '..', 'data', 'hometowns.json');
+    entry = JSON.parse(fs.readFileSync(file, 'utf8'))[id];
+  } catch { return profile; }
+  if (!entry?.state && !entry?.country) return profile;
+  return {
+    ...profile,
+    bio: {
+      ...profile.bio,
+      birth: {
+        ...profile.bio.birth,
+        ...(entry.state ? { state: entry.state } : {}),
+        ...(entry.country ? { country: entry.country } : {}),
+      },
+    },
+  };
+}
+
 async function getPlayerProfile(id) {
   const p = trackedPlayers().find((x) => x.id === id);
   if (!p) return null;
   let profile = await cache.wrap(`profile:${id}`, TTL.profile, () => provider.playerProfile(p));
+  profile = withHometown(profile, id);
   // Upcoming club fixtures live outside the long-lived profile cache (they change
   // hourly) and are shared by teammates via the team-keyed cache entry.
   if (provider.teamUpcoming && p.apiFootballTeamId) {

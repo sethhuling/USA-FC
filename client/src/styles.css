@@ -170,6 +170,8 @@ section h2.section-live { color: var(--live); }
   font-size: 0.72rem; padding: 3px 8px; border-radius: 999px;
   background: var(--accent-soft); color: var(--accent); font-weight: 600;
 }
+/* Every tracked player on a match card is American: red, flag beside the name. */
+.chip.american { background: var(--scored-soft); color: var(--scored); }
 .chip.scored { background: var(--scored-soft); color: var(--scored); }
 .match-bottom { margin-top: 8px; font-size: 0.75rem; color: var(--muted); }
 .stream-source { opacity: 0.75; }
