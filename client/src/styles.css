@@ -91,6 +91,17 @@ body {
 .topbar.scrolled { padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 8px; }
 .topbar.scrolled h1 { opacity: 0; font-size: 1.3rem; }
 .topbar.scrolled .crest { height: 30px; }
+/* Any open sheet (player/team/match) forces the compact topbar. iPad Safari
+   can paint the sticky bar's composited layer above the overlay despite the
+   backdrop's higher z-index, burying the sheet's close button behind the
+   expanded header. Compact (~76px), the bar always ends above the sheet's
+   highest possible top edge (14vh), so the ✕ stays reachable even then.
+   Kept as standalone rules (not merged into .scrolled's selectors) so a
+   browser without :has() support still gets the scroll-collapse rules. */
+body:has(.sheet-backdrop) .topbar { padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 8px; }
+body:has(.sheet-backdrop) .topbar h1 { opacity: 0; font-size: 1.3rem; }
+body:has(.sheet-backdrop) .topbar .crest { height: 30px; }
+body:has(.sheet-backdrop) .topbar .motto { opacity: 0; }
 .live-dot { color: var(--live); font-size: 0.75rem; font-weight: 700; animation: pulse 1.6s infinite; }
 @keyframes pulse { 50% { opacity: 0.45; } }
 
