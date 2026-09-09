@@ -65,23 +65,31 @@ async function getMatches() {
       } catch { /* keep the cached row */ }
     }
   }
-  // Backfill badges on recently finished matches served from the schedule cache:
-  // final lineups never change, so cache these long.
-  const finishedNoBadges = matches.filter((m) =>
+  // Backfill badges on finished matches served from the schedule cache. Cached
+  // details are applied every request (in-memory, cheap); at most FETCH_BUDGET
+  // uncached ones are fetched per request, newest first, so the whole month
+  // fills over a few polls without bursting the API.
+  const FINAL_TTL = 48 * 60 * 60 * 1000; // finished matches never change
+  const lacking = matches.filter((m) =>
     m.status === 'finished' &&
     m.trackedPlayers.length > 0 &&
     m.trackedPlayers.every((tp) => tp.squadStatus == null)
-  ).slice(0, 12);
-  for (const m of finishedNoBadges) {
-    try {
-      const det = await cache.wrap(`match-final:${m.id}`, 12 * 60 * 60 * 1000,
-        () => provider.matchDetail(m.id, tracked));
-      if (det?.status === 'finished') {
-        const { lineups, events, stats, venue, referee, ...light } = det;
-        const idx = matches.findIndex((x) => x.id === m.id);
-        if (idx >= 0) matches[idx] = light;
-      }
-    } catch { /* keep the cached row */ }
+  ).sort((a, b) => new Date(b.kickoff) - new Date(a.kickoff));
+  let fetchBudget = 15;
+  for (const m of lacking) {
+    const key = `match-final:${m.id}`;
+    let det = cache.peek(key);
+    if (det === undefined) {
+      if (fetchBudget <= 0) continue;
+      fetchBudget--;
+      try { det = await cache.wrap(key, FINAL_TTL, () => provider.matchDetail(m.id, tracked)); }
+      catch { continue; }
+    }
+    if (det?.status === 'finished') {
+      const { lineups, events, stats, venue, referee, ...light } = det;
+      const idx = matches.findIndex((x) => x.id === m.id);
+      if (idx >= 0) matches[idx] = light;
+    }
   }
   const withStreaming = await Promise.all(
     matches.map(async (m) => ({ ...m, streaming: await streaming.forMatch(m) }))

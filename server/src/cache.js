@@ -23,4 +23,10 @@ async function wrap(key, ttlMs, fn) {
   return p;
 }
 
-module.exports = { wrap };
+// Non-fetching read: value if fresh, undefined on miss/expiry.
+function peek(key) {
+  const hit = store.get(key);
+  return hit && hit.expires > Date.now() ? hit.value : undefined;
+}
+
+module.exports = { wrap, peek };
