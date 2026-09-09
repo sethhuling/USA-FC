@@ -61,6 +61,18 @@ export default function MatchSheet({ match, playersById, onClose }) {
   }, [match.id]);
 
   const m = detail || match;
+
+  // While the match is live, re-pull detail each minute so the open sheet keeps
+  // up with the game. The server refreshes live details on its own shared timer,
+  // so these polls are cache reads — no extra upstream calls per viewer.
+  const isLive = m.status === 'live';
+  useEffect(() => {
+    if (!isLive) return;
+    const timer = setInterval(() => {
+      fetchMatchDetail(match.id, { fresh: true }).then(setDetail).catch(() => {});
+    }, 60_000);
+    return () => clearInterval(timer);
+  }, [isLive, match.id]);
   const kickoff = new Date(m.kickoff);
   const events = (detail?.events || []).filter((e) => ['Goal', 'Card', 'subst'].includes(e.type));
 

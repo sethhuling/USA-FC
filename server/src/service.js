@@ -10,6 +10,7 @@ const TTL = {
   stats: 24 * 60 * 60 * 1000, // player season stats: daily
   schedule: 60 * 60 * 1000,   // fixtures: hourly
   live: 60 * 1000,            // live matches: 60s
+  finished: 30 * 24 * 60 * 60 * 1000, // finished match detail: the result never changes
 };
 
 function trackedPlayers() {
@@ -69,7 +70,6 @@ async function getMatches() {
   // details are applied every request (in-memory, cheap); at most FETCH_BUDGET
   // uncached ones are fetched per request, newest first, so the whole month
   // fills over a few polls without bursting the API.
-  const FINAL_TTL = 48 * 60 * 60 * 1000; // finished matches never change
   const lacking = matches.filter((m) =>
     m.status === 'finished' &&
     m.trackedPlayers.length > 0 &&
@@ -82,8 +82,10 @@ async function getMatches() {
     if (det === undefined) {
       if (fetchBudget <= 0) continue;
       fetchBudget--;
-      try { det = await cache.wrap(key, FINAL_TTL, () => provider.matchDetail(m.id, tracked)); }
+      try { det = await provider.matchDetail(m.id, tracked); }
       catch { continue; }
+      // Only finished details get the long-lived cache; anything else stays uncached.
+      if (det?.status === 'finished') cache.set(key, TTL.finished, det);
     }
     if (det?.status === 'finished') {
       const { lineups, events, stats, venue, referee, ...light } = det;
@@ -140,9 +142,53 @@ async function getTeamOverview(teamId) {
   return cache.wrap(`team:${teamId}`, 6 * 60 * 60 * 1000, () => provider.teamOverview(teamId, tracked));
 }
 
-async function getMatchDetail(id) {
+// While a live match is being viewed, ONE server-side timer refreshes its detail
+// every TTL.live — viewer requests are pure cache reads, so N concurrent viewers
+// still cost exactly one upstream call per interval and none of them wait on the
+// (throttled) upstream. The timer stops when the match finishes or when no viewer
+// has asked for it in WATCH_IDLE_MS.
+const watchedLive = new Map(); // match id -> last viewer request (ms epoch)
+const WATCH_IDLE_MS = 3 * 60 * 1000;
+let liveRefreshTimer = null;
+
+function markLiveViewed(id) {
+  watchedLive.set(id, Date.now());
+  if (!liveRefreshTimer) {
+    liveRefreshTimer = setInterval(refreshWatchedLive, TTL.live);
+    liveRefreshTimer.unref?.(); // never hold the process open
+  }
+}
+
+async function refreshWatchedLive() {
   const tracked = trackedPlayers();
-  const detail = await cache.wrap(`match:${id}`, TTL.live, () => provider.matchDetail(id, tracked));
+  for (const [id, lastViewed] of watchedLive) {
+    if (Date.now() - lastViewed > WATCH_IDLE_MS) { watchedLive.delete(id); continue; }
+    try {
+      const detail = await provider.matchDetail(id, tracked);
+      if (!detail) continue; // keep the last cached copy; retry next tick
+      // TTL slack past the timer interval so viewer reads between ticks never
+      // expire and trigger their own upstream fetch.
+      cache.set(`match:${id}`, TTL.live + 30 * 1000, detail);
+      if (detail.status !== 'live') {
+        watchedLive.delete(id);
+        if (detail.status === 'finished') cache.set(`match-final:${id}`, TTL.finished, detail);
+      }
+    } catch { /* keep the last cached copy; wrap() re-fetches after expiry */ }
+  }
+  console.log(`[live-detail] refreshed ${watchedLive.size} watched match(es)`);
+  if (watchedLive.size === 0) { clearInterval(liveRefreshTimer); liveRefreshTimer = null; }
+}
+
+async function getMatchDetail(id) {
+  // Finished matches never change: serve the long-lived copy when we have one
+  // (shared with the badge-backfill cache in getMatches).
+  let detail = cache.peek(`match-final:${id}`);
+  if (detail === undefined) {
+    const tracked = trackedPlayers();
+    detail = await cache.wrap(`match:${id}`, TTL.live, () => provider.matchDetail(id, tracked));
+    if (detail?.status === 'finished') cache.set(`match-final:${id}`, TTL.finished, detail);
+    else if (detail?.status === 'live') markLiveViewed(id);
+  }
   if (!detail) return null;
   return { ...detail, streaming: await streaming.forMatch(detail) };
 }

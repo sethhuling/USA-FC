@@ -20,10 +20,11 @@ export function fetchPlayerProfile(id) {
 }
 
 // Match details refresh fast during live games; short client-side memo only.
+// { fresh: true } skips the memo read (live re-polls) but still updates it.
 const matchDetailCache = new Map();
-export async function fetchMatchDetail(id) {
+export async function fetchMatchDetail(id, { fresh = false } = {}) {
   const hit = matchDetailCache.get(id);
-  if (hit && Date.now() - hit.t < 60_000) return hit.p;
+  if (!fresh && hit && Date.now() - hit.t < 60_000) return hit.p;
   const p = get(`/api/match/${encodeURIComponent(id)}`);
   matchDetailCache.set(id, { t: Date.now(), p });
   try { return await p; } catch (e) { matchDetailCache.delete(id); throw e; }

@@ -29,4 +29,9 @@ function peek(key) {
   return hit && hit.expires > Date.now() ? hit.value : undefined;
 }
 
-module.exports = { wrap, peek };
+// Store a value directly — for cases where the TTL depends on the fetched result.
+function set(key, ttlMs, value) {
+  store.set(key, { value, expires: Date.now() + ttlMs });
+}
+
+module.exports = { wrap, peek, set };

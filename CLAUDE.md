@@ -9,6 +9,14 @@ server (`server/`) proxies API-Football, owns the API key, caching, and rate lim
 Vite/React client (`client/`) is built to `client/dist` and served statically by the
 same server on port 8787. Deployed on Render (free tier) at https://usa-fc.onrender.com.
 
+Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
+Players (profiles with bio and season stats). Primary user is Seth, mostly on an iPad
+and phone — mobile/tablet layout is the priority, not desktop.
+
+Long-term goal: a public, monetized app. Prefer designs that scale beyond one user —
+server-side caching, no per-user upstream calls, no unlicensed scraping in production
+paths.
+
 ## Commands
 
 ```bash
@@ -24,13 +32,23 @@ endpoints, and check the UI. **Server code changes require a server restart** (a
 caches are in-memory, so a restart also clears them — first load re-warms over ~1–2 min
 of throttled upstream calls). Client changes require `npm run build`.
 
-Deploys: push to `main` on GitHub → Render auto-deploys (~3 min). Confirm a deploy landed
-by grepping the served HTML for the new hashed bundle name from `client/dist/assets/`.
-`API_FOOTBALL_KEY` lives in `.env` locally (git-ignored) and in Render env vars — never in git.
-`SEASON` is blank in `.env` and absent from `render.yaml`, so the server auto-computes it
-(`season()` in `server/adapters/providers/apiFootball.js`: calendar year, rolling over each
-August — 2026 as of Sept 2026). No manual summer bump is needed unless `SEASON` is set to
-pin a specific year.
+## Environment
+
+- Secrets live in `.env` locally (git-ignored) and in the Render dashboard in
+  production. Never commit `.env`. Never print API keys in output.
+- Key vars: `API_FOOTBALL_KEY`, `SEASON`, `PORT`, `ENABLE_STREAMING_AUTO`,
+  `ENABLE_FOTMOB_SCRAPER`.
+- `SEASON` is blank in `.env` and absent from `render.yaml`, so the server
+  auto-computes it (`season()` in `server/adapters/providers/apiFootball.js`:
+  calendar year, rolling over each August — 2026 as of Sept 2026). No manual summer
+  bump is needed; only set it to pin a specific season.
+
+## Deploy
+
+Push to `main` (the repo's default branch) on GitHub → Render auto-deploys via the
+`render.yaml` Blueprint (~3 min). Confirm a deploy landed by grepping the served HTML
+for the new hashed bundle name from `client/dist/assets/`. To see a shipped change on
+the iPad/phone, hard-relaunch the app after the Render build finishes.
 
 ## Architecture
 
@@ -41,8 +59,17 @@ data) → `server/adapters/streaming/` (auto lookup stub, then `server/config/st
 league→US-broadcaster fallback).
 
 Cache TTLs (service.js): player stats 24h, schedules 1h, live overlay 60s, player
-profiles 7d (upcoming fixtures separately at 1h), team pages 6h, finished-match details
-48h. `getMatches` layers three passes on the cached schedule each request: a 60s live
+profiles 7d (upcoming fixtures separately at 1h), team pages 6h, finished-match
+details 30d. Match details use two keys: `match:<id>` (60s, live/upcoming) and
+`match-final:<id>` (30d) — `getMatchDetail` serves the long-lived copy first, and
+both it and the badge backfill write to it, but ONLY details whose status is
+actually `finished` (a null or still-live detail must never be long-cached).
+While a live match's detail is being viewed, a single server-side timer
+(`watchedLive` in service.js) refreshes it every 60s and all viewers read the
+shared cache — N concurrent viewers cost 1 upstream call per interval, and the
+timer stops when the match finishes or nobody has viewed it for 3 minutes.
+
+`getMatches` layers three passes on the cached schedule each request: a 60s live
 overlay, a reconcile for matches the cache thinks are live but the live feed dropped
 (they finished), and a badge backfill for finished matches (applies all cached details,
 fetches at most 15 uncached per request, newest first).
@@ -60,6 +87,35 @@ fetches at most 15 uncached per request, newest first).
 - Squad status: `start`/`on`/`bench`/`out` per tracked player. "Subbed on" is detected
   from per-player minutes, NOT substitution events (the API's in/out field order is
   unreliable). `out` + fixture injury report → `outInjured` (red cross in UI).
+
+## Data sources (server/adapters/)
+
+Five sources in three adapter groups; each has one job. In production only two are
+live: API-Football + streaming.json.
+
+Providers (`providers/`) — match/player data. `index.js` picks ONE at startup:
+- API-Football (`apiFootball.js`): the real source for everything — season stats,
+  fixtures, live scores, match detail, profiles, transfers, rounds. Active when
+  `API_FOOTBALL_KEY` is set. Pro plan ($19/mo): 7,500 requests/day (resets every
+  24h), 300/min. Responses include `x-ratelimit-requests-remaining` headers — check
+  them before assuming budget. The daily cap is comfortable for stat refreshes; the
+  300/min limit is the real risk during live polling. Batch or space live requests;
+  never add a new poll loop without estimating req/min.
+- Demo (`demo.js`): keyless stand-in with bundled data; one match is always "live" so
+  the 60-second poll path can be developed offline. Returns `demo: true` on everything.
+
+Streaming (`streaming/`) — "what US service is this match on?"
+- configFallback: hand-maintained `server/config/streaming.json` mapping competition →
+  US broadcaster (e.g. Championship → Paramount+). Fuzzy name matching. Re-read on
+  every lookup, so edits need no restart. THIS IS WHAT ACTUALLY ANSWERS IN PRODUCTION.
+- liveSoccerTv: intentional stub, always returns null. Placeholder for a licensed
+  match-level lookup (LiveSoccerTV forbids scraping). `ENABLE_STREAMING_AUTO=1` —
+  leave off.
+
+Scrapers (`scrapers/`)
+- FotMob: opt-in (`ENABLE_FOTMOB_SCRAPER=1`), best-effort only. Adds clearances and
+  interceptions that API-Football lacks, via an unofficial endpoint. Treat as
+  optional; may break without notice.
 
 ## Data files (server/data/)
 
@@ -95,82 +151,32 @@ fetches at most 15 uncached per request, newest first).
   the shrink, re-crossing the threshold in a loop. iOS Safari has no scroll anchoring,
   so iPhone testing will never catch a regression here.
 
+## Conventions
+
+- Player profiles use imperial units (feet/inches, pounds), never metric.
+- Player bios read like an American scouting card (set Sept 2026).
+
 ## Testing against real data
 
 Football data changes constantly — verify claims against the live API rather than
 memory (e.g. a player showing zero stats may genuinely be injured or frozen out, not a
 bug: check their career rows). The account is a paid Pro plan (7,500 req/day); a full
-cold start uses ~100 calls, the finished-match backfill a few hundred once per 48h.
+cold start uses ~100 calls, the finished-match backfill a few hundred once per restart
+(details cache for 30d, longer than the server usually lives).
 
 When verifying scroll/animation behavior in the Claude browser pane, the tab must be
 visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their
 start value and suppresses scroll-event dispatch — tests read as false failures.
 
-## What this is
-USA FC — a web app tracking American soccer players at clubs outside the US.
-Tabs: Schedule (past/live/upcoming, with US streaming info), Stats
-(leaderboards), Players (profiles with bio and season stats).
-Primary user is Seth, mostly on an iPad and phone. Mobile/tablet layout is
-the priority, not desktop.
-
-## Data sources
-Five sources in three adapter groups under server/adapters/. Each has one job.
-
-Providers (providers/) — match/player data. index.js picks ONE at startup:
-- API-Football (apiFootball.js): the real source for everything — season
-  stats, fixtures, live scores, match detail, profiles, transfers, rounds.
-  Pro plan ($19/mo): 7,500 requests/day, 300/min. Daily count resets every
-  24h. Responses include x-ratelimit-requests-remaining headers — check
-  them before assuming budget. Daily cap is comfortable for stat refreshes;
-  the 300/min limit is the real risk during live polling. Batch or space
-  live requests; never add a new poll loop without estimating req/min.
-  All calls go through the throttled api() helper with rate-limit backoff —
-  never bypass it. Active when API_FOOTBALL_KEY is set.
-- Demo (demo.js): keyless stand-in with bundled data; one match is always
-  "live" so the 60-second poll path can be developed offline. Returns
-  demo: true on everything.
-
-Streaming (streaming/) — "what US service is this match on?"
-- configFallback: hand-maintained server/config/streaming.json mapping
-  competition → US broadcaster (e.g. Championship → Paramount+). Fuzzy name
-  matching. Re-read on every lookup, so edits need no restart.
-  THIS IS WHAT ACTUALLY ANSWERS IN PRODUCTION.
-- liveSoccerTv: intentional stub, always returns null. Placeholder for a
-  licensed match-level lookup (LiveSoccerTV forbids scraping).
-  ENABLE_STREAMING_AUTO=1 — leave off.
-
-Scrapers (scrapers/)
-- FotMob: opt-in (ENABLE_FOTMOB_SCRAPER=1), best-effort only. Adds
-  clearances and interceptions that API-Football lacks, via an unofficial
-  endpoint. Treat as optional; may break without notice.
-
-In production only two sources are live: API-Football + streaming.json.
-
-## Environment
-- Secrets live in .env locally and in the Render dashboard in production.
-  Never commit .env. Never print API keys in output.
-- Key vars: API_FOOTBALL_KEY, SEASON, PORT, ENABLE_STREAMING_AUTO,
-  ENABLE_FOTMOB_SCRAPER.
-- SEASON is left blank — the server auto-computes it (current year, rolls
-  over each August; 2026 now). Only set it to pin a specific season.
-
-## Deploy
-- Hosted on Render, deploys automatically on push to `main` (the repo's
-  default branch; render.yaml Blueprint).
-- To ship a change: commit, push, wait for Render build, then hard-relaunch
-  the app on the iPad/phone to see it.
-
-## Conventions
-- Player profiles use imperial units (feet/inches, pounds), never metric.
-- Player bios read like an American scouting card (set Sept 2026).
-
 ## Known issues / next up
-- streaming.json is hand-maintained by competition. Review each August when
-  US rights change. Finding a licensed broadcast-data source is a future
-  task, not something to attempt ad hoc.
+
+- streaming.json is hand-maintained by competition. Review each August when US rights
+  change. Finding a licensed broadcast-data source is a future task, not something to
+  attempt ad hoc.
 
 ## Working style
+
 - Explain changes in plain language; Seth is not a professional developer.
 - Check in before adding new dependencies or external services.
-- Keep this file updated when a durable decision is made. Remove items from
-  Known issues once they are fixed.
+- Keep this file updated when a durable decision is made. Remove items from Known
+  issues once they are fixed.
