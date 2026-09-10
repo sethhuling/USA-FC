@@ -276,6 +276,9 @@ start value and suppresses scroll-event dispatch — tests read as false failure
 - streaming.json is hand-maintained by competition. Review each August when US rights
   change. Finding a licensed broadcast-data source is a future task, not something to
   attempt ad hoc.
+- There is no settings UI: per-user preferences (`client/src/settings.js`, currently
+  just `units`) can only be changed from the browser console. Build a small settings
+  screen once a second preference exists.
 
 ## Working style
 
