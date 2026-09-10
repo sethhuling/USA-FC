@@ -42,6 +42,25 @@ body {
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* Own stacking context so the ::before backdrop sits above body's background
+     but below all content; without this, z-index -1 hides it entirely. */
+  isolation: isolate;
+}
+
+/* Faded stadium backdrop behind the whole app. A fixed pseudo-element instead
+   of background-attachment: fixed, which iOS Safari ignores. The splash covers
+   it fully at boot, so the landing page is unaffected. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url('/stadium-bg.webp') center / cover no-repeat;
+  opacity: 0.22;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  body::before { opacity: 0.16; }
 }
 
 .app {

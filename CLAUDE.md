@@ -284,6 +284,13 @@ preferences should route through this module rather than being hard-coded.
   (`fetchMatchDetail(id, { fresh: true })` skips the 60s client memo but still
   updates it). These polls are server cache reads — the server's shared timer does
   the upstream fetching, so per-viewer polling adds no API-Football cost.
+- Stadium backdrop (Sept 2026): the whole app renders over a faded flag-crowd
+  stadium photo (`client/public/stadium-bg.webp`), drawn by a `body::before`
+  fixed pseudo-element in styles.css at 0.22 opacity (0.16 in dark mode) — a
+  pseudo-element because iOS Safari ignores `background-attachment: fixed`.
+  Two invariants: `body` must keep `isolation: isolate` (without its own
+  stacking context the z-index -1 backdrop paints behind body's background and
+  vanishes), and the splash is unaffected because its background is opaque.
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   logo is a full-color Uncle Sam illustration (`client/public/crest.png`, replaced the
   original USAFC shield crest Sept 2026; deliberately NOT the trademarked USMNT logo). Squad badge
