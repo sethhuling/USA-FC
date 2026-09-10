@@ -1,6 +1,6 @@
-# USA FC
+# Uncle Sam FC
 
-USA FC — a mobile-first web app that tracks American soccer players at clubs outside the
+Uncle Sam FC — a mobile-first web app that tracks American soccer players at clubs outside the
 United States: live scores, schedules with US streaming info, sortable stat
 leaderboards, and a searchable player directory.
 

@@ -65,7 +65,9 @@ body {
   transition: padding 0.25s ease;
 }
 .topbar h1 {
-  font-size: 1.55rem; margin: 0; letter-spacing: 0.02em; color: #fff; font-style: italic;
+  /* "Uncle Sam FC" is long; keep it on one line and let it shrink on phones */
+  font-size: clamp(1.05rem, 4vw, 1.55rem); white-space: nowrap;
+  margin: 0; letter-spacing: 0.02em; color: #fff; font-style: italic;
   transition: opacity 0.25s ease, font-size 0.25s ease;
 }
 .crest { height: 52px; width: auto; transition: height 0.25s ease; }

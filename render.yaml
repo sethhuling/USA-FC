@@ -1,4 +1,4 @@
-# Render blueprint — deploy USA FC as a single web service.
+# Render blueprint — deploy Uncle Sam FC as a single web service.
 # In the Render dashboard: New + > Blueprint > select this repo,
 # then set API_FOOTBALL_KEY when prompted (it is never stored in git).
 services:

@@ -1,11 +1,11 @@
-// USA FC service worker.
+// Uncle Sam FC service worker.
 // Strategy: network-first for API data and navigations (scores must be live,
 // deploys must roll out), falling back to cache offline; stale-while-revalidate
 // for hashed static assets.
-const CACHE = 'usafc-v1';
+const CACHE = 'unclesamfc-v1';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/crest.svg', '/manifest.webmanifest'])));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/crest.png', '/manifest.webmanifest'])));
   self.skipWaiting();
 });
 

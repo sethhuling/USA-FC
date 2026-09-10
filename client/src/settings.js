@@ -4,7 +4,8 @@
 // (e.g. private browsing). There is no settings screen yet; build one on top of
 // getSettings/setSetting, or flip a value from the browser console:
 //   setSetting('units', 'metric')
-const KEY = 'usafc-settings';
+const KEY = 'unclesamfc-settings';
+const OLD_KEY = 'usafc-settings'; // pre-rename key, read as a fallback
 
 export const DEFAULTS = {
   units: 'imperial', // 'imperial' | 'metric' — player height/weight display
@@ -12,7 +13,8 @@ export const DEFAULTS = {
 
 export function getSettings() {
   try {
-    return { ...DEFAULTS, ...(JSON.parse(localStorage.getItem(KEY)) || {}) };
+    const stored = localStorage.getItem(KEY) ?? localStorage.getItem(OLD_KEY);
+    return { ...DEFAULTS, ...(JSON.parse(stored) || {}) };
   } catch {
     return { ...DEFAULTS };
   }

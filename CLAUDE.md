@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-USA FC — a mobile-first PWA tracking American soccer players at non-US clubs. Express
+Uncle Sam FC (renamed from USA FC, Sept 2026) — a mobile-first PWA tracking American soccer players at non-US clubs. Express
 server (`server/`) proxies API-Football, owns the API key, caching, and rate limiting;
 Vite/React client (`client/`) is built to `client/dist` and served statically by the
 same server on port 8787. Deployed on Render at https://usa-fc.onrender.com on a paid
@@ -189,7 +189,9 @@ everyone using it:
 - `streaming.json` — competition → US broadcaster fallback (see Data sources).
 
 Per-user choices live in `client/src/settings.js` — a localStorage-backed
-preferences layer (`getSetting`/`setSetting`, defaults in `DEFAULTS`). Currently
+preferences layer (`getSetting`/`setSetting`, defaults in `DEFAULTS`). Its key is
+`unclesamfc-settings`; reads fall back to the pre-rename `usafc-settings` key so
+old devices keep their preferences. Currently
 just `units` (`imperial` default, `metric` supported), used for height/weight in
 `PlayerProfile.jsx`. There is no settings UI yet; new per-user display
 preferences should route through this module rather than being hard-coded.
@@ -244,8 +246,11 @@ preferences should route through this module rather than being hard-coded.
   updates it). These polls are server cache reads — the server's shared timer does
   the upstream fetching, so per-viewer polling adds no API-Football cost.
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
-  original USAFC crest (deliberately NOT the trademarked USMNT logo). Squad badge
-  labels: XI / ON / BENCH / OUT.
+  logo is a full-color Uncle Sam illustration (`client/public/crest.png`, replaced the
+  original USAFC shield crest Sept 2026; deliberately NOT the trademarked USMNT logo). Squad badge
+  labels: XI / ON / BENCH / OUT. The topbar wordmark is `white-space: nowrap` with a
+  `clamp()` font size (styles.css) — "Uncle Sam FC" is long enough to wrap on phones
+  otherwise.
 - American goal marker (`UsaBall` in icons.jsx, settled Sept 2026): drawn to look
   exactly like the ⚽ emoji used for regular goals — same tilted pentagon layout,
   spherical shading, beveled panels, soft edge with NO hard outline ring — just
