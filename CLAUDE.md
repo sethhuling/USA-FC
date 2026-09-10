@@ -63,6 +63,13 @@ demo server via a plain background `node` command is a safe fallback.
   (Environment tab on the usa-fc service). A dashboard-only var on this
   Blueprint-managed service didn't reach the server when ADMIN_KEY was added
   (Sept 2026) until it was declared in `render.yaml` too.
+- The same rule applies to EVERY service setting, not just env vars: on this
+  Blueprint-managed service a `render.yaml` push triggers a sync that enforces
+  whatever the yaml says, reverting dashboard-only changes. The paid instance
+  upgrade was dashboard-only, so the 2026-09-10 rebrand push (which touched
+  render.yaml still saying `plan: free`) silently downgraded the service to
+  free — spin-downs and the Render loading page came back until `plan: starter`
+  was committed. Any future instance-type change must be made in `render.yaml`.
 - `SEASON` is blank in `.env` and absent from `render.yaml`, so the server
   auto-computes it (`season()` in `server/adapters/providers/apiFootball.js`:
   calendar year, rolling over each August — 2026 as of Sept 2026). No manual summer

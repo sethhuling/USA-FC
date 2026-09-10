@@ -5,7 +5,11 @@ services:
   - type: web
     name: usa-fc
     runtime: node
-    plan: free
+    # Starter (paid, always-on). Never set back to free: free instances spin down
+    # after 15 idle minutes, and a Blueprint sync enforces whatever this says —
+    # a dashboard-only upgrade WILL be reverted by the next render.yaml push
+    # (that's exactly what happened on 2026-09-10).
+    plan: starter
     buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /api/meta
