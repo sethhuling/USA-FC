@@ -48,7 +48,8 @@ the Node server.
 > was developed and verified against demo mode (no key was available in this
 > session). Expect possible small field-mapping fixes on first live run.
 > Known mapping caveat: API-Football exposes *blocks*, not true clearances — the
-> "clearances" column uses blocks in API mode (see the FotMob adapter below).
+> server's internal `clearances` field carries blocks, and the UI labels it
+> "Blocks" accordingly.
 
 ## Covered leagues
 
@@ -114,14 +115,6 @@ Every match shows a US streaming service and **where that info came from**:
    competition → US broadcaster map, labeled "(league default)" in the UI.
    Edit it anytime; changes apply without a restart. Broadcast rights change —
    verify entries each season.
-
-## FotMob scraper (optional)
-
-[`server/adapters/scrapers/fotmob.js`](server/adapters/scrapers/fotmob.js) can
-fill fields the primary API lacks (true clearances, for example). It's disabled
-by default (`ENABLE_FOTMOB_SCRAPER=1` to enable), isolated behind an adapter so
-it can be swapped or deleted, and best-effort only — FotMob's unofficial
-endpoints may change or block automated access.
 
 ## Caching & polling
 
