@@ -185,6 +185,48 @@ section h2.section-live { color: var(--live); }
 }
 .preset.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
+/* Stats filter button + panel */
+.filter-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin: 6px 0 2px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+}
+.filter-btn.active { border-color: var(--accent); color: var(--accent); }
+.filter-count {
+  background: var(--accent); color: #fff; border-radius: 999px;
+  font-size: 0.68rem; font-weight: 700; padding: 1px 6px; line-height: 1.4;
+}
+.filter-caret { font-size: 0.65rem; opacity: 0.7; }
+.filter-panel {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 10px 12px 12px; margin-top: 6px;
+}
+.filter-group { margin-top: 12px; }
+.filter-group:first-child { margin-top: 0; }
+.filter-label {
+  font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--muted); margin-bottom: 6px; font-weight: 700;
+}
+.fchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.fchip {
+  padding: 5px 11px; border-radius: 999px;
+  border: 1px solid var(--border); background: transparent; color: var(--text);
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+}
+.fchip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.filter-value { float: right; text-transform: none; letter-spacing: 0; color: var(--text); }
+.filter-slider {
+  width: 100%; margin: 4px 0 0; accent-color: var(--accent);
+  touch-action: pan-y; /* don't fight vertical page scroll on touch */
+}
+.filter-panel .league-row { flex-wrap: wrap; overflow: visible; padding: 0; }
+.filter-reset {
+  margin-top: 14px; width: 100%; padding: 8px; border-radius: 10px;
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+}
+
 .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); margin-top: 8px; }
 .leaderboard { width: 100%; border-collapse: collapse; background: var(--card); font-size: 0.85rem; }
 .leaderboard th, .leaderboard td { padding: 8px 10px; border-bottom: 1px solid var(--border); }

@@ -478,6 +478,7 @@ module.exports = {
         if (teamId && teamId !== p.apiFootballTeamId) resolvedTeams.set(p.id, teamId);
         return { ...p, apiFootballId: id,
           apiFootballTeamId: teamId ?? p.apiFootballTeamId ?? null,
+          age: resp[0]?.player?.age ?? null,
           stats: aggregateStats(entries) };
       } catch (e) {
         console.warn(`[api-football] stats failed for ${p.name}: ${e.message}`);

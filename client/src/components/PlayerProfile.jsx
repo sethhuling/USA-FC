@@ -134,6 +134,9 @@ function ProfileSheet({ player, onClose }) {
   }, [player.id]);
 
   const bio = profile?.bio;
+  // Hand-verified roster data (players.json): other national teams the player
+  // could still represent. Shown only here in the profile view.
+  const elig = profile?.player?.otherEligibility || player.otherEligibility;
   const s = profile?.player?.stats || player.stats;
   const statRows = s ? [
     ['Apps', s.appearances], ['Starts', s.starts], ['Minutes', s.minutes], ['Goals', s.goals],
@@ -172,19 +175,22 @@ function ProfileSheet({ player, onClose }) {
           <p className="empty">Demo mode — photos, hometowns and career history need an API key.</p>
         )}
 
-        {bio && (
+        {(bio || elig?.length > 0) && (
           <section className="p-section">
           <h4 className="profile-h">Profile</h4>
           <div className="bio-grid">
-            {bio.birth?.date && (
+            {bio?.birth?.date && (
               <div><span className="bio-label">Born</span>
                 {new Date(bio.birth.date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                 {` (${ageFrom(bio.birth.date)})`}</div>
             )}
             {hometown(bio) && <div><span className="bio-label">Hometown</span>{hometown(bio)}</div>}
-            {bio.height && <div><span className="bio-label">Height</span>{formatHeight(bio.height)}</div>}
-            {bio.weight && <div><span className="bio-label">Weight</span>{formatWeight(bio.weight)}</div>}
+            {bio?.height && <div><span className="bio-label">Height</span>{formatHeight(bio.height)}</div>}
+            {bio?.weight && <div><span className="bio-label">Weight</span>{formatWeight(bio.weight)}</div>}
             <div><span className="bio-label">Nationality</span>{player.nationality}</div>
+            {elig?.length > 0 && (
+              <div><span className="bio-label">Also eligible</span>{elig.join(', ')}</div>
+            )}
           </div>
           </section>
         )}

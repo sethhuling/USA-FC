@@ -73,7 +73,13 @@ module.exports = {
       career: [], national: [], transfers: [], demo: true };
   },
   async seasonStats(tracked) {
-    return tracked.map((p) => ({ ...p, stats: STATS[p.id] || null }));
+    // Deterministic simulated age (18–32) so the Stats tab's age filter can be
+    // exercised offline; real roster capTied flags pass through untouched.
+    return tracked.map((p) => {
+      let h = 0;
+      for (const c of p.id) h = (h * 31 + c.charCodeAt(0)) % 997;
+      return { ...p, age: 18 + (h % 15), stats: STATS[p.id] || null };
+    });
   },
   async getFixtures(tracked) {
     const now = Date.now();

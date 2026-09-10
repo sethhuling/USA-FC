@@ -207,7 +207,16 @@ preferences should route through this module rather than being hard-coded.
 
 - `players.json` — the tracked roster, hand-editable, source of truth. The server
   writes back resolved `apiFootballId`/`apiFootballTeamId`; it's committed to git so
-  Render's ephemeral disk boots warm.
+  Render's ephemeral disk boots warm. Optional hand-maintained `"capTied": true`
+  flag (player has senior competitive caps for ANY country — a friendly never
+  ties) drives the Stats tab's cap-tied filter; absent means not cap-tied.
+  Optional `"otherEligibility": ["Country", ...]` lists source-verified other
+  national teams a non-tied player could represent (no UI yet). Both audited
+  Sept 2026 (API-Football career rows cross-checked against Wikipedia/press;
+  the API showed a phantom 0-minute cap for Maloney and missed Agyemang's Gold
+  Cup entirely, so never flag from API rows alone). Only set either field from
+  a verified source — never guess. The `/api/players` payload also carries each player's `age`
+  (from API-Football; demo mode simulates it), used by the Stats age filter.
 - `excluded.json` — **roster policy**: players the API calls USA-nationality who chose
   another national team (e.g. Bajraktarević → Bosnia) are excluded here; `npm run
   discover` skips them. Season stats count only the player's current club — no
@@ -248,6 +257,18 @@ preferences should route through this module rather than being hard-coded.
   any JS loads) and a React `Splash` component in `App.jsx` (covers the data wait).
   Both are styled by the inline `<style>` block in index.html — keep the two copies
   and that style block in sync.
+- Stats tab filters (Sept 2026): one Filters button (active-count badge) opens a
+  panel holding every filter — league toggles (moved from the old always-visible
+  row), multi-select position and age-range chips (empty selection = All; picking
+  every option collapses back to All), a 0→max minimum-minutes slider (max is the
+  roster's top minutes total, so it grows with the season), cap-tied
+  Include/Hide, and other-country eligibility All/Eligible/Not eligible. The
+  cap-tied and eligibility filters read the hand-audited `capTied` /
+  `otherEligibility` fields in players.json (see Data files); "Not eligible"
+  means no VERIFIED other eligibility on record. A player's other-eligibility
+  list is displayed only in the full profile sheet ("Also eligible" row in
+  PlayerProfile.jsx) — deliberately not on hover cards, Players-tab cards, or
+  the leaderboard.
 - The service worker (`public/sw.js`) is network-first for `/api/` and navigations so
   deploys and live scores are never stale; bump its cache name if you change caching.
 - An open `MatchSheet` on a live match re-pulls detail every 60s

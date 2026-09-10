@@ -8,7 +8,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 50760,
-    "apiFootballTeamId": 4256
+    "apiFootballTeamId": 4256,
+    "capTied": true
   },
   {
     "id": "murray-drew",
@@ -30,7 +31,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 50873,
-    "apiFootballTeamId": 1026
+    "apiFootballTeamId": 1026,
+    "capTied": true
   },
   {
     "id": "adeniran-samuel",
@@ -41,7 +43,10 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 107151,
-    "apiFootballTeamId": 1026
+    "apiFootballTeamId": 1026,
+    "otherEligibility": [
+      "Nigeria"
+    ]
   },
   {
     "id": "kayo-bryang",
@@ -52,7 +57,10 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 71109,
-    "apiFootballTeamId": 260
+    "apiFootballTeamId": 260,
+    "otherEligibility": [
+      "Cameroon"
+    ]
   },
   {
     "id": "fossey-marlon",
@@ -63,18 +71,20 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 129706,
-    "apiFootballTeamId": 733
+    "apiFootballTeamId": 733,
+    "capTied": true
   },
   {
     "id": "scally-joe",
     "name": "Joe Scally",
-    "club": "Borussia Mönchengladbach",
+    "club": "Borussia M\u00f6nchengladbach",
     "league": "Bundesliga",
     "position": "RB",
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 50852,
-    "apiFootballTeamId": 163
+    "apiFootballTeamId": 163,
+    "capTied": true
   },
   {
     "id": "maloney-lennard",
@@ -85,7 +95,10 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 24842,
-    "apiFootballTeamId": 164
+    "apiFootballTeamId": 164,
+    "otherEligibility": [
+      "Germany"
+    ]
   },
   {
     "id": "tillman-malik",
@@ -96,7 +109,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 162037,
-    "apiFootballTeamId": 168
+    "apiFootballTeamId": 168,
+    "capTied": true
   },
   {
     "id": "albert-mathis",
@@ -107,7 +121,11 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 486522,
-    "apiFootballTeamId": 165
+    "apiFootballTeamId": 165,
+    "otherEligibility": [
+      "France",
+      "Germany"
+    ]
   },
   {
     "id": "banks-noahkai",
@@ -118,18 +136,24 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 413065,
-    "apiFootballTeamId": 170
+    "apiFootballTeamId": 170,
+    "otherEligibility": [
+      "Germany"
+    ]
   },
   {
     "id": "castaneda-santiago",
-    "name": "Santiago Castañeda",
+    "name": "Santiago Casta\u00f1eda",
     "club": "SC Paderborn 07",
     "league": "Bundesliga",
     "position": "MF",
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 363156,
-    "apiFootballTeamId": 185
+    "apiFootballTeamId": 185,
+    "otherEligibility": [
+      "Colombia"
+    ]
   },
   {
     "id": "chandler-timothy",
@@ -140,7 +164,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 1803,
-    "apiFootballTeamId": 169
+    "apiFootballTeamId": 169,
+    "capTied": true
   },
   {
     "id": "campbell-william",
@@ -151,7 +176,10 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 328617,
-    "apiFootballTeamId": 1660
+    "apiFootballTeamId": 1660,
+    "otherEligibility": [
+      "Iceland"
+    ]
   },
   {
     "id": "morris-aidan",
@@ -162,7 +190,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 201714,
-    "apiFootballTeamId": 70
+    "apiFootballTeamId": 70,
+    "capTied": true
   },
   {
     "id": "wiley-caleb",
@@ -195,7 +224,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 207768,
-    "apiFootballTeamId": 75
+    "apiFootballTeamId": 75,
+    "capTied": true
   },
   {
     "id": "bombino-luca",
@@ -217,7 +247,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 362400,
-    "apiFootballTeamId": 70
+    "apiFootballTeamId": 70,
+    "capTied": true
   },
   {
     "id": "agyemang-patrick",
@@ -227,18 +258,22 @@
     "position": "ST",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 360681
+    "apiFootballId": 360681,
+    "capTied": true
   },
   {
     "id": "pukstas-rokas",
-    "name": "Rokas Pukštas",
+    "name": "Rokas Puk\u0161tas",
     "club": "Middlesbrough",
     "league": "Championship",
     "position": "CM",
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 340571,
-    "apiFootballTeamId": 70
+    "apiFootballTeamId": 70,
+    "otherEligibility": [
+      "Lithuania"
+    ]
   },
   {
     "id": "berhalter-sebastian",
@@ -249,7 +284,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 201713,
-    "apiFootballTeamId": 70
+    "apiFootballTeamId": 70,
+    "capTied": true
   },
   {
     "id": "bindon-tyler",
@@ -260,7 +296,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 430835,
-    "apiFootballTeamId": 1335
+    "apiFootballTeamId": 1335,
+    "capTied": true
   },
   {
     "id": "hawkins-jalen",
@@ -282,7 +319,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 149557,
-    "apiFootballTeamId": 207
+    "apiFootballTeamId": 207,
+    "capTied": true
   },
   {
     "id": "pepi-ricardo",
@@ -293,18 +331,20 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 73868,
-    "apiFootballTeamId": 197
+    "apiFootballTeamId": 197,
+    "capTied": true
   },
   {
     "id": "dest-sergino",
-    "name": "Sergiño Dest",
+    "name": "Sergi\u00f1o Dest",
     "club": "PSV Eindhoven",
     "league": "Eredivisie",
     "position": "RB",
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 38735,
-    "apiFootballTeamId": 197
+    "apiFootballTeamId": 197,
+    "capTied": true
   },
   {
     "id": "freeman-alexander",
@@ -315,7 +355,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 355994,
-    "apiFootballTeamId": 533
+    "apiFootballTeamId": 533,
+    "capTied": true
   },
   {
     "id": "cardoso-johnny",
@@ -326,7 +367,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 133185,
-    "apiFootballTeamId": 530
+    "apiFootballTeamId": 530,
+    "capTied": true
   },
   {
     "id": "gooch-lynden",
@@ -337,29 +379,32 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 19901,
-    "apiFootballTeamId": 37
+    "apiFootballTeamId": 37,
+    "capTied": true
   },
   {
     "id": "zendejas-alejandro",
     "name": "Alejandro Zendejas",
-    "club": "Club América",
+    "club": "Club Am\u00e9rica",
     "league": "Liga MX",
     "position": "RW",
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 35885,
-    "apiFootballTeamId": 2287
+    "apiFootballTeamId": 2287,
+    "capTied": true
   },
   {
     "id": "gutierrez-brian",
-    "name": "Brian Gutiérrez",
+    "name": "Brian Guti\u00e9rrez",
     "club": "Guadalajara Chivas",
     "league": "Liga MX",
     "position": "MF",
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 212233,
-    "apiFootballTeamId": 2278
+    "apiFootballTeamId": 2278,
+    "capTied": true
   },
   {
     "id": "aguirre-daniel",
@@ -370,7 +415,10 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 312907,
-    "apiFootballTeamId": 2278
+    "apiFootballTeamId": 2278,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "leyva-daniel",
@@ -381,18 +429,24 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 51111,
-    "apiFootballTeamId": 2288
+    "apiFootballTeamId": 2288,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "uribe-rodriguez-david",
-    "name": "David Rodríguez Uribe",
+    "name": "David Rodr\u00edguez Uribe",
     "club": "Atletico San Luis",
     "league": "Liga MX",
     "position": "FW",
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 203413,
-    "apiFootballTeamId": 2314
+    "apiFootballTeamId": 2314,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "cerrillo-edwin",
@@ -403,18 +457,24 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 51132,
-    "apiFootballTeamId": 2287
+    "apiFootballTeamId": 2287,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "juarez-arce-fernando",
-    "name": "Fernando Arce Juárez",
+    "name": "Fernando Arce Ju\u00e1rez",
     "club": "Toluca",
     "league": "Liga MX",
     "position": "MF",
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 36169,
-    "apiFootballTeamId": 2281
+    "apiFootballTeamId": 2281,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "cuevas-aimar-mauricio",
@@ -425,7 +485,10 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 71219,
-    "apiFootballTeamId": 2285
+    "apiFootballTeamId": 2285,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "ledezma-richard",
@@ -436,7 +499,10 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 102851,
-    "apiFootballTeamId": 2278
+    "apiFootballTeamId": 2278,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "castillo-aguayo-sergio",
@@ -447,7 +513,10 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 454038,
-    "apiFootballTeamId": 2278
+    "apiFootballTeamId": 2278,
+    "otherEligibility": [
+      "Mexico"
+    ]
   },
   {
     "id": "portales-walter",
@@ -462,14 +531,15 @@
   },
   {
     "id": "sonora-alan",
-    "name": "Alan Soñora",
+    "name": "Alan So\u00f1ora",
     "club": "Newells Old Boys",
     "league": "Liga Profesional (Argentina)",
     "position": "MF",
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 129885,
-    "apiFootballTeamId": 457
+    "apiFootballTeamId": 457,
+    "capTied": true
   },
   {
     "id": "miljevic-matko",
@@ -480,7 +550,12 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 6719,
-    "apiFootballTeamId": 436
+    "apiFootballTeamId": 436,
+    "otherEligibility": [
+      "Argentina",
+      "Bosnia and Herzegovina",
+      "Croatia"
+    ]
   },
   {
     "id": "schelotto-barros-nicolas",
@@ -502,7 +577,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 51144,
-    "apiFootballTeamId": 94
+    "apiFootballTeamId": 94,
+    "capTied": true
   },
   {
     "id": "balogun-folarin",
@@ -512,7 +588,8 @@
     "position": "ST",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 138835
+    "apiFootballId": 138835,
+    "capTied": true
   },
   {
     "id": "reyna-gio",
@@ -523,7 +600,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 161921,
-    "apiFootballTeamId": 95
+    "apiFootballTeamId": 95,
+    "capTied": true
   },
   {
     "id": "mckenzie-mark",
@@ -534,7 +612,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 50735,
-    "apiFootballTeamId": 96
+    "apiFootballTeamId": 96,
+    "capTied": true
   },
   {
     "id": "tessmann-tanner",
@@ -545,7 +624,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 80752,
-    "apiFootballTeamId": 80
+    "apiFootballTeamId": 80,
+    "capTied": true
   },
   {
     "id": "weah-timothy",
@@ -556,7 +636,8 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 1138,
-    "apiFootballTeamId": 81
+    "apiFootballTeamId": 81,
+    "capTied": true
   },
   {
     "id": "robinson-antonee",
@@ -567,7 +648,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 19549,
-    "apiFootballTeamId": 36
+    "apiFootballTeamId": 36,
+    "capTied": true
   },
   {
     "id": "aaronson-brenden",
@@ -578,7 +660,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 50739,
-    "apiFootballTeamId": 63
+    "apiFootballTeamId": 63,
+    "capTied": true
   },
   {
     "id": "richards-chris",
@@ -589,7 +672,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 126949,
-    "apiFootballTeamId": 52
+    "apiFootballTeamId": 52,
+    "capTied": true
   },
   {
     "id": "wright-haji",
@@ -599,7 +683,8 @@
     "position": "ST",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 427
+    "apiFootballId": 427,
+    "capTied": true
   },
   {
     "id": "adams-tyler",
@@ -610,7 +695,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 1150,
-    "apiFootballTeamId": 35
+    "apiFootballTeamId": 35,
+    "capTied": true
   },
   {
     "id": "gozo-zavier",
@@ -621,7 +707,10 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 412227,
-    "apiFootballTeamId": 52
+    "apiFootballTeamId": 52,
+    "otherEligibility": [
+      "Ivory Coast"
+    ]
   },
   {
     "id": "blesa-miller-jalen",
@@ -632,7 +721,11 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 404056,
-    "apiFootballTeamId": 226
+    "apiFootballTeamId": 226,
+    "otherEligibility": [
+      "Spain",
+      "United Kingdom"
+    ]
   },
   {
     "id": "osundina-oluwakorede",
@@ -643,7 +736,10 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 359436,
-    "apiFootballTeamId": 4716
+    "apiFootballTeamId": 4716,
+    "otherEligibility": [
+      "Nigeria"
+    ]
   },
   {
     "id": "trusty-auston",
@@ -654,7 +750,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 50737,
-    "apiFootballTeamId": 247
+    "apiFootballTeamId": 247,
+    "capTied": true
   },
   {
     "id": "fodrey-calvin",
@@ -676,7 +773,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 19314,
-    "apiFootballTeamId": 247
+    "apiFootballTeamId": 247,
+    "capTied": true
   },
   {
     "id": "brown-ethan",
@@ -687,7 +785,10 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 418054,
-    "apiFootballTeamId": 250
+    "apiFootballTeamId": 250,
+    "otherEligibility": [
+      "Canada"
+    ]
   },
   {
     "id": "murrell-jacob",
@@ -720,7 +821,11 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 359942,
-    "apiFootballTeamId": 253
+    "apiFootballTeamId": 253,
+    "otherEligibility": [
+      "Nigeria",
+      "Ghana"
+    ]
   },
   {
     "id": "cremaschi-benjamin",
@@ -731,7 +836,11 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 362061,
-    "apiFootballTeamId": 523
+    "apiFootballTeamId": 523,
+    "otherEligibility": [
+      "Argentina",
+      "Italy"
+    ]
   },
   {
     "id": "pulisic-christian",
@@ -742,7 +851,8 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 17,
-    "apiFootballTeamId": 489
+    "apiFootballTeamId": 489,
+    "capTied": true
   },
   {
     "id": "busio-gianluca",
@@ -753,7 +863,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 51266,
-    "apiFootballTeamId": 517
+    "apiFootballTeamId": 517,
+    "capTied": true
   },
   {
     "id": "marzi-de-giorgio",
@@ -764,7 +875,10 @@
     "positionGroup": "GK",
     "nationality": "USA",
     "apiFootballId": 483676,
-    "apiFootballTeamId": 497
+    "apiFootballTeamId": 497,
+    "otherEligibility": [
+      "Italy"
+    ]
   },
   {
     "id": "mckennie-weston",
@@ -775,7 +889,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 415,
-    "apiFootballTeamId": 496
+    "apiFootballTeamId": 496,
+    "capTied": true
   },
   {
     "id": "musah-yunus",
@@ -786,6 +901,7 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 162106,
-    "apiFootballTeamId": 489
+    "apiFootballTeamId": 489,
+    "capTied": true
   }
 ]
