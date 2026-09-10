@@ -7,7 +7,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 USA FC — a mobile-first PWA tracking American soccer players at non-US clubs. Express
 server (`server/`) proxies API-Football, owns the API key, caching, and rate limiting;
 Vite/React client (`client/`) is built to `client/dist` and served statically by the
-same server on port 8787. Deployed on Render (free tier) at https://usa-fc.onrender.com.
+same server on port 8787. Deployed on Render at https://usa-fc.onrender.com on a paid
+instance (upgraded from free tier Sept 2026) — it must not go back to free: free
+instances spin down after 15 idle minutes, which showed Render's own loading page on
+open, wiped the in-memory caches (forcing the ~1,400-call startup warm on every wake),
+and stopped the daily/post-match warm scheduler.
 
 Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
 Players (profiles with bio and season stats). Primary user is Seth, mostly on an iPad
@@ -226,6 +230,13 @@ preferences should route through this module rather than being hard-coded.
   subst in/out slot order is unreliable, so both slots must be checked — this is how
   Pukštas went unmarked when subbed on). Schedule-card chips stay navy, red only when
   the player scored, no flags — do NOT re-add red/flags there.
+- Loading splash (added Sept 2026): a navy branded splash (crest, wordmark, motto,
+  red/white/blue bouncing dots) covers the app from first paint until the initial
+  players AND matches fetches both settle, then fades out. It exists twice with
+  identical markup — static HTML inside `#root` in `client/index.html` (paints before
+  any JS loads) and a React `Splash` component in `App.jsx` (covers the data wait).
+  Both are styled by the inline `<style>` block in index.html — keep the two copies
+  and that style block in sync.
 - The service worker (`public/sw.js`) is network-first for `/api/` and navigations so
   deploys and live scores are never stale; bump its cache name if you change caching.
 - An open `MatchSheet` on a live match re-pulls detail every 60s

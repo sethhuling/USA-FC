@@ -12,6 +12,24 @@ const TABS = [
   { key: 'players', label: 'Players', icon: '🇺🇸' },
 ];
 
+// Mirrors the static splash in index.html (same classes, styled by the inline
+// <style> block there) so the handoff from static HTML to React is seamless.
+function Splash({ out }) {
+  return (
+    <div className={out ? 'splash out' : 'splash'} aria-hidden={out}>
+      <img src="/crest.svg" alt="" className="splash-crest" />
+      <h1 className="splash-title">USA FC</h1>
+      <div className="splash-motto">
+        <span className="m-line">Oh when the</span>
+        <span className="m-yanks">YANKS</span>
+        <span className="m-line">go marching in</span>
+      </div>
+      <div className="splash-dots"><span /><span /><span /></div>
+      <div className="splash-note">Warming up…</div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tab, setTab] = useState('schedule');
   const [meta, setMeta] = useState(null);
@@ -20,6 +38,8 @@ export default function App() {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const [booted, setBooted] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     // Hysteresis: collapse past 24px, re-expand only near the top. A single
@@ -45,9 +65,19 @@ export default function App() {
 
   useEffect(() => {
     fetchMeta().then(setMeta).catch(() => {});
-    fetchPlayers().then((d) => setPlayers(d.players)).catch((e) => setError(e.message));
-    loadMatches();
+    const playersReady = fetchPlayers()
+      .then((d) => setPlayers(d.players))
+      .catch((e) => setError(e.message));
+    // Keep the splash up until both initial fetches settle (success or error).
+    Promise.allSettled([playersReady, loadMatches()]).then(() => setBooted(true));
   }, [loadMatches]);
+
+  // Fade the splash, then unmount it once the transition has finished.
+  useEffect(() => {
+    if (!booted) return;
+    const t = setTimeout(() => setSplashDone(true), 400);
+    return () => clearTimeout(t);
+  }, [booted]);
 
   // Poll every 60s while a match is live, every 5 min otherwise.
   const anyLive = matches.some((m) => m.status === 'live');
@@ -104,6 +134,8 @@ export default function App() {
           </button>
         ))}
       </nav>
+
+      {!splashDone && <Splash out={booted} />}
     </div>
     </TeamProvider>
     </ProfileProvider>
