@@ -1,30 +1,73 @@
 import React from 'react';
 
-// Goal marker: a classic pentagon-panel soccer ball in brand colors —
-// red center pentagon, navy panels/seams on white.
+// Goal marker: soccer ball drawn to match the ⚽ emoji used for non-American
+// goals — slightly tilted center pentagon, five rim panels clipped by the
+// circle, and the emoji's spherical shading (bright top-left, shadowed
+// bottom-right rim, beveled panels with a soft edge — no hard outline) —
+// but with navy panels (where a normal ball is black) and red seams.
 export function UsaBall({ size = 13 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-label="goal" role="img">
-      <circle cx="12" cy="12" r="10.5" fill="#fff" />
-      {/* seams: center-pentagon vertices out to the rim */}
-      <g stroke="#0A3161" strokeWidth="1.4" strokeLinecap="round">
-        <line x1="12" y1="7.7" x2="12" y2="1.6" />
-        <line x1="16.09" y1="10.67" x2="21.89" y2="8.79" />
-        <line x1="14.53" y1="15.48" x2="18.11" y2="20.41" />
-        <line x1="9.47" y1="15.48" x2="5.89" y2="20.41" />
-        <line x1="7.91" y1="10.67" x2="2.11" y2="8.79" />
+      <defs>
+        <clipPath id="usaball-c">
+          <circle cx="12" cy="12" r="10.5" />
+        </clipPath>
+        <radialGradient id="usaball-b" cx="36%" cy="26%" r="90%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="55%" stopColor="#f4f5f7" />
+          <stop offset="100%" stopColor="#aab2bf" />
+        </radialGradient>
+        <radialGradient id="usaball-s" cx="36%" cy="26%" r="95%">
+          <stop offset="0%" stopColor="#000" stopOpacity="0" />
+          <stop offset="60%" stopColor="#000" stopOpacity="0" />
+          <stop offset="85%" stopColor="#000" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+        </radialGradient>
+        <radialGradient id="usaball-h" cx="40%" cy="20%" r="36%">
+          <stop offset="0%" stopColor="#fff" stopOpacity="0.6" />
+          <stop offset="70%" stopColor="#fff" stopOpacity="0.24" />
+          <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        {/* per-panel bevel: maps to each panel's own bounding box */}
+        <linearGradient id="usaball-p" x1="0" y1="0" x2="0.25" y2="1">
+          <stop offset="0%" stopColor="#2d5f97" />
+          <stop offset="45%" stopColor="#0A3161" />
+          <stop offset="100%" stopColor="#041d3d" />
+        </linearGradient>
+        <filter id="usaball-f" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="0.35" stdDeviation="0.35" floodColor="#39445a" floodOpacity="0.55" />
+        </filter>
+      </defs>
+      <circle cx="12" cy="12" r="10.5" fill="url(#usaball-b)" />
+      <g clipPath="url(#usaball-c)">
+        {/* seams: center-pentagon vertices out to the rim panels */}
+        <g stroke="#B31942" strokeWidth="1.3" strokeLinecap="round">
+          <line x1="10.59" y1="8.10" x2="9.94" y2="5.06" />
+          <line x1="15.31" y1="10.20" x2="18.00" y2="8.65" />
+          <line x1="14.77" y1="15.34" x2="17.07" y2="17.42" />
+          <line x1="9.71" y1="16.42" x2="8.45" y2="19.25" />
+          <line x1="7.12" y1="11.94" x2="4.04" y2="11.62" />
+        </g>
+        {/* panels: beveled fill, faint highlight edge, soft drop shadow */}
+        <g
+          fill="url(#usaball-p)"
+          filter="url(#usaball-f)"
+          stroke="rgba(255,255,255,0.22)"
+          strokeWidth="0.35"
+        >
+          <path d="M9.94 5.06 L6.18 3.39 L6.61 -0.70 L10.64 -1.56 L12.69 2.01 Z" />
+          <path d="M18.00 8.65 L18.43 4.56 L22.45 3.70 L24.51 7.27 L21.75 10.32 Z" />
+          <path d="M17.07 17.42 L21.10 16.56 L23.16 20.13 L20.40 23.18 L16.64 21.51 Z" />
+          <path d="M8.45 19.25 L10.51 22.81 L7.75 25.87 L3.99 24.20 L4.42 20.11 Z" />
+          <path d="M4.04 11.62 L1.29 14.67 L-2.47 13.00 L-2.04 8.91 L1.98 8.05 Z" />
+          <path d="M10.59 8.10 L15.31 10.20 L14.77 15.34 L9.71 16.42 L7.12 11.94 Z" />
+        </g>
+        {/* spherical shading: rim shadow, then top-left gloss */}
+        <circle cx="12" cy="12" r="10.5" fill="url(#usaball-s)" />
+        <circle cx="12" cy="12" r="10.5" fill="url(#usaball-h)" />
+        {/* subtle edge, in place of a hard outline */}
+        <circle cx="12" cy="12" r="10.3" fill="none" stroke="rgba(90,100,115,0.45)" strokeWidth="0.5" />
       </g>
-      {/* half-panels along the rim between the seams */}
-      <g fill="#0A3161">
-        <path d="M15.59 2.13 L20.27 5.53 L16.12 6.34 Z" />
-        <path d="M22.49 12.37 L20.70 17.87 L18.66 14.16 Z" />
-        <path d="M14.90 22.09 L9.10 22.09 L12 19 Z" />
-        <path d="M1.51 12.37 L3.30 17.87 L5.34 14.16 Z" />
-        <path d="M8.41 2.13 L3.73 5.53 L7.88 6.34 Z" />
-      </g>
-      {/* center pentagon — the one red panel */}
-      <path d="M12 7.7 L16.09 10.67 L14.53 15.48 L9.47 15.48 L7.91 10.67 Z" fill="#B31942" />
-      <circle cx="12" cy="12" r="10.5" fill="none" stroke="#0A3161" strokeWidth="1.6" />
     </svg>
   );
 }

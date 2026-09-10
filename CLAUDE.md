@@ -205,6 +205,12 @@ Scrapers (`scrapers/`)
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   original USAFC crest (deliberately NOT the trademarked USMNT logo). Squad badge
   labels: XI / ON / BENCH / OUT.
+- American goal marker (`UsaBall` in icons.jsx, settled Sept 2026): drawn to look
+  exactly like the ⚽ emoji used for regular goals — same tilted pentagon layout,
+  spherical shading, beveled panels, soft edge with NO hard outline ring — just
+  recolored: navy panels where the emoji is black, red seams. Iterate on it by
+  screenshotting it next to the real emoji in a browser; check it at 13px too,
+  that's the size it renders in the app.
 - Collapsing topbar: the collapse removes ~124px of layout height, so it MUST keep
   `overflow-anchor: none` on `html` (styles.css) and the hysteresis thresholds in
   App.jsx (collapse past 24px, re-expand under 8px). A single scroll threshold
