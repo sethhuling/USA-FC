@@ -419,6 +419,11 @@ section h2.section-live { color: var(--live); }
 .event-sub, .event-team { color: var(--muted); font-weight: 400; font-size: 0.78rem; }
 /* The event's second name (assister / player subbed ON) when he's a tracked American. */
 .event-sub.american { color: var(--live); font-weight: 700; }
+/* Substitution arrows: light blue so they never read as a yellow card. */
+.subst-icon { color: #3b9eff; font-weight: 700; font-size: 1.1em; }
+@media (prefers-color-scheme: dark) {
+  .subst-icon { color: #7cc4ff; }
+}
 .lineups { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .lineup-col h5 { margin: 6px 0 2px; font-size: 0.85rem; }
 .lineup-col h6 { margin: 8px 0 2px; font-size: 0.7rem; text-transform: uppercase; color: var(--muted); }

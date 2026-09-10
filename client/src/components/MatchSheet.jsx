@@ -12,9 +12,12 @@ const matchDateFmt = new Intl.DateTimeFormat(undefined, {
 });
 const matchTimeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
 
-const EVENT_ICONS = { Goal: '⚽', Card: '🟨', subst: '🔁' };
+const EVENT_ICONS = { Goal: '⚽', Card: '🟨' };
 function eventIcon(ev) {
   if (ev.type === 'Card') return ev.detail?.includes('Red') ? '🟥' : '🟨';
+  // Styled glyph, not the 🔁 emoji — its orange arrows read as a yellow card
+  // at event-list size. Emoji can't be recolored, so a text glyph it is.
+  if (ev.type === 'subst') return <span className="subst-icon">⇄</span>;
   return EVENT_ICONS[ev.type] || '•';
 }
 
