@@ -259,7 +259,8 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 407652,
-    "capTied": true
+    "capTied": true,
+    "apiFootballTeamId": 69
   },
   {
     "id": "pukstas-rokas",
