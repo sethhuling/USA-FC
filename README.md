@@ -130,14 +130,17 @@ rendered in the viewer's local timezone by the browser.
 
 ## Deploying / sharing (Render)
 
-The repo includes a [`render.yaml`](render.yaml) blueprint:
+The live deployment is a plain Render web service (`uncle-sam-fc`), configured in
+the Render dashboard. To set one up from scratch:
 
 1. Push this repo to GitHub (private is fine).
-2. Create a free account at render.com, choose **New + > Blueprint**, and select
-   the repo. Render reads `render.yaml` automatically.
-3. When prompted, paste your `API_FOOTBALL_KEY`. It's stored as a Render env
-   var — never in git (`.env` is git-ignored).
-4. Deploy. Your app gets a permanent `https://usa-fc-*.onrender.com` URL to share.
+2. Create an account at render.com, choose **New + > Web Service**, and select
+   the repo. Build command: `npm install && npm run build`; start command:
+   `npm start`; health check path: `/api/meta`.
+3. Add `API_FOOTBALL_KEY` (and optionally `ADMIN_KEY`) in the Environment tab.
+   Env vars are stored in Render — never in git (`.env` is git-ignored).
+4. Deploy. Your app gets a permanent `https://<service-name>.onrender.com` URL
+   to share. (`render.yaml` is a legacy Blueprint file, no longer in use.)
 
 Notes:
 - The **free tier sleeps after ~15 min idle**; the next visitor waits ~a minute

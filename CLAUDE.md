@@ -7,11 +7,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Uncle Sam FC (renamed from USA FC, Sept 2026) — a mobile-first PWA tracking American soccer players at non-US clubs. Express
 server (`server/`) proxies API-Football, owns the API key, caching, and rate limiting;
 Vite/React client (`client/`) is built to `client/dist` and served statically by the
-same server on port 8787. Deployed on Render at https://usa-fc.onrender.com on a paid
-instance (upgraded from free tier Sept 2026) — it must not go back to free: free
-instances spin down after 15 idle minutes, which showed Render's own loading page on
-open, wiped the in-memory caches (forcing the ~1,400-call startup warm on every wake),
-and stopped the daily/post-match warm scheduler.
+same server on port 8787. Deployed on Render at https://uncle-sam-fc.onrender.com
+(service `uncle-sam-fc`, created Sept 2026 as a plain web service after the original
+Blueprint-managed `usa-fc` service was suspended) on a paid instance — it must not
+go back to free: free instances spin down after 15 idle minutes, which showed
+Render's own loading page on open, wiped the in-memory caches (forcing the
+~1,400-call startup warm on every wake), and stopped the daily/post-match warm
+scheduler.
 
 Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
 Players (profiles with bio and season stats). Primary user is Seth, mostly on an iPad
@@ -58,27 +60,26 @@ demo server via a plain background `node` command is a safe fallback.
   upstream request counts and cache hit rate; endpoint returns 503 if unset).
   `/admin` serves a human-friendly page (`server/admin.html`) for the same stats:
   it asks for the key once and stores it in localStorage.
-- Adding a new secret takes BOTH steps: declare the key in `render.yaml` under
-  `envVars` with `sync: false`, and set its value in the Render dashboard
-  (Environment tab on the usa-fc service). A dashboard-only var on this
-  Blueprint-managed service didn't reach the server when ADMIN_KEY was added
-  (Sept 2026) until it was declared in `render.yaml` too.
-- The same rule applies to EVERY service setting, not just env vars: on this
-  Blueprint-managed service a `render.yaml` push triggers a sync that enforces
-  whatever the yaml says, reverting dashboard-only changes. The paid instance
-  upgrade was dashboard-only, so the 2026-09-10 rebrand push (which touched
-  render.yaml still saying `plan: free`) silently downgraded the service to
-  free — spin-downs and the Render loading page came back until `plan: starter`
-  was committed. Any future instance-type change must be made in `render.yaml`.
-- `SEASON` is blank in `.env` and absent from `render.yaml`, so the server
+- The live `uncle-sam-fc` service is a PLAIN web service, not Blueprint-managed
+  (since Sept 2026): the Render dashboard is the single source of truth for env
+  vars, instance plan, and every other service setting. Set new secrets in the
+  dashboard's Environment tab only; keep the plan at Starter there. `render.yaml`
+  is a LEGACY leftover from the old Blueprint-managed `usa-fc` service (now
+  suspended) — it configures nothing that is live. Do not reconnect a Blueprint
+  to this repo without first updating render.yaml's service name; while the old
+  Blueprint existed, yaml pushes silently reverted dashboard-only changes (a
+  `plan: free` in yaml once downgraded the paid instance), and env vars had to
+  be declared in BOTH places. None of that applies to the current service.
+- `SEASON` is blank in `.env` and unset in the Render dashboard, so the server
   auto-computes it (`season()` in `server/adapters/providers/apiFootball.js`:
   calendar year, rolling over each August — 2026 as of Sept 2026). No manual summer
   bump is needed; only set it to pin a specific season.
 
 ## Deploy
 
-Push to `main` (the repo's default branch) on GitHub → Render auto-deploys via the
-`render.yaml` Blueprint (~3 min). Confirm a deploy landed by grepping the served HTML
+Push to `main` (the repo's default branch) on GitHub → the `uncle-sam-fc` web
+service auto-deploys from its GitHub link (~3 min; build/start commands live in
+the service's dashboard settings, not render.yaml). Confirm a deploy landed by grepping the served HTML
 for the new hashed bundle name from `client/dist/assets/`. To see a shipped change on
 the iPad/phone, hard-relaunch the app after the Render build finishes.
 

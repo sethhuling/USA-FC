@@ -1,6 +1,9 @@
-# Render blueprint — deploy Uncle Sam FC as a single web service.
-# In the Render dashboard: New + > Blueprint > select this repo,
-# then set API_FOOTBALL_KEY when prompted (it is never stored in git).
+# LEGACY — NOT IN USE (Sept 2026). The live deployment is the `uncle-sam-fc`
+# PLAIN web service, created and configured entirely in the Render dashboard
+# after the Blueprint-managed `usa-fc` service below was suspended. No Blueprint
+# should be connected to this repo. If one ever is reconnected, update the
+# service name below first — as written this file would recreate/manage the old
+# `usa-fc` service, not the live one.
 services:
   - type: web
     name: usa-fc
