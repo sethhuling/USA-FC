@@ -206,16 +206,25 @@ preferences should route through this module rather than being hard-coded.
 ## Data files (server/data/)
 
 - `players.json` — the tracked roster, hand-editable, source of truth. The server
-  writes back resolved `apiFootballId`/`apiFootballTeamId`; it's committed to git so
-  Render's ephemeral disk boots warm. Optional hand-maintained `"capTied": true`
-  flag (player has senior competitive caps for ANY country — a friendly never
-  ties) drives the Stats tab's cap-tied filter; absent means not cap-tied.
-  Optional `"otherEligibility": ["Country", ...]` lists source-verified other
-  national teams a non-tied player could represent (no UI yet). Both audited
+  writes back resolved `apiFootballId`/`apiFootballTeamId` but ONLY fills blanks —
+  a wrong stored id is never re-checked. A dead/mismatched apiFootballId shows up
+  as null age + all-zero stats + empty career rows (Agyemang had id 360681, an
+  empty record; his real one is 407652): verify a suspect id by pulling its
+  season rows and matching them to the player's actual clubs before trusting
+  anything derived from it. Team-id resolution needs at least one current-season
+  club stat row, so a player with none (injured all season, just transferred)
+  keeps a null apiFootballTeamId until hand-set (Derby is 69). The file is
+  committed to git so Render's ephemeral disk boots warm.
+  Optional hand-maintained `"capTied": true` flag (player has senior competitive
+  caps for ANY country — a friendly never ties) and
+  `"otherEligibility": ["Country", ...]` (source-verified other national teams a
+  non-tied player could represent) drive the Stats tab's cap-tied and
+  eligibility filters; eligibility also shows as the profile sheet's
+  "Also eligible" row. Absent means not tied / none verified. Both audited
   Sept 2026 (API-Football career rows cross-checked against Wikipedia/press;
-  the API showed a phantom 0-minute cap for Maloney and missed Agyemang's Gold
-  Cup entirely, so never flag from API rows alone). Only set either field from
-  a verified source — never guess. The `/api/players` payload also carries each player's `age`
+  the API counted a phantom 0-minute Maloney cap, so never flag from API rows
+  alone). Only set either field from a verified source — never guess.
+  The `/api/players` payload also carries each player's `age`
   (from API-Football; demo mode simulates it), used by the Stats age filter.
 - `excluded.json` — **roster policy**: players the API calls USA-nationality who chose
   another national team (e.g. Bajraktarević → Bosnia) are excluded here; `npm run
@@ -304,7 +313,8 @@ preferences should route through this module rather than being hard-coded.
 
 Football data changes constantly — verify claims against the live API rather than
 memory (e.g. a player showing zero stats may genuinely be injured or frozen out, not a
-bug: check their career rows). The account is a paid Mega plan (150,000 req/day since
+bug: check their career rows). But all-zero stats PLUS a null age or empty career
+means the roster's apiFootballId is probably a dead record — see players.json above. The account is a paid Mega plan (150,000 req/day since
 Sept 2026, after restarts exhausted the old 7,500 Pro cap in one day); a fully
 cold startup warm uses ~1,400 calls (dominated by first-time player profiles, which
 then cache 7d), the daily forced warm ~400, the finished-match backfill a few hundred
