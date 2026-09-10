@@ -17,7 +17,6 @@ const TABS = [
 function Splash({ out }) {
   return (
     <div className={out ? 'splash out' : 'splash'} aria-hidden={out}>
-      <img src="/crest.png" alt="" className="splash-crest" />
       <h1 className="splash-title">Uncle Sam FC</h1>
       <div className="splash-motto">
         <span className="m-line">Oh when the</span>

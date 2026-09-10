@@ -20,12 +20,16 @@
          The React copy in App.jsx reuses these classes — keep them in sync. */
       .splash {
         position: fixed; inset: 0; z-index: 200;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        background: #0A3161; transition: opacity 0.35s ease;
+        display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+        padding-bottom: max(7vh, env(safe-area-inset-bottom));
+        background:
+          linear-gradient(to bottom, rgba(10,49,97,0) 40%, rgba(10,49,97,0.55) 70%, rgba(10,49,97,0.92) 100%),
+          #0A3161 url('/crest.png') center / cover no-repeat;
+        transition: opacity 0.35s ease;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       }
       .splash.out { opacity: 0; pointer-events: none; }
-      .splash-crest { height: 104px; width: auto; }
+      .splash-title, .splash-motto { text-shadow: 0 1px 8px rgba(10,49,97,0.9); }
       .splash-title {
         color: #fff; font-style: italic; font-size: 2rem;
         letter-spacing: 0.02em; margin: 10px 0 2px; font-weight: 700;
@@ -55,7 +59,6 @@
   <body>
     <div id="root">
       <div class="splash">
-        <img src="/crest.png" alt="" class="splash-crest" />
         <h1 class="splash-title">Uncle Sam FC</h1>
         <div class="splash-motto">
           <span class="m-line">Oh when the</span>

@@ -232,8 +232,10 @@ preferences should route through this module rather than being hard-coded.
   subst in/out slot order is unreliable, so both slots must be checked — this is how
   Pukštas went unmarked when subbed on). Schedule-card chips stay navy, red only when
   the player scored, no flags — do NOT re-add red/flags there.
-- Loading splash (added Sept 2026): a navy branded splash (crest, wordmark, motto,
-  red/white/blue bouncing dots) covers the app from first paint until the initial
+- Loading splash (added Sept 2026): the full-bleed Uncle Sam crest artwork
+  (`crest.png` as a cover background over navy) with the wordmark, motto, and
+  red/white/blue bouncing dots anchored near the bottom over a navy gradient
+  scrim; it covers the app from first paint until the initial
   players AND matches fetches both settle, then fades out. It exists twice with
   identical markup — static HTML inside `#root` in `client/index.html` (paints before
   any JS loads) and a React `Splash` component in `App.jsx` (covers the data wait).
