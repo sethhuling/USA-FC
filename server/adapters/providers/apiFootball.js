@@ -3,48 +3,10 @@
 // NOTE: current-season data requires a paid plan; the free tier serves 2021-2023 only.
 const BASE = 'https://v3.football.api-sports.io';
 
-const LEAGUE_IDS = {
-  'Premier League': 39,
-  'La Liga': 140,
-  'Serie A': 135,
-  'Bundesliga': 78,
-  'Ligue 1': 61,
-  'Liga MX': 262,
-  'Eredivisie': 88,
-  'Championship': 40,
-  'League One': 41,
-  'Scottish Premiership': 179,
-  'Primeira Liga': 94,
-  'Belgian Pro League': 144,
-  'Süper Lig': 203,
-  'Brasileirão': 71,
-  'Austrian Bundesliga': 218,
-  'Liga Profesional (Argentina)': 128,
-};
-
-// Cup competitions: fetched for fixtures but excluded from player discovery and
-// the league directory. Canonical names are ours — the API calls Belgium's and
-// Austria's cups literally "Cup", and England/Scotland both have a "League Cup".
-const CUP_IDS = {
-  'Champions League': 2,
-  'Europa League': 3,
-  'Conference League': 848,
-  'FA Cup': 45,
-  'EFL Cup': 48,
-  'Copa del Rey': 143,
-  'Coppa Italia': 137,
-  'DFB Pokal': 81,
-  'Coupe de France': 66,
-  'KNVB Beker': 90,
-  'Taça de Portugal': 96,
-  'Belgian Cup': 147,
-  'Turkish Cup': 206,
-  'Copa do Brasil': 73,
-  'Copa Argentina': 130,
-  'Scottish Cup': 181,
-  'Scottish League Cup': 185,
-  'Austrian Cup': 220,
-};
+// Covered leagues/cups and tracked nationality come from server/config/coverage.json.
+// Cup competitions are fetched for fixtures but excluded from player discovery
+// and the league directory.
+const { LEAGUE_IDS, CUP_IDS, NATIONALITY, NATIONAL_TEAM_RE } = require('../../src/coverage');
 
 // The API reuses names across countries (Brazil's league is literally "Serie A",
 // Austria's is "Bundesliga"), so always label fixtures with our canonical name.
@@ -267,8 +229,8 @@ async function resolveId(p) {
       const pl = it.player || {};
       return norm(pl.lastname).includes(term) || norm(pl.name).includes(term);
     });
-    const usa = cands.filter((it) => it.player?.nationality === 'USA');
-    if (usa.length) cands = usa;
+    const natMatch = cands.filter((it) => it.player?.nationality === NATIONALITY);
+    if (natMatch.length) cands = natMatch;
     const fi = cands.filter(
       (it) => norm(it.player?.firstname || it.player?.name || '').charAt(0) === firstInitial
     );
@@ -388,7 +350,7 @@ async function playerProfile(p) {
     }
     for (const row of byTeam.values()) {
       row.leagues = [...row.leagues].filter(Boolean).join(', ');
-      (/^(usa|united states)/.test(norm(row.team)) ? national : career).push(row);
+      (NATIONAL_TEAM_RE.test(norm(row.team)) ? national : career).push(row);
     }
   }
 

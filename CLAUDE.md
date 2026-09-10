@@ -46,8 +46,11 @@ demo server via a plain background `node` command is a safe fallback.
 
 - Secrets live in `.env` locally (git-ignored) and in the Render dashboard in
   production. Never commit `.env`. Never print API keys in output.
-- Key vars: `API_FOOTBALL_KEY`, `SEASON`, `PORT`, `ENABLE_STREAMING_AUTO`,
-  `ENABLE_FOTMOB_SCRAPER`, `ADMIN_KEY` (bearer token for `/api/admin/stats` —
+- Key vars: `API_FOOTBALL_KEY`, `SEASON`, `PORT`, `ENABLE_UNLICENSED_SOURCES`
+  (master kill switch in `server/src/unlicensed.js` — gates every unlicensed
+  data path at once; MUST be 0/unset in any public release),
+  `ENABLE_STREAMING_AUTO` (per-source flag, inert unless the master switch is
+  also 1), `ADMIN_KEY` (bearer token for `/api/admin/stats` —
   upstream request counts and cache hit rate; endpoint returns 503 if unset).
   `/admin` serves a human-friendly page (`server/admin.html`) for the same stats:
   it asks for the key once and stores it in localStorage.
@@ -117,9 +120,11 @@ fetches at most 15 uncached per request, newest first).
 `apiFootball.js` invariants:
 - All upstream calls go through `api()` — globally throttled (250ms spacing) with
   backoff retry on per-minute rate limits. Never fetch the API directly elsewhere.
-- League/cup ids live in `LEAGUE_IDS` / `CUP_IDS`; fixtures are always labeled via
-  `ID_TO_NAME` because the API reuses names across countries (Brazil's league is
-  literally "Serie A", Austria's is "Bundesliga", two "League Cup"s exist).
+- League/cup ids and the tracked nationality live in `server/config/coverage.json`,
+  loaded by `server/src/coverage.js` (which exports `LEAGUE_IDS`/`CUP_IDS`);
+  fixtures are always labeled via `ID_TO_NAME` because the API reuses names across
+  countries (Brazil's league is literally "Serie A", Austria's is "Bundesliga",
+  two "League Cup"s exist).
 - Venue country isn't in fixture payloads; `matchDetail` looks it up via `/venues`
   once per stadium (`venueLocations` Map, process-lifetime — stadiums don't move),
   falling back to the league's country unless it's "World" (UEFA cups etc.).
@@ -133,7 +138,7 @@ fetches at most 15 uncached per request, newest first).
 
 ## Data sources (server/adapters/)
 
-Five sources in three adapter groups; each has one job. In production only two are
+Four sources in two adapter groups; each has one job. In production only two are
 live: API-Football + streaming.json.
 
 Providers (`providers/`) — match/player data. `index.js` picks ONE at startup:
@@ -153,13 +158,37 @@ Streaming (`streaming/`) — "what US service is this match on?"
   US broadcaster (e.g. Championship → Paramount+). Fuzzy name matching. Re-read on
   every lookup, so edits need no restart. THIS IS WHAT ACTUALLY ANSWERS IN PRODUCTION.
 - liveSoccerTv: intentional stub, always returns null. Placeholder for a licensed
-  match-level lookup (LiveSoccerTV forbids scraping). `ENABLE_STREAMING_AUTO=1` —
-  leave off.
+  match-level lookup (LiveSoccerTV forbids scraping). Needs
+  `ENABLE_UNLICENSED_SOURCES=1` + `ENABLE_STREAMING_AUTO=1` — leave both off.
 
-Scrapers (`scrapers/`)
-- FotMob: opt-in (`ENABLE_FOTMOB_SCRAPER=1`), best-effort only. Adds clearances and
-  interceptions that API-Football lacks, via an unofficial endpoint. Treat as
-  optional; may break without notice.
+All unlicensed paths share one master kill switch: `ENABLE_UNLICENSED_SOURCES`
+(`server/src/unlicensed.js`). Per-source flags do nothing without it, and it
+MUST be off in any public release. Any future scraper or unlicensed lookup must
+check it too. With everything off the UI is unaffected: gated adapters return
+null, streaming falls through to configFallback (or "Unknown"), and
+interceptions come from API-Football. The server's `clearances` field actually
+carries API-Football's blocks (the API has no clearances stat), and the UI
+labels it "Blocks". A FotMob stats scraper once lived in `server/adapters/scrapers/`;
+it was deleted (Sept 2026) — don't reintroduce scraping in production paths.
+
+## Config layer (server/config/)
+
+Deployment-level choices live in config files, not code — one instance, shared by
+everyone using it:
+- `coverage.json` — which leagues/cups this deployment tracks (name → API id,
+  country, FIFA code) and the tracked `nationality` ("USA") plus the
+  `nationalTeamPattern` regex for splitting national-team career rows. Loaded
+  server-side by `server/src/coverage.js`; the client imports the SAME file at
+  build time via `client/src/leagues.js` (Vite bundles it — a coverage edit needs
+  `npm run build`, and the vite dev server has `fs.allow: ['..']` so it can serve
+  the file from outside the client root).
+- `streaming.json` — competition → US broadcaster fallback (see Data sources).
+
+Per-user choices live in `client/src/settings.js` — a localStorage-backed
+preferences layer (`getSetting`/`setSetting`, defaults in `DEFAULTS`). Currently
+just `units` (`imperial` default, `metric` supported), used for height/weight in
+`PlayerProfile.jsx`. There is no settings UI yet; new per-user display
+preferences should route through this module rather than being hard-coded.
 
 ## Data files (server/data/)
 
@@ -187,7 +216,8 @@ Scrapers (`scrapers/`)
 - `PlayerProfile.jsx` ⇄ `TeamSheet.jsx` intentionally import from each other
   (PlayerLink/TeamLink/FixtureLine); imports are only used at render time so the cycle
   is safe — don't "fix" it by duplicating components.
-- League display names/countries are mapped in `leagues.js`; streaming labels must stay
+- League display names/countries come from the shared `server/config/coverage.json`
+  via `leagues.js` (build-time import); streaming labels must stay
   bare service names (no parentheticals) — user preference.
 - American marking (user preference, settled Sept 2026 after one revert): in the
   MatchSheet ("game view") every tracked American is red + 🇺🇸 everywhere — lineups,
@@ -220,7 +250,8 @@ Scrapers (`scrapers/`)
 
 ## Conventions
 
-- Player profiles use imperial units (feet/inches, pounds), never metric.
+- Player profiles default to imperial units (feet/inches, pounds); the per-user
+  `units` setting in `client/src/settings.js` can switch a device to metric.
 - Player bios read like an American scouting card (set Sept 2026).
 
 ## Testing against real data

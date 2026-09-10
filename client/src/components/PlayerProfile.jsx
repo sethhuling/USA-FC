@@ -3,7 +3,8 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { fetchPlayerProfile } from '../api.js';
-import { leagueCountry } from '../leagues.js';
+import { leagueCountry, NATIONALITY, isNationalTeam } from '../leagues.js';
+import { getSetting } from '../settings.js';
 import { FixtureLine } from './TeamSheet.jsx';
 
 const ProfileContext = createContext(() => {});
@@ -26,17 +27,20 @@ function hometown(bio) {
   return [bio.birth.place, bio.birth.state, bio.birth.country].filter(Boolean).join(', ');
 }
 
-// API values are metric (cm / kg, sometimes with units attached). Show imperial.
-function imperialHeight(h) {
+// API values are metric (cm / kg, sometimes with units attached). Display
+// follows the per-user "units" setting (imperial by default).
+function formatHeight(h) {
   const cm = parseInt(String(h), 10);
   if (!cm || Number.isNaN(cm)) return String(h);
+  if (getSetting('units') === 'metric') return `${cm} cm`;
   const totalIn = Math.round(cm / 2.54);
   return `${Math.floor(totalIn / 12)}′${totalIn % 12}″`;
 }
 
-function imperialWeight(w) {
+function formatWeight(w) {
   const kg = parseInt(String(w), 10);
   if (!kg || Number.isNaN(kg)) return String(w);
+  if (getSetting('units') === 'metric') return `${kg} kg`;
   return `${Math.round(kg * 2.20462)} lbs`;
 }
 
@@ -134,7 +138,9 @@ function ProfileSheet({ player, onClose }) {
   const statRows = s ? [
     ['Apps', s.appearances], ['Starts', s.starts], ['Minutes', s.minutes], ['Goals', s.goals],
     ['Assists', s.assists], ['Tackles', s.tackles], ['Intercepts', s.interceptions],
-    ['Clr/Blocks', s.clearances],
+    // API-Football provides blocks, not clearances (the server's `clearances`
+    // field carries blocks) — label it honestly.
+    ['Blocks', s.clearances],
     ['Def. actions', (s.tackles || 0) + (s.interceptions || 0) + (s.clearances || 0)],
     ['Passes', s.passesCompleted],
     ['Pass %', s.passAccuracy != null ? `${s.passAccuracy}%` : '—'],
@@ -176,8 +182,8 @@ function ProfileSheet({ player, onClose }) {
                 {` (${ageFrom(bio.birth.date)})`}</div>
             )}
             {hometown(bio) && <div><span className="bio-label">Hometown</span>{hometown(bio)}</div>}
-            {bio.height && <div><span className="bio-label">Height</span>{imperialHeight(bio.height)}</div>}
-            {bio.weight && <div><span className="bio-label">Weight</span>{imperialWeight(bio.weight)}</div>}
+            {bio.height && <div><span className="bio-label">Height</span>{formatHeight(bio.height)}</div>}
+            {bio.weight && <div><span className="bio-label">Weight</span>{formatWeight(bio.weight)}</div>}
             <div><span className="bio-label">Nationality</span>{player.nationality}</div>
           </div>
           </section>
@@ -236,14 +242,14 @@ function ProfileSheet({ player, onClose }) {
 
         {profile?.national?.length > 0 && (
           <section className="p-section">
-            <h4 className="profile-h">USA national team</h4>
+            <h4 className="profile-h">{NATIONALITY} national team</h4>
             <div className="table-wrap">
               <table className="career">
                 <tbody>
                   {profile.national.map((r, i) => (
                     <tr key={i}>
                       <td>{r.season}</td>
-                      <td title={r.leagues}>{r.team === 'USA' ? (r.leagues || 'USA') : r.team}</td>
+                      <td title={r.leagues}>{isNationalTeam(r.team) ? (r.leagues || r.team) : r.team}</td>
                       <td className="num">{r.apps} caps</td>
                       <td className="num">{r.goals} G</td>
                       <td className="num">{r.assists} A</td>

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-// Auto-discover US-nationality players at non-US clubs and merge into data/players.json.
+// Auto-discover tracked-nationality players and merge into data/players.json.
+// The nationality and league list come from server/config/coverage.json.
 //
 // With API_FOOTBALL_KEY set: pages through /players for each configured league and
-// keeps nationality === "USA". Costs roughly (pages x leagues) requests — expect a
+// keeps players matching the configured nationality. Costs roughly (pages x leagues)
+// requests — expect a
 // few hundred calls; fine on paid tiers, not on the free 100/day quota.
 // Without a key (demo mode): regenerates players.json from the bundled demo roster.
 //
@@ -11,6 +13,7 @@
 require('../src/env');
 const fs = require('fs');
 const path = require('path');
+const { NATIONALITY } = require('../src/coverage');
 
 const OUT = path.join(__dirname, '..', 'data', 'players.json');
 const EXCLUDED = new Set(
@@ -64,7 +67,7 @@ async function discoverFromApi() {
       catch (e) { console.warn(`${leagueName} page ${page} failed: ${e.message}`); break; }
       totalPages = body.paging?.total || 1;
       for (const item of body.response || []) {
-        if (item.player?.nationality !== 'USA') continue;
+        if (item.player?.nationality !== NATIONALITY) continue;
         const stat = item.statistics?.[0] || {};
         const name = fullName(item.player);
         const group = POSITION_GROUPS[stat.games?.position] || 'MF';
@@ -75,12 +78,12 @@ async function discoverFromApi() {
           league: leagueName,
           position: group,
           positionGroup: group,
-          nationality: 'USA',
+          nationality: NATIONALITY,
           apiFootballId: item.player.id,
         });
       }
       if (page === 1 || page === totalPages) {
-        console.log(`${leagueName}: ${totalPages} pages — ${found.length} US players so far`);
+        console.log(`${leagueName}: ${totalPages} pages — ${found.length} ${NATIONALITY} players so far`);
       }
       page++;
       await new Promise((r) => setTimeout(r, 250));

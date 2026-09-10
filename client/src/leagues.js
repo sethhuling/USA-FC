@@ -1,28 +1,22 @@
-// Country each covered league is based in, keyed by canonical league name.
-// [full name, FIFA-style code]
-const LEAGUE_COUNTRIES = {
-  'Premier League': ['England', 'ENG'],
-  'Championship': ['England', 'ENG'],
-  'League One': ['England', 'ENG'],
-  'La Liga': ['Spain', 'ESP'],
-  'Serie A': ['Italy', 'ITA'],
-  'Bundesliga': ['Germany', 'GER'],
-  'Ligue 1': ['France', 'FRA'],
-  'Liga MX': ['Mexico', 'MEX'],
-  'Eredivisie': ['Netherlands', 'NED'],
-  'Scottish Premiership': ['Scotland', 'SCO'],
-  'Primeira Liga': ['Portugal', 'POR'],
-  'Belgian Pro League': ['Belgium', 'BEL'],
-  'Süper Lig': ['Turkey', 'TUR'],
-  'Brasileirão': ['Brazil', 'BRA'],
-  'Liga Profesional (Argentina)': ['Argentina', 'ARG'],
-  'Austrian Bundesliga': ['Austria', 'AUT'],
-};
+// League metadata and tracked nationality come from the shared deployment
+// config (server/config/coverage.json) — one source of truth for server and
+// client. Vite bundles the JSON at build time, so a coverage edit needs
+// `npm run build` before the UI reflects it.
+import coverage from '../../server/config/coverage.json';
+
+export const NATIONALITY = coverage.nationality;
+
+const NATIONAL_TEAM_RE = new RegExp(coverage.nationalTeamPattern, 'i');
+
+// True for career rows that belong to the tracked national team (e.g. "USA").
+export function isNationalTeam(teamName) {
+  return NATIONAL_TEAM_RE.test(teamName || '');
+}
 
 export function leagueCountry(league) {
-  return LEAGUE_COUNTRIES[league]?.[0] || null;
+  return coverage.leagues[league]?.country || null;
 }
 
 export function leagueCountryCode(league) {
-  return LEAGUE_COUNTRIES[league]?.[1] || null;
+  return coverage.leagues[league]?.code || null;
 }
