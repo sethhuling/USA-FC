@@ -29,7 +29,7 @@ function MatchRow({ m, playersById, onOpen }) {
           {m.demo && <span className="demo-badge">DEMO</span>}
         </span>
         {m.status === 'live' && <span className="minute">{m.minute}′ LIVE</span>}
-        {m.status === 'finished' && <span className="ft">FT</span>}
+        {m.status === 'finished' && <span className="kickoff">{timeFmt.format(kickoff)}</span>}
         {m.status === 'scheduled' && <span className="kickoff">{timeFmt.format(kickoff)}</span>}
       </div>
       <div className="match-teams">
