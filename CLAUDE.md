@@ -16,7 +16,8 @@ Render's own loading page on open, wiped the in-memory caches (forcing the
 scheduler.
 
 Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
-Players (profiles with bio and season stats). Primary user is Seth, mostly on an iPad
+Players (profiles with bio and season stats), News (hand-picked headline links +
+an auto-written daily roundup). Primary user is Seth, mostly on an iPad
 and phone — mobile/tablet layout is the priority, not desktop.
 
 Long-term goal: a public, monetized app. Prefer designs that scale beyond one user —
@@ -147,6 +148,55 @@ without the hand-audited extras (capTied, otherEligibility, hometowns) — audit
 them when they show up, and add anyone who chose another national team to
 excluded.json.
 
+News tab (`server/src/news.js`, `/api/news`; added Sept 2026) — two parts, both
+built to stay legally above board (see "News legal rules" below):
+- Headlines: read fresh from hand-maintained `server/data/news.json` on every
+  request (validated: http(s) URL, title, source, YYYY-MM-DD date, category
+  abroad/usmnt/youth; unknown player ids dropped; domains in `blockedSources`
+  hidden). Maintained by the daily `news-headlines` scheduled task (local
+  Claude desktop, 6:00 AM, pushes only news.json → Render redeploys — like
+  `injury-news-scan`, it only runs while Seth's Mac/app is on).
+- Daily roundup: plain sentences per match ("Weston McKennie started for
+  Juventus as they hosted Palermo. McKennie scored 1 goal and was subbed off in
+  the 67th minute.") — NO closing result sentence (user request: the article
+  subhead already shows the score), except "…won 2–1 after extra time" /
+  "…won 4–3 on penalties", which the score line can't say — written by FIXED RULES from API-Football
+  match details — deliberately no AI (user choice: can never state anything the
+  data doesn't). Covers finished matches from the last 7 US-Eastern days: every
+  tracked American who started / came on / was an unused sub (out-of-squad
+  players aren't mentioned), plus national-team results (USMNT + U-23/U-20/U-17,
+  ids in coverage.json `nationalTeams`, fetched via `/fixtures?team&last=10`,
+  cached `national-fixtures` 1h) with U.S. scorers and red cards. Safety
+  rules: if a match's goal events don't sum to the final score, NO scoring
+  details are stated for it; "played the full match" only when per-player
+  minutes ≥ 90 (sub events can lack a player); sub direction comes from squad
+  status, not the unreliable in/out slots; shootout kicks excluded; second
+  mentions use the surname only for plain two-word names ("Konrad de La
+  Fuente" keeps his full name).
+  Stat highlight (user request): each player who played gets their single MOST
+  POSITIVE stat from the match's per-player stats (`trackedStats` on match
+  details) — `bestStat()` scores candidates (pass completion with volume,
+  key passes, tackles/interceptions/blocks or combined "defensive
+  contributions", duels won, dribbles, shots on target, fouls drawn, keeper
+  saves/clean sheet, penalties won/saved) and states the winner with raw
+  counts ("completed 39 of 43 passes (91%)"); nothing is added if no stat
+  clears a minimum (a weak number reads as a knock). Goals/assists are stated
+  separately, never as the highlight. In /fixtures player stats
+  `passes.accuracy` is a COUNT, and `goals.conceded` is null even for keepers
+  who conceded — clean sheets come from the final score. Text stays
+  pronoun-free (surnames, not he/his).
+  Each day becomes an ARTICLE (`dayArticle()`): a headline built from the facts
+  ("Reyna scores for Strasbourg as 15 Americans see action"; a national-team
+  result leads when there is one), a one-line summary (dek), and stories
+  ordered national team → matches with American goals/assists (biggest first)
+  → the rest by kickoff. Cached as `roundup` (1h, 5 min when a detail
+  failed); built LAST in every warm (after profiles, so the badge backfill has
+  already cached the details it needs — ~180 calls when fully cold) and
+  force-rebuilt by daily/post-match warms. Demo mode has no lineups/events, so
+  the roundup is empty there — verify roundup text by running `buildRoundup()`
+  from `news.js` in a node script against the real key (~180 calls), and UI by
+  overriding `window.fetch` for `/api/news` in the browser.
+
 `getMatches` layers three passes on the cached schedule each request: a 60s live
 overlay, a reconcile for matches the cache thinks are live but the live feed dropped
 (they finished), and a badge backfill for finished matches. The backfill applies
@@ -197,7 +247,7 @@ Providers (`providers/`) — match/player data. `index.js` picks ONE at startup:
   requests/day. Responses include `x-ratelimit-requests-remaining` headers — check
   them before assuming budget. The daily cap is no longer a practical constraint,
   but a per-minute burst limit still applies (300/min on the old Pro plan; Mega's
-  exact figure unverified) — keep the throttle, batch or space live requests, and
+  is 900/min per the `x-ratelimit-limit` header, seen Sept 2026) — keep the throttle, batch or space live requests, and
   never add a new poll loop without estimating req/min.
 - Demo (`demo.js`): keyless stand-in with bundled data; one match is always "live" so
   the 60-second poll path can be developed offline. Returns `demo: true` on everything.
@@ -232,6 +282,11 @@ everyone using it:
   `npm run build`, and the vite dev server has `fs.allow: ['..']` so it can serve
   the file from outside the client root).
 - `streaming.json` — competition → US broadcaster fallback (see Data sources).
+- `site.json` — public contact / link-removal email (UncleSamFCapp@gmail.com)
+  shown in the News tab footer; client imports it at build time.
+- coverage.json's `nationalTeams` — the tracked nationality's national teams
+  (API-Football team ids + display label + news category). News roundup only;
+  national-team matches never touch season stats (current-club-only rule).
 
 Per-user choices live in `client/src/settings.js` — a localStorage-backed
 preferences layer (`getSetting`/`setSetting`, defaults in `DEFAULTS`). Its key is
@@ -290,6 +345,13 @@ preferences should route through this module rather than being hard-coded.
   source (the API publishes no return dates; this file is the ONLY place they
   come from). No automated news scraping — the notes are refreshed by hand
   (ask Claude to re-check the news for currently flagged players).
+- `news.json` — News-tab headline links (`headlines` array + `blockedSources`).
+  Each entry: exact published `title`, publisher `source` name, canonical
+  `url`, `published` date, `category` (abroad | usmnt | youth), `players`
+  (roster ids), optional `paywall`, `added`. Maintained by the `news-headlines`
+  scheduled task; every entry must be verified against the live page (no
+  fabrication). Pruned to ~14 days. To honor a publisher's removal request, add
+  its domain to `blockedSources` (hides all its links) and delete its entries.
 - `demo/` — demo-mode dataset (fixtures generated relative to server start, includes a
   simulated live match so the 60s poll path works keyless).
 
@@ -363,6 +425,23 @@ preferences should route through this module rather than being hard-coded.
   from hand-verified injury-notes.json; "unknown" otherwise — never fabricate
   one. Demo mode simulates Pulisic (out, with a return note) and Cardoso
   (doubtful) so the banner is testable offline.
+- News tab (`NewsTab.jsx`, 4th tab): ONE list (user request — the roundup lives
+  among the headlines as an article, not in schedule-style cards) with All /
+  Americans Abroad / USMNT / Youth filter chips. Outside headlines and our
+  Daily Roundup articles are interleaved by date; the newest roundup is pinned
+  to the top. An outside headline renders ONLY as the publisher's headline
+  linking out (new tab, never framed or shown in-app), the publisher name as
+  plain text, the date, a "Subscriber" tag when paywalled, and tagged-player
+  chips (PlayerLink). Never add snippets, thumbnails, publisher logos, or an
+  in-app reader view for outside stories — see News legal rules. A roundup
+  teaser (red left rule, "Daily Roundup" kicker, serif headline + 2-line dek,
+  "Uncle Sam FC" as source) opens `RoundupArticle`, an article-styled sheet:
+  headline, dek, byline ("Written automatically from match data"), one
+  subhead per match (score line — tap opens the MatchSheet — plus
+  competition) and a serif paragraph with tracked players' full names linked
+  to their profiles. The footer carries the
+  "links go to publishers / not affiliated with U.S. Soccer / link-removal
+  email" notice — keep it.
 - The service worker (`public/sw.js`) is network-first for `/api/` and navigations so
   deploys and live scores are never stale; bump its cache name if you change caching.
 - An open `MatchSheet` on a live match re-pulls detail every 60s
@@ -441,7 +520,33 @@ When verifying scroll/animation behavior in the Claude browser pane, the tab mus
 visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their
 start value and suppresses scroll-event dispatch — tests read as false failures.
 
+## News legal rules (user-set, Sept 2026 — "stay very above board")
+
+Researched Sept 2026 (not legal advice; a lawyer should review before a
+monetized launch). What keeps the News tab low-risk:
+- Headlines only as links OUT to the publisher's own page, with the publisher
+  named in plain text. No article text, excerpts, publisher RSS descriptions,
+  or news photos (copying ledes lost in AP v. Meltwater; wire/Getty photos are
+  actively enforced). No framing/in-app reader views.
+- Never use publisher RSS feeds or news-search APIs as the source: nearly all
+  forbid commercial use (checked Sept 2026 — Google News RSS, The Athletic,
+  Stars and Stripes FC/PMC, Fox, CBS, Guardian free RSS, Reddit). The headlines
+  are hand-picked from the open web instead; linking needs no license.
+- "USMNT" is a registered U.S. Soccer trademark (Reg. 7,710,595): plain-text
+  descriptive use only (section labels), with the "not affiliated" footer. Never
+  in the app name, logo, or merch; never U.S. Soccer's crest.
+- Honor removal requests promptly (`blockedSources` in news.json). The public
+  contact is UncleSamFCapp@gmail.com (`server/config/site.json`).
+- Roundups are our own text written from licensed data (facts aren't
+  copyrightable); API-Football's terms grant no redistribution license for raw
+  data and note leagues may require extra licenses for "mass media
+  distribution" — a question for the lawyer, and it applies to the whole app.
+
 ## Known issues / next up
+
+- DMCA designated agent not yet registered (Seth to do: copyright.gov/dmca-directory,
+  $6, renew every 3 years) — do it before a public launch, then list the agent
+  alongside the contact email.
 
 - streaming.json is hand-maintained by competition. Review each August when US rights
   change. Finding a licensed broadcast-data source is a future task, not something to

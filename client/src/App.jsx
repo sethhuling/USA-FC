@@ -3,6 +3,7 @@ import { fetchMeta, fetchPlayers, fetchMatches } from './api.js';
 import ScheduleTab from './components/ScheduleTab.jsx';
 import StatsTab from './components/StatsTab.jsx';
 import PlayersTab from './components/PlayersTab.jsx';
+import NewsTab from './components/NewsTab.jsx';
 import { ProfileProvider } from './components/PlayerProfile.jsx';
 import { TeamProvider } from './components/TeamSheet.jsx';
 
@@ -10,6 +11,7 @@ const TABS = [
   { key: 'schedule', label: 'Schedule', icon: '📅' },
   { key: 'stats', label: 'Stats', icon: '📊' },
   { key: 'players', label: 'Players', icon: '🇺🇸' },
+  { key: 'news', label: 'News', icon: '📰' },
 ];
 
 // Mirrors the static splash in index.html (same classes, styled by the inline
@@ -138,6 +140,7 @@ export default function App() {
         )}
         {tab === 'stats' && <StatsTab players={players} />}
         {tab === 'players' && <PlayersTab players={players} />}
+        {tab === 'news' && <NewsTab players={players} />}
       </main>
 
       <nav className="tabbar">

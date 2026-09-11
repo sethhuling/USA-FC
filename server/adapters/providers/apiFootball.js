@@ -125,9 +125,14 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
     home: teams.home?.name, away: teams.away?.name,
     homeId: teams.home?.id ?? null, awayId: teams.away?.id ?? null,
     status,
+    statusShort: short, // FT / AET / PEN distinguish how a finished match ended
+    round: fx.league?.round || null,
     minute: status === 'live' ? fx.fixture.status?.elapsed ?? null : null,
     homeScore: fx.goals?.home ?? null,
     awayScore: fx.goals?.away ?? null,
+    penalties: short === 'PEN'
+      ? { home: fx.score?.penalty?.home ?? null, away: fx.score?.penalty?.away ?? null }
+      : null,
     trackedPlayers: inMatch.map((p) => {
       const pe = playerEvents.get(fx.fixture.id);
       const squadStatus = pe?.hasLineups
@@ -143,6 +148,7 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
         inSquad: squadStatus === null ? null : squadStatus !== 'out',
         goals: pe?.goals?.get(p.apiFootballId) || [],
         assists: pe?.assists?.get(p.apiFootballId) || [],
+        minutes: pe?.minutes?.get(p.apiFootballId) ?? null,
       };
     }),
   };
@@ -184,6 +190,7 @@ function extractPlayerEvents(d) {
     }
   }
   const start = new Set(), bench = new Set(), played = new Set();
+  const minutes = new Map();
   for (const lineup of d.lineups || []) {
     for (const x of lineup.startXI || []) if (x.player?.id) start.add(x.player.id);
     for (const x of lineup.substitutes || []) if (x.player?.id) bench.add(x.player.id);
@@ -191,12 +198,12 @@ function extractPlayerEvents(d) {
   // A bench player with minutes on the board has been subbed on.
   for (const teamBlock of d.players || []) {
     for (const pp of teamBlock.players || []) {
-      if (pp.player?.id && (pp.statistics?.[0]?.games?.minutes || 0) > 0) {
-        played.add(pp.player.id);
-      }
+      const mins = pp.statistics?.[0]?.games?.minutes;
+      if (pp.player?.id && Number.isFinite(mins)) minutes.set(pp.player.id, mins);
+      if (pp.player?.id && (mins || 0) > 0) played.add(pp.player.id);
     }
   }
-  return { goals, assists, start, bench, played, hasLineups: (d.lineups || []).length > 0 };
+  return { goals, assists, start, bench, played, minutes, hasLineups: (d.lineups || []).length > 0 };
 }
 
 // Loose club-name comparison: the API's names differ from ours in accents and
@@ -321,6 +328,21 @@ async function teamOverview(teamId, tracked) {
 async function teamUpcoming(teamId, tracked, n = 5) {
   const resp = await api('/fixtures', { team: teamId, next: n });
   return resp.map((fx) => mapFixture(fx, tracked));
+}
+
+// Recent national-team fixtures (first team + youth) for the News roundup.
+// `last` is season-independent — national teams play across calendar-year
+// "seasons" (friendlies, youth tournaments). One call per team.
+async function nationalFixtures(teamIds, tracked, n = 10) {
+  const out = [];
+  for (const id of teamIds) {
+    const resp = await api('/fixtures', { team: id, last: n }).catch((e) => {
+      console.warn(`[api-football] national fixtures ${id}: ${e.message}`);
+      return [];
+    });
+    out.push(...resp.map((fx) => mapFixture(fx, tracked)));
+  }
+  return out;
 }
 
 // Full player profile: bio + photo, per-season career rows, transfer history.
@@ -458,6 +480,30 @@ async function matchDetail(fixtureId, tracked) {
   }
   const playerEvents = new Map([[d.fixture.id, pe]]);
   const base = mapFixture(d, tracked, playerEvents);
+  // Per-match stat lines for tracked players only (the News roundup picks each
+  // one's best stat). NOTE: in /fixtures payloads passes.accuracy is the COUNT
+  // of accurate passes ("39" of 43), not a percentage as in season stats. And
+  // goals.conceded comes back null even for keepers who conceded — derive clean
+  // sheets from the score, never from this field.
+  const num = (v) => (v == null || v === '' ? null : (Number.isFinite(Number(v)) ? Number(v) : null));
+  const trackedStats = {};
+  for (const teamBlock of d.players || []) {
+    for (const pp of teamBlock.players || []) {
+      const t = trackedByApiId.get(pp.player?.id);
+      const s = pp.statistics?.[0];
+      if (!t || !s) continue;
+      trackedStats[t.id] = {
+        minutes: num(s.games?.minutes), position: s.games?.position || null,
+        passes: num(s.passes?.total), passesAccurate: num(s.passes?.accuracy), keyPasses: num(s.passes?.key),
+        tackles: num(s.tackles?.total), interceptions: num(s.tackles?.interceptions), blocks: num(s.tackles?.blocks),
+        duels: num(s.duels?.total), duelsWon: num(s.duels?.won),
+        dribbles: num(s.dribbles?.attempts), dribblesWon: num(s.dribbles?.success),
+        shots: num(s.shots?.total), shotsOn: num(s.shots?.on),
+        saves: num(s.goals?.saves), foulsDrawn: num(s.fouls?.drawn),
+        penWon: num(s.penalty?.won), penSaved: num(s.penalty?.saved),
+      };
+    }
+  }
   let venue = null;
   if (d.fixture?.venue?.name) {
     const loc = await venueLocation(d.fixture.venue.id).catch(() => null);
@@ -478,11 +524,13 @@ async function matchDetail(fixtureId, tracked) {
       minute: e.time?.elapsed ?? null, extra: e.time?.extra ?? null,
       team: e.team?.name, player: e.player?.name, assist: e.assist?.name || null,
       type: e.type, detail: e.detail,
+      comments: e.comments || null, // e.g. "Penalty Shootout" on shootout kicks
       trackedId: trackedByApiId.get(e.player?.id)?.id || null,
       // The event's second name — a goal's assister, or the player coming ON in
       // a substitution — is tracked separately so the UI can flag him too.
       assistTrackedId: trackedByApiId.get(e.assist?.id)?.id || null,
     })),
+    trackedStats,
     stats: (d.statistics || []).map((st) => ({
       team: st.team?.name,
       items: (st.statistics || []).map((x) => ({ type: x.type, value: x.value })),
@@ -499,6 +547,7 @@ module.exports = {
   playerProfile,
   playerInjuryStatus,
   matchDetail,
+  nationalFixtures,
   leagueRounds,
   teamOverview,
   teamUpcoming,

@@ -101,6 +101,10 @@ module.exports = {
     return FIXTURES.map((fx) => materialize(fx, tracked, now))
       .filter((m) => m.trackedPlayers.length > 0);
   },
+  // No simulated national-team fixtures: the News roundup just has none in demo.
+  async nationalFixtures() {
+    return [];
+  },
   async getLive(tracked) {
     const now = Date.now();
     return FIXTURES.map((fx) => materialize(fx, tracked, now))

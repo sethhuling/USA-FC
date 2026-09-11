@@ -31,6 +31,7 @@ export async function fetchMatchDetail(id, { fresh = false } = {}) {
 }
 
 export const fetchLeagues = () => get('/api/leagues');
+export const fetchNews = () => get('/api/news');
 
 const teamCache = new Map();
 export function fetchTeamOverview(id) {

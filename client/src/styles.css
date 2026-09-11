@@ -583,3 +583,75 @@ section h2.section-live { color: var(--live); }
 
 /* Injury marker next to OUT badges */
 .inj-cross { color: var(--live); font-weight: 900; margin-right: 4px; font-size: 0.72rem; }
+
+/* News tab: headline links out to publishers + daily roundup cards */
+.headline-list { list-style: none; margin: 0; padding: 0; }
+.headline {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 10px 12px; margin-bottom: 8px;
+}
+.headline-link {
+  color: var(--text); text-decoration: none; font-weight: 700;
+  font-size: 0.95rem; line-height: 1.35;
+}
+.headline-link::after { content: ' ↗'; color: var(--muted); font-weight: 400; font-size: 0.8rem; }
+.headline-link:hover { color: var(--accent); }
+.headline-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 5px;
+  margin-top: 5px; font-size: 0.74rem; color: var(--muted);
+}
+.headline-source { font-weight: 700; color: var(--accent); }
+.paywall-tag {
+  padding: 1px 6px; border-radius: 5px; border: 1px solid var(--border);
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.03em;
+}
+.headline-players { margin-top: 6px; }
+/* Daily Roundup: a teaser in the headline list, opening a full article sheet */
+.roundup-teaser { cursor: pointer; border-left: 4px solid var(--live); }
+.roundup-kicker {
+  font-size: 0.66rem; font-weight: 800; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--live);
+}
+.roundup-title {
+  margin-top: 3px; font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.08rem; font-weight: 700; line-height: 1.3; color: var(--text);
+}
+.roundup-dek {
+  margin: 5px 0 0; font-size: 0.84rem; line-height: 1.45; color: var(--muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.read-more { margin-left: auto; font-weight: 700; color: var(--accent); }
+.article-sheet { padding-top: 18px; font-variant-numeric: lining-nums; } /* Georgia's old-style numerals read unevenly in stat lines */
+.article-title {
+  margin: 8px 0 6px; font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.45rem; line-height: 1.25;
+}
+.article-dek {
+  margin: 0 0 8px; font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem; line-height: 1.45; color: var(--muted);
+}
+.article-byline {
+  margin: 0 0 6px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  font-size: 0.72rem; color: var(--muted);
+}
+.article-body p {
+  margin: 4px 0 0; font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.98rem; line-height: 1.6;
+}
+.article-body .player-link { color: var(--accent); font-weight: 600; }
+.article-section { margin-top: 16px; }
+.article-subhead {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0;
+  font-size: 0.86rem;
+}
+.article-match {
+  padding: 0; border: none; background: none; cursor: pointer;
+  font: inherit; font-weight: 800; color: var(--text); text-align: left;
+}
+.article-match:hover { color: var(--accent); }
+.article-comp { font-size: 0.72rem; font-weight: 600; color: var(--muted); }
+.news-footer {
+  margin: 22px 4px 4px; font-size: 0.72rem; line-height: 1.5; color: var(--muted);
+}
+.news-footer p { margin: 0 0 6px; }
+.news-footer a { color: var(--accent); }

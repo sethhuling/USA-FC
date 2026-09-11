@@ -12,6 +12,7 @@
 // not the daily cap, is what the throttle is protecting.
 const cache = require('./cache');
 const { syncRoster } = require('./rosterSync');
+const { getRoundup } = require('./news');
 const {
   getPlayers, getMatches, getLeagues, getPlayerProfile, getTeamOverview, trackedPlayers,
 } = require('./service');
@@ -62,7 +63,7 @@ async function warmAll(reason, { force = false, teamIds = null } = {}) {
     console.log(`[warm] ${reason}: ${players.length} players, ${teams.length} teams${force ? ' (forced)' : ''}`);
 
     if (force) {
-      for (const key of ['players', 'schedule', 'league-rounds']) cache.del(key);
+      for (const key of ['players', 'schedule', 'league-rounds', 'roundup', 'national-fixtures']) cache.del(key);
       for (const id of teams) { cache.del(`team:${id}`); cache.del(`team-upcoming:${id}`); }
     }
     // Players FIRST: stats resolve the club team ids fixture matching depends on.
@@ -82,6 +83,11 @@ async function warmAll(reason, { force = false, teamIds = null } = {}) {
       try { await getPlayerProfile(p.id); }
       catch (e) { failed++; console.warn(`[warm] profile ${p.id} failed: ${e.message}`); }
     }
+    // News roundup LAST: it reads every recent finished match's detail, which
+    // the background badge backfill has usually cached by now — building it
+    // earlier would race that drain and double-fetch the same details.
+    try { await getRoundup(); }
+    catch (e) { failed++; console.warn(`[warm] roundup failed: ${e.message}`); }
     console.log(`[warm] ${reason} done in ${Math.round((Date.now() - t0) / 1000)}s${failed ? `, ${failed} failed` : ''}`);
     return true;
   } finally {

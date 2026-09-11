@@ -57,6 +57,10 @@ app.get('/api/match/:id', async (req, res) => {
     res.json(detail);
   } catch (e) { res.status(502).json({ error: e.message }); }
 });
+// News tab: hand-picked headline links + the daily roundup (src/news.js).
+app.get('/api/news', async (req, res) => {
+  try { res.json(await require('./src/news').getNews()); } catch (e) { res.status(502).json({ error: e.message }); }
+});
 app.get('/api/player/:id', async (req, res) => {
   try {
     const profile = await getPlayerProfile(String(req.params.id));

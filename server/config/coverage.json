@@ -1,6 +1,12 @@
 {
   "nationality": "USA",
   "nationalTeamPattern": "^(usa|united states)",
+  "nationalTeams": {
+    "USMNT": { "id": 2384, "label": "the USMNT", "category": "usmnt" },
+    "U-23": { "id": 17883, "label": "the U.S. U-23s", "category": "youth" },
+    "U-20": { "id": 10306, "label": "the U.S. U-20s", "category": "youth" },
+    "U-17": { "id": 12522, "label": "the U.S. U-17s", "category": "youth" }
+  },
   "leagues": {
     "Premier League": { "id": 39, "country": "England", "code": "ENG" },
     "Championship": { "id": 40, "country": "England", "code": "ENG" },

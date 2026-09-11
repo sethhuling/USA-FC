@@ -1,0 +1,273 @@
+{
+  "_readme": "Hand-picked News-tab headlines, maintained by the daily news-headlines scheduled task (see CLAUDE.md). Legal rules: each entry is ONLY a link out to the publisher's own page — exact published headline, publisher name as plain text, publication date, canonical URL (https; plain http only when the site has no https). Never add summaries, article text, or images. category: abroad | usmnt | youth. players: roster ids the story is about. paywall: true for subscriber-only stories. blockedSources: domains whose links must never show (add a domain here when a publisher asks us to remove links). Read fresh on every request.",
+  "blockedSources": [],
+  "headlines": [
+    {
+      "title": "Luna, Musah and the USMNT's fringe players hoping for a bigger role in 2030",
+      "source": "ESPN",
+      "url": "https://www.espn.com/soccer/story/_/id/49895766/diego-luna-yunus-musah-usmnt-fringe-players-hoping-bigger-role-2030-fifa-world-cup",
+      "published": "2026-09-11",
+      "category": "usmnt",
+      "players": [
+        "musah-yunus",
+        "morris-aidan",
+        "cardoso-johnny",
+        "busio-gianluca"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Americans Abroad: Gio Reyna, Sergino Dest and Ricardo Pepi are in-form, while all eyes remain on USMNT star Christian Pulisic",
+      "source": "Goal",
+      "url": "https://www.goal.com/en-us/originals/americans-abroad-gio-reyna-sergino-dest-and-ricardo-pepi-are-in-form-while-all-eyes-remain-on-usmnt-star-christian-pulisic/bltb579c1510168d20b",
+      "published": "2026-09-11",
+      "category": "abroad",
+      "players": [
+        "reyna-gio",
+        "dest-sergino",
+        "pepi-ricardo",
+        "pulisic-christian"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "‘Don’t have to be Lionel Messi’ - Why Brenden Aaronson is perfect for Leeds as USMNT star is challenged to provide vital assistance for Dominic Calvert-Lewin",
+      "source": "Goal",
+      "url": "https://www.goal.com/en-us/lists/lionel-messi-brenden-aaronson-perfect-leeds-usmnt-dominic-calvert-lewin/blt353f9bd0d4f55a28",
+      "published": "2026-09-11",
+      "category": "abroad",
+      "players": [
+        "aaronson-brenden"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "USMNT's Dest scores 1st UCL goal in 6 years to earn draw for PSV",
+      "source": "ESPN",
+      "url": "https://www.espn.com/soccer/story/_/id/49894569/usa-sergino-dest-goal-psv-eindhoven-champions-league-shakhtar-donetsk",
+      "published": "2026-09-10",
+      "category": "abroad",
+      "players": [
+        "dest-sergino"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "What Haji Wright must do after cruel injury delays USMNT star from fulfilling Premier League dream with Coventry",
+      "source": "Goal",
+      "url": "https://www.goal.com/en-us/lists/haji-wright-injury-delays-usmnt-star-premier-league-dream-coventry/blt124b28ad80a784c3",
+      "published": "2026-09-10",
+      "category": "abroad",
+      "players": [
+        "wright-haji"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Mauricio Pochettino on Next USMNT Stage: ‘It’s a Fresh Start’",
+      "source": "U.S. Soccer",
+      "url": "https://www.ussoccer.com/stories/2026/09/usmnt/mauricio-pochettino-fresh-start-september-camp-roster",
+      "published": "2026-09-09",
+      "category": "usmnt",
+      "players": [],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "USMNT vs. Chile: Opponent Profile, Recent Form & History",
+      "source": "U.S. Soccer",
+      "url": "https://www.ussoccer.com/stories/2026/09/usmnt/chile-opponent-profile-recent-form-history-match-preview-st-louis",
+      "published": "2026-09-09",
+      "category": "usmnt",
+      "players": [],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Euro Notebook: Bello & Freeman make UCL debuts, Wynalda lands coaching job, Reyna impresses, & more",
+      "source": "American Soccer Now",
+      "url": "http://americansoccernow.com/articles/euro-notebook-bello-amp-freeman-make-ucl-debuts-wynalda-lands-coaching-job-reyna-impresses-amp-more",
+      "published": "2026-09-08",
+      "category": "abroad",
+      "players": [
+        "bello-george",
+        "freeman-alexander",
+        "reyna-gio"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Mauricio Pochettino plots USMNT's 'fresh start' as focus shifts to 2030 World Cup",
+      "source": "Yahoo Sports",
+      "url": "https://sports.yahoo.com/soccer/article/mauricio-pochettino-plots-usmnts-fresh-start-as-focus-shifts-to-2030-world-cup-170644767.html",
+      "published": "2026-09-07",
+      "category": "usmnt",
+      "players": [],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Pochettino plans to call Balogun as USMNT manager looks toward 2030 World Cup",
+      "source": "USA Today",
+      "url": "https://www.usatoday.com/story/sports/soccer/usmnt/2026/09/07/pochettino-balogun-usmnt-future-nations-league-2030-world-cup/91649475007/",
+      "published": "2026-09-07",
+      "category": "usmnt",
+      "players": [
+        "balogun-folarin"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "'Cannot consider him for next camp' - Mauricio Pochettino offers Noahkai Banks update as defender weighs USMNT or Germany future",
+      "source": "Goal",
+      "url": "https://www.goal.com/en-us/lists/cannot-consider-him-for-next-camp-mauricio-pochettino-offers-noahkai-banks-update-as-defender-weighs-usmnt-or-germany-future/blt5141fc3d6b021806",
+      "published": "2026-09-07",
+      "category": "usmnt",
+      "players": [
+        "banks-noahkai"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "USA Coach Mauricio Pochettino Waits On Noahkai Banks — And Warns Cavan Sullivan",
+      "source": "FOX Sports",
+      "url": "https://www.foxsports.com/stories/soccer/usa-coach-mauricio-pochettino-waits-noahkai-banks-and-warns-cavan-sullivan",
+      "published": "2026-09-07",
+      "category": "usmnt",
+      "players": [
+        "banks-noahkai"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Pochettino cautious about young stars for USMNT camp amid buzz around Sullivan, Hall",
+      "source": "ESPN",
+      "url": "https://www.espn.com/soccer/story/_/id/49860427/pochettino-cautious-young-stars-usmnt-camp-buzz-cavan-sullivan-julian-hall",
+      "published": "2026-09-07",
+      "category": "youth",
+      "players": [],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Mauricio Pochettino wants to “be careful” with young players in latest USMNT cycle",
+      "source": "SBI Soccer",
+      "url": "https://sbisoccer.com/2026/09/mauricio-pochettino-wants-to-be-careful-with-young-players-in-latest-usmnt-cycle",
+      "published": "2026-09-07",
+      "category": "youth",
+      "players": [],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Americans in Champions League: Johnny Cardoso leads list of eight U.S. players in Europe's biggest competition",
+      "source": "CBS Sports",
+      "url": "https://www.cbssports.com/soccer/news/americans-champions-league-johnny-cardoso-us-europes-biggest-competition/",
+      "published": "2026-09-07",
+      "category": "abroad",
+      "players": [
+        "cardoso-johnny",
+        "albert-mathis",
+        "pepi-ricardo",
+        "dest-sergino",
+        "freeman-alexander",
+        "adeniran-samuel",
+        "bello-george",
+        "marzi-de-giorgio"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Giovanni Reyna scores first goal since move to Strasbourg",
+      "source": "ESPN",
+      "url": "https://www.espn.com/soccer/story/_/id/49853186/giovanni-reyna-scores-first-goal-move-strasbourg",
+      "published": "2026-09-06",
+      "category": "abroad",
+      "players": [
+        "reyna-gio"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Cavan Sullivan, 16, breaks Freddy Adu's MLS record",
+      "source": "ESPN",
+      "url": "https://www.espn.com/soccer/story/_/id/49842819/cavan-sullivan-freddy-adu-mls-record-philadelphia-union",
+      "published": "2026-09-05",
+      "category": "youth",
+      "players": [],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Tyler Adams shines in first Bournemouth start of season",
+      "source": "SBI Soccer",
+      "url": "https://sbisoccer.com/2026/09/tyler-adams-shines-in-first-bournemouth-start-of-season",
+      "published": "2026-09-05",
+      "category": "abroad",
+      "players": [
+        "adams-tyler"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Ricardo Pepi scores as PSV downs rivals Ajax",
+      "source": "SBI Soccer",
+      "url": "https://sbisoccer.com/2026/09/ricardo-pepi-scores-as-psv-downs-rivals-ajax",
+      "published": "2026-09-05",
+      "category": "abroad",
+      "players": [
+        "pepi-ricardo"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Folarin Balogun omitted from Monaco Conference League squad after Everton saga",
+      "source": "ESPN",
+      "url": "https://www.espn.com/soccer/story/_/id/49823227/folarin-balogun-omitted-monaco-conference-league-squad-everton-saga",
+      "published": "2026-09-04",
+      "category": "abroad",
+      "players": [
+        "balogun-folarin"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "USMNT midweek roundup: Mathis Albert debut",
+      "source": "Stars and Stripes FC",
+      "url": "https://www.starsandstripesfc.com/usmnt/45362/usmnt-midweek-roundup-mathis-albert-debut",
+      "published": "2026-09-03",
+      "category": "abroad",
+      "players": [
+        "albert-mathis",
+        "morris-aidan"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Sources: Folarin Balogun U-turn after deadline scuppered Everton move",
+      "source": "ESPN",
+      "url": "https://www.espn.com/soccer/story/_/id/49800449/folarin-balogun-uturn-deadline-scuppered-everton-move-sources",
+      "published": "2026-09-02",
+      "category": "abroad",
+      "players": [
+        "balogun-folarin"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Aidan Morris delivers superb strike for first Middlesbrough goal",
+      "source": "SBI Soccer",
+      "url": "https://sbisoccer.com/2026/09/aidan-morris-delivers-superb-strike-for-first-middlesbrough-goal",
+      "published": "2026-09-02",
+      "category": "abroad",
+      "players": [
+        "morris-aidan",
+        "berhalter-sebastian"
+      ],
+      "added": "2026-09-11"
+    },
+    {
+      "title": "Landon Donovan says Cavan Sullivan, 16, deserves USMNT call-up",
+      "source": "USA Today",
+      "url": "https://www.usatoday.com/story/sports/soccer/usmnt/2026/09/02/cavan-sullivan-usmnt-call-up-landon-donovan/91582905007/",
+      "published": "2026-09-02",
+      "category": "youth",
+      "players": [],
+      "added": "2026-09-11"
+    }
+  ]
+}

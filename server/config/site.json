@@ -1,0 +1,4 @@
+{
+  "_readme": "Deployment-level site info shown in the app. contactEmail is the public contact / link-removal (copyright takedown) address shown on the News tab. The client imports this file at build time, so an edit needs `npm run build`.",
+  "contactEmail": "UncleSamFCapp@gmail.com"
+}

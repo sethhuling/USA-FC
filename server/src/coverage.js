@@ -21,4 +21,12 @@ const NATIONALITY = coverage.nationality;
 // Matches national-team entries in career stats (tested against lowercased names).
 const NATIONAL_TEAM_RE = new RegExp(coverage.nationalTeamPattern, 'i');
 
-module.exports = { coverage, LEAGUE_IDS, CUP_IDS, NATIONALITY, NATIONAL_TEAM_RE };
+// The tracked nationality's national teams (first team + youth), keyed by
+// API-Football team id: { label: "the USMNT", category: "usmnt" | "youth" }.
+// Used only by the News tab's daily roundup — national-team matches never feed
+// season stats (current-club-only rule).
+const NATIONAL_TEAMS = new Map(
+  Object.entries(coverage.nationalTeams || {}).map(([key, t]) => [t.id, { key, ...t }])
+);
+
+module.exports = { coverage, LEAGUE_IDS, CUP_IDS, NATIONALITY, NATIONAL_TEAM_RE, NATIONAL_TEAMS };
