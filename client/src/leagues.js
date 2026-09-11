@@ -20,3 +20,12 @@ export function leagueCountry(league) {
 export function leagueCountryCode(league) {
   return coverage.leagues[league]?.code || null;
 }
+
+// Position of a league in coverage.json — within a country, coverage lists
+// leagues top tier first (Premier League before Championship), so this is the
+// display order. Unknown leagues sort last.
+const LEAGUE_ORDER = Object.keys(coverage.leagues);
+export function leagueRank(league) {
+  const i = LEAGUE_ORDER.indexOf(league);
+  return i === -1 ? LEAGUE_ORDER.length : i;
+}

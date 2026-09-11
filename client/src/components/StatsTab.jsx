@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { fetchLeagues } from '../api.js';
-import { leagueCountryCode } from '../leagues.js';
+import { leagueCountryCode, leagueCountry, leagueRank } from '../leagues.js';
 import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
 import { TeamLink } from './TeamSheet.jsx';
 
@@ -132,7 +132,22 @@ export default function StatsTab({ players }) {
       .catch(() => {});
   }, []);
 
-  const leagues = useMemo(() => [...new Set(players.map((p) => p.league))].sort(), [players]);
+  // League toggles grouped by country, countries in this fixed order (any
+  // country not listed — e.g. Portugal, Turkey — follows alphabetically).
+  const leagueGroups = useMemo(() => {
+    const order = ['England', 'Spain', 'Italy', 'Germany', 'France', 'Scotland',
+      'Belgium', 'Netherlands', 'Austria', 'Mexico', 'Brazil', 'Argentina'];
+    const rank = (c) => { const i = order.indexOf(c); return i === -1 ? order.length : i; };
+    const byCountry = new Map();
+    for (const name of new Set(players.map((p) => p.league))) {
+      const country = leagueCountry(name) || 'Other';
+      if (!byCountry.has(country)) byCountry.set(country, []);
+      byCountry.get(country).push(name);
+    }
+    return [...byCountry.entries()]
+      .sort((a, b) => rank(a[0]) - rank(b[0]) || a[0].localeCompare(b[0]))
+      .map(([country, ls]) => [country, ls.sort((a, b) => leagueRank(a) - leagueRank(b))]);
+  }, [players]);
 
   // Slider top end: the highest minutes total in the data, rounded up to a
   // full match, so the scale grows with the season.
@@ -205,24 +220,31 @@ export default function StatsTab({ players }) {
         <div className="filter-panel">
           <div className="filter-group">
             <div className="filter-label">Leagues</div>
-            <div className="league-row" role="group" aria-label="Toggle leagues">
-              {leagues.map((l) => (
-                <button
-                  key={l}
-                  className={disabled.has(l) ? 'league-toggle off' : 'league-toggle'}
-                  onClick={() => toggleLeague(l)}
-                  aria-pressed={!disabled.has(l)}
-                >
-                  <span className="lt-name">{l}</span>
-                  {roundLabel(rounds[l]) && <span className="lt-round">{roundLabel(rounds[l])}</span>}
-                </button>
-              ))}
-              {disabled.size > 0 && (
+            {leagueGroups.map(([country, ls]) => (
+              <div key={country} className="league-country">
+                <div className="league-country-label">{country}</div>
+                <div className="league-row" role="group" aria-label={`Toggle ${country} leagues`}>
+                  {ls.map((l) => (
+                    <button
+                      key={l}
+                      className={disabled.has(l) ? 'league-toggle off' : 'league-toggle'}
+                      onClick={() => toggleLeague(l)}
+                      aria-pressed={!disabled.has(l)}
+                    >
+                      <span className="lt-name">{l}</span>
+                      {roundLabel(rounds[l]) && <span className="lt-round">{roundLabel(rounds[l])}</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {disabled.size > 0 && (
+              <div className="league-country">
                 <button className="league-toggle reset" onClick={() => setDisabled(new Set())}>
                   <span className="lt-name">All on</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
           <div className="filter-group">
             <div className="filter-label">Position</div>

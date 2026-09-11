@@ -258,6 +258,12 @@ section h2.section-live { color: var(--live); }
   touch-action: pan-y; /* don't fight vertical page scroll on touch */
 }
 .filter-panel .league-row { flex-wrap: wrap; overflow: visible; padding: 0; }
+.league-country { margin-top: 8px; }
+.league-country:first-of-type { margin-top: 0; }
+.league-country-label {
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); font-weight: 600; margin-bottom: 4px;
+}
 .filter-reset {
   margin-top: 14px; width: 100%; padding: 8px; border-radius: 10px;
   border: 1px solid var(--border); background: transparent; color: var(--muted);
