@@ -333,9 +333,21 @@ preferences should route through this module rather than being hard-coded.
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   logo is a full-color Uncle Sam illustration (`client/public/crest.png`, replaced the
   original USAFC shield crest Sept 2026; deliberately NOT the trademarked USMNT logo). Squad badge
-  labels: XI / ON / BENCH / OUT. The topbar wordmark is `white-space: nowrap` with a
-  `clamp()` font size (styles.css) — "Uncle Sam FC" is long enough to wrap on phones
-  otherwise.
+  labels: XI / ON / BENCH / OUT.
+- Topbar wordmark (user-directed layout, Sept 2026 — header felt "clunky"/"stock"):
+  STACKED and centered — big text-only "Uncle Sam FC" in Bebas Neue (loaded from
+  the existing Google Fonts link in index.html, alongside Pinyon Script), white
+  with a red "FC" span and a thin red gradient underline (`h1::after`), with the
+  one-line motto ("Oh when the YANKS go marching in") directly beneath it. The
+  square crest is deliberately NOT in the header — it stays as the app icon and
+  splash art. On collapse the motto disappears (opacity AND max-height → 0; the
+  bar is a column, so opacity alone would leave its gap) and the wordmark
+  SHRINKS (never fades — it is the bar's identity now, per the user's explicit
+  spec). Wordmark and motto are nowrap with vw-scaled `clamp()` font sizes so
+  the motto's single line clears the 16px side padding down to small phones.
+  The LIVE dot is absolutely corner-anchored (top right) so it never fights the
+  stack for space. The splash title uses the same Bebas treatment — keep the
+  static index.html copy and the React `Splash` copy in sync.
 - American goal marker (`UsaBall` in icons.jsx, settled Sept 2026): drawn to look
   exactly like the ⚽ emoji used for regular goals — same tilted pentagon layout,
   spherical shading, beveled panels, soft edge with NO hard outline ring — just

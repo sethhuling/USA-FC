@@ -8,7 +8,7 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Pinyon+Script&display=swap" rel="stylesheet" />
     <link rel="apple-touch-icon" href="/icons/icon-180.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -31,9 +31,11 @@
       .splash.out { opacity: 0; pointer-events: none; }
       .splash-title, .splash-motto { text-shadow: 0 1px 8px rgba(10,49,97,0.9); }
       .splash-title {
-        color: #fff; font-style: italic; font-size: 2rem;
-        letter-spacing: 0.02em; margin: 10px 0 2px; font-weight: 700;
+        color: #fff; font-family: 'Bebas Neue', 'Arial Narrow', sans-serif;
+        font-size: 2.7rem; font-weight: 400; line-height: 1;
+        letter-spacing: 0.06em; margin: 10px 0 2px;
       }
+      .splash-title .t-fc { color: #E0455F; }
       .splash-motto { display: flex; flex-direction: column; align-items: center; color: #E0455F; }
       .splash-motto .m-line { font-family: 'Pinyon Script', cursive; font-size: 1.5rem; line-height: 1.1; }
       .splash-motto .m-yanks {
@@ -59,7 +61,7 @@
   <body>
     <div id="root">
       <div class="splash">
-        <h1 class="splash-title">Uncle Sam FC</h1>
+        <h1 class="splash-title">Uncle Sam <span class="t-fc">FC</span></h1>
         <div class="splash-motto">
           <span class="m-line">Oh when the</span>
           <span class="m-yanks">YANKS</span>

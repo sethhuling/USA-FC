@@ -17,7 +17,7 @@ const TABS = [
 function Splash({ out }) {
   return (
     <div className={out ? 'splash out' : 'splash'} aria-hidden={out}>
-      <h1 className="splash-title">Uncle Sam FC</h1>
+      <h1 className="splash-title">Uncle Sam <span className="t-fc">FC</span></h1>
       <div className="splash-motto">
         <span className="m-line">Oh when the</span>
         <span className="m-yanks">YANKS</span>
@@ -94,8 +94,7 @@ export default function App() {
     <TeamProvider playersById={playersById}>
     <div className="app">
       <header className={scrolled ? "topbar scrolled" : "topbar"}>
-        <img src="/crest.png" alt="Uncle Sam FC crest" className="crest" />
-        <h1>Uncle Sam FC</h1>
+        <h1>Uncle Sam <span className="wm-fc">FC</span></h1>
         <span className="motto">
           <span className="motto-line">Oh when the</span>
           <span className="motto-yanks">YANKS</span>

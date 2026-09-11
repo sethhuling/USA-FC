@@ -74,44 +74,63 @@ body::before {
 
 .topbar {
   position: sticky; top: 0; z-index: 40;
-  display: flex; align-items: center; gap: 10px;
+  /* Stacked: wordmark across the top, motto on one line beneath it. */
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
   margin: 0 0 6px;
   /* Tall at rest: clears the iPhone camera/notch in standalone mode
      (safe-area inset is 0 in a regular browser tab). */
-  /* 166px tall at rest vs 44px compact = ~3/4 inch of shrink on iPhone (163 css px/in) */
-  padding: calc(72px + env(safe-area-inset-top, 0px)) 16px 42px;
+  padding: calc(30px + env(safe-area-inset-top, 0px)) 16px 22px;
   background: #0A3161; border-radius: 0 0 14px 14px;
   transition: padding 0.25s ease;
 }
 .topbar h1 {
-  /* "Uncle Sam FC" is long; keep it on one line and let it shrink on phones */
-  font-size: clamp(1.05rem, 4vw, 1.55rem); white-space: nowrap;
-  margin: 0; letter-spacing: 0.02em; color: #fff; font-style: italic;
-  transition: opacity 0.25s ease, font-size 0.25s ease;
+  /* Bebas Neue wordmark — tall condensed athletic caps. One line always;
+     clamp shrinks it on phones. The old square crest stays out of the bar
+     (it remains the app icon and splash art). */
+  font-family: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  font-size: clamp(2rem, 9vw, 2.9rem); font-weight: 400; line-height: 0.95;
+  white-space: nowrap; margin: 0; letter-spacing: 0.06em; color: #fff;
+  transition: font-size 0.25s ease;
 }
-.crest { height: 52px; width: auto; transition: height 0.25s ease; }
-.motto {
-  margin-left: auto; max-width: 44%;
-  display: flex; flex-direction: column; align-items: center;
-  color: #E0455F; /* brand red, brightened for legibility on navy */
+.topbar h1 .wm-fc { color: #E0455F; }
+/* Thin red underline fading out to the right — the "slick" accent. */
+.topbar h1::after {
+  content: ''; display: block; height: 3px; border-radius: 2px; margin-top: 3px;
+  background: linear-gradient(90deg, #B31942, #E0455F 55%, rgba(224, 69, 95, 0));
   transition: opacity 0.25s ease;
+}
+.motto {
+  /* One line under the wordmark. max-height collapses it out of the stacked
+     flow when the bar shrinks (opacity alone would leave a gap). */
+  display: flex; flex-direction: row; align-items: baseline; gap: 7px;
+  max-height: 40px; overflow: hidden;
+  color: #E0455F; /* brand red, brightened for legibility on navy */
+  transition: opacity 0.25s ease, max-height 0.25s ease;
 }
 .motto-line {
   font-family: 'Pinyon Script', cursive;
-  font-size: 1.3rem; line-height: 1;
+  /* vw-scaled so the whole one-line motto clears the bar's 16px side padding
+     down to small phones */
+  font-size: clamp(0.95rem, 3.9vw, 1.45rem); line-height: 1;
+  white-space: nowrap; /* each phrase stays on its own single line */
 }
 .motto-yanks {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.02rem; font-weight: 700; letter-spacing: 0.14em;
-  line-height: 1.25; margin-left: 0.14em; /* optically recenter the letterspacing */
+  font-size: clamp(0.8rem, 3.3vw, 1.22rem); font-weight: 700; letter-spacing: 0.14em;
+  line-height: 1.25; white-space: nowrap;
 }
-.topbar .live-dot { color: #ff8098; }
-.topbar.scrolled .motto { opacity: 0; }
-/* Scrolled: shrink to the old compact height; title fades, crest stays.
-   Safe-area padding is kept so the bar never rides under the camera. */
+/* Corner-anchored so it never fights the wordmark/motto for row space. */
+.topbar .live-dot {
+  color: #ff8098;
+  position: absolute; right: 16px; top: calc(env(safe-area-inset-top, 0px) + 10px);
+}
+.topbar.scrolled .motto { opacity: 0; max-height: 0; }
+/* Scrolled: shrink to the compact height; the wordmark shrinks with the bar
+   (it IS the identity now — never fade it out). Safe-area padding is kept so
+   the bar never rides under the camera. */
 .topbar.scrolled { padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 8px; }
-.topbar.scrolled h1 { opacity: 0; font-size: 1.3rem; }
-.topbar.scrolled .crest { height: 30px; }
+.topbar.scrolled h1 { font-size: 1.35rem; }
+.topbar.scrolled h1::after { opacity: 0; }
 /* Any open sheet (player/team/match) forces the compact topbar. iPad Safari
    can paint the sticky bar's composited layer above the overlay despite the
    backdrop's higher z-index, burying the sheet's close button behind the
@@ -120,9 +139,9 @@ body::before {
    Kept as standalone rules (not merged into .scrolled's selectors) so a
    browser without :has() support still gets the scroll-collapse rules. */
 body:has(.sheet-backdrop) .topbar { padding: calc(6px + env(safe-area-inset-top, 0px)) 16px 8px; }
-body:has(.sheet-backdrop) .topbar h1 { opacity: 0; font-size: 1.3rem; }
-body:has(.sheet-backdrop) .topbar .crest { height: 30px; }
-body:has(.sheet-backdrop) .topbar .motto { opacity: 0; }
+body:has(.sheet-backdrop) .topbar h1 { font-size: 1.35rem; }
+body:has(.sheet-backdrop) .topbar h1::after { opacity: 0; }
+body:has(.sheet-backdrop) .topbar .motto { opacity: 0; max-height: 0; }
 .live-dot { color: var(--live); font-size: 0.75rem; font-weight: 700; animation: pulse 1.6s infinite; }
 @keyframes pulse { 50% { opacity: 0.45; } }
 
