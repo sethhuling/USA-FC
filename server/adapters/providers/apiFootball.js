@@ -35,7 +35,9 @@ async function throttle() {
   if (wait) await new Promise((r) => setTimeout(r, wait));
 }
 
-async function api(path, params = {}, attempt = 0) {
+// apiPaged returns the whole response body (response + paging) for callers
+// that page through results; api returns just the response array.
+async function apiPaged(path, params = {}, attempt = 0) {
   await throttle();
   require('../../src/metrics').recordApiCall();
   const url = new URL(BASE + path);
@@ -56,14 +58,18 @@ async function api(path, params = {}, attempt = 0) {
       const backoff = 10_000 * (attempt + 1);
       console.warn(`[api-football] rate limited on ${path}, retrying in ${backoff / 1000}s`);
       await new Promise((r) => setTimeout(r, backoff));
-      return api(path, params, attempt + 1);
+      return apiPaged(path, params, attempt + 1);
     }
     diag.lastError = `${path}: ${msg}`;
     diag.lastErrorAt = new Date().toISOString();
     throw new Error(`api-football ${path}: ${msg}`);
   }
   diag.lastSuccessAt = new Date().toISOString();
-  return body.response;
+  return body;
+}
+
+async function api(path, params = {}) {
+  return (await apiPaged(path, params)).response;
 }
 
 // Limit concurrent upstream calls to stay polite on rate limits.
@@ -488,6 +494,7 @@ module.exports = {
   name: 'api-football',
   LEAGUE_IDS,
   season,
+  apiPaged,
   diag,
   playerProfile,
   playerInjuryStatus,

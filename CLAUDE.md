@@ -129,6 +129,23 @@ teams' caches — one warm per block, not per match). Forcing uses `cache.del()`
 unexpired-but-stale keys (24h stats right after a match) re-fetch. Logs as
 `[warm] <reason> ... done in Ns` (visible in Render logs).
 
+Automatic roster sync (`server/src/rosterSync.js`, run by warm.js; added Sept
+2026): scans every coverage.json league for US-nationality players and appends
+new ones to players.json — this is what makes a newly covered league appear in
+the app once an American plays there (every UI surface derives from the
+roster, so an empty league shows nowhere). Runs after the startup warm and
+before the daily 09:00 warm (~1,000 throttled calls per scan, shares the
+global 250ms spacing; logs as `[roster-sync]`). The automatic path is
+ADD-ONLY: it never rewrites an existing entry's club/league (hand-maintained,
+and the club string drives the current-club-only stats filter) — only the
+manual `npm run discover` (same shared module, `refreshExisting: true`)
+refreshes those. Runtime additions land on Render's ephemeral disk and vanish
+on the next deploy; the startup sync re-finds them within minutes, but commit
+players.json now and then to make them durable. Auto-added players arrive
+without the hand-audited extras (capTied, otherEligibility, hometowns) — audit
+them when they show up, and add anyone who chose another national team to
+excluded.json.
+
 `getMatches` layers three passes on the cached schedule each request: a 60s live
 overlay, a reconcile for matches the cache thinks are live but the live feed dropped
 (they finished), and a badge backfill for finished matches. The backfill applies
@@ -306,8 +323,8 @@ preferences should route through this module rather than being hard-coded.
 - Stats tab filters (Sept 2026): one Filters button (active-count badge) opens a
   panel holding every filter — league toggles (moved from the old always-visible
   row; grouped under country headings in a fixed user-chosen order — England,
-  Spain, Italy, Germany, France, Scotland, Belgium, Netherlands, Austria,
-  Mexico, Brazil, Argentina, then unlisted countries alphabetically — with
+  Spain, Italy, Germany, France, Portugal, Scotland, Belgium, Netherlands,
+  Austria, Mexico, Brazil, Argentina, then unlisted countries alphabetically — with
   leagues inside a country in coverage.json order, top tier first, via
   `leagueRank()` in leagues.js), multi-select position and age-range chips (empty selection = All; picking
   every option collapses back to All), a 0→max minimum-minutes slider (max is the

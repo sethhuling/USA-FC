@@ -135,8 +135,8 @@ export default function StatsTab({ players }) {
   // League toggles grouped by country, countries in this fixed order (any
   // country not listed — e.g. Portugal, Turkey — follows alphabetically).
   const leagueGroups = useMemo(() => {
-    const order = ['England', 'Spain', 'Italy', 'Germany', 'France', 'Scotland',
-      'Belgium', 'Netherlands', 'Austria', 'Mexico', 'Brazil', 'Argentina'];
+    const order = ['England', 'Spain', 'Italy', 'Germany', 'France', 'Portugal',
+      'Scotland', 'Belgium', 'Netherlands', 'Austria', 'Mexico', 'Brazil', 'Argentina'];
     const rank = (c) => { const i = order.indexOf(c); return i === -1 ? order.length : i; };
     const byCountry = new Map();
     for (const name of new Set(players.map((p) => p.league))) {

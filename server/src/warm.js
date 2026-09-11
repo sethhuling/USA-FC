@@ -11,6 +11,7 @@
 // are small against the Mega plan's 150,000/day — the per-minute burst limit,
 // not the daily cap, is what the throttle is protecting.
 const cache = require('./cache');
+const { syncRoster } = require('./rosterSync');
 const {
   getPlayers, getMatches, getLeagues, getPlayerProfile, getTeamOverview, trackedPlayers,
 } = require('./service');
@@ -104,19 +105,41 @@ function checkMatchWindow() {
   });
 }
 
+// Automatic roster discovery (rosterSync.js): scan every covered league for
+// new tracked-nationality players — e.g. an American transferring into a
+// league that had none — and append them to players.json. Add-only; a league
+// with no tracked players shows nowhere in the app, so this is also what
+// makes a newly covered league appear once someone plays there. players.json
+// lives on Render's ephemeral disk, so runtime additions vanish on each
+// deploy — the startup sync re-finds them within minutes of boot; commit
+// players.json now and then to make them durable.
+async function syncRosterSafe(reason) {
+  try { return await syncRoster(); }
+  catch (e) { console.warn(`[roster-sync] ${reason} failed: ${e.message}`); return { added: [] }; }
+}
+
 function scheduleDaily() {
   const now = new Date();
   const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), DAILY_UTC_HOUR));
   if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
   const t = setTimeout(async () => {
-    try { await warmAll('daily', { force: true }); }
-    finally { scheduleDaily(); }
+    try {
+      await syncRosterSafe('daily'); // before the warm, so it covers any new players
+      await warmAll('daily', { force: true });
+    } finally { scheduleDaily(); }
   }, next - now);
   t.unref?.(); // never hold the process open
 }
 
 function start() {
-  warmAll('startup').catch((e) => console.warn(`[warm] startup failed: ${e.message}`));
+  warmAll('startup')
+    .then(async () => {
+      // After the warm so the app has data ASAP; a forced re-warm only runs
+      // when the sync actually found someone new.
+      const { added = [] } = await syncRosterSafe('startup');
+      if (added.length) await warmAll(`roster-sync (${added.length} new)`, { force: true });
+    })
+    .catch((e) => console.warn(`[warm] startup failed: ${e.message}`));
   scheduleDaily();
   const t = setInterval(checkMatchWindow, CHECK_MS);
   t.unref?.();

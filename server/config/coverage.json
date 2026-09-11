@@ -6,9 +6,13 @@
     "Championship": { "id": 40, "country": "England", "code": "ENG" },
     "League One": { "id": 41, "country": "England", "code": "ENG" },
     "La Liga": { "id": 140, "country": "Spain", "code": "ESP" },
+    "La Liga 2": { "id": 141, "country": "Spain", "code": "ESP" },
     "Serie A": { "id": 135, "country": "Italy", "code": "ITA" },
+    "Serie B": { "id": 136, "country": "Italy", "code": "ITA" },
     "Bundesliga": { "id": 78, "country": "Germany", "code": "GER" },
+    "Bundesliga 2": { "id": 79, "country": "Germany", "code": "GER" },
     "Ligue 1": { "id": 61, "country": "France", "code": "FRA" },
+    "Ligue 2": { "id": 62, "country": "France", "code": "FRA" },
     "Liga MX": { "id": 262, "country": "Mexico", "code": "MEX" },
     "Eredivisie": { "id": 88, "country": "Netherlands", "code": "NED" },
     "Scottish Premiership": { "id": 179, "country": "Scotland", "code": "SCO" },
@@ -17,7 +21,12 @@
     "Süper Lig": { "id": 203, "country": "Turkey", "code": "TUR" },
     "Brasileirão": { "id": 71, "country": "Brazil", "code": "BRA" },
     "Liga Profesional (Argentina)": { "id": 128, "country": "Argentina", "code": "ARG" },
-    "Austrian Bundesliga": { "id": 218, "country": "Austria", "code": "AUT" }
+    "Austrian Bundesliga": { "id": 218, "country": "Austria", "code": "AUT" },
+    "J. League": { "id": 98, "country": "Japan", "code": "JPN" },
+    "A-League": { "id": 188, "country": "Australia", "code": "AUS" },
+    "Super League": { "id": 207, "country": "Switzerland", "code": "SUI" },
+    "Eliteserien": { "id": 103, "country": "Norway", "code": "NOR" },
+    "K League 1": { "id": 292, "country": "South Korea", "code": "KOR" }
   },
   "cups": {
     "Champions League": 2,
