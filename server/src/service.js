@@ -67,38 +67,66 @@ async function getMatches() {
       } catch { /* keep the cached row */ }
     }
   }
-  // Backfill badges on finished matches served from the schedule cache. Cached
-  // details are applied every request (in-memory, cheap); at most FETCH_BUDGET
-  // uncached ones are fetched per request, newest first, so the whole month
-  // fills over a few polls without bursting the API.
+  // Backfill badges on finished matches served from the schedule cache.
+  // Cached details are applied every request (in-memory, cheap); UNCACHED ones
+  // are only queued for the background drain — never fetched inline. Fetching
+  // them here used to add ~5s to every /api/matches response (15 throttled
+  // upstream calls) until a month's backlog drained after each restart, and
+  // the loading splash waits on this endpoint.
   const lacking = matches.filter((m) =>
     m.status === 'finished' &&
     m.trackedPlayers.length > 0 &&
     m.trackedPlayers.every((tp) => tp.squadStatus == null)
   ).sort((a, b) => new Date(b.kickoff) - new Date(a.kickoff));
-  let fetchBudget = 15;
+  const uncached = [];
   for (const m of lacking) {
-    const key = `match-final:${m.id}`;
-    let det = cache.peek(key);
-    if (det === undefined) {
-      if (fetchBudget <= 0) continue;
-      fetchBudget--;
-      try { det = await provider.matchDetail(m.id, tracked); }
-      catch { continue; }
-      // Only finished details get the long-lived cache; anything else stays uncached.
-      if (det?.status === 'finished') cache.set(key, TTL.finished, det);
-    }
+    const det = cache.peek(`match-final:${m.id}`);
+    if (det === undefined) { uncached.push(m.id); continue; }
     if (det?.status === 'finished') {
       const { lineups, events, stats, venue, referee, ...light } = det;
       const idx = matches.findIndex((x) => x.id === m.id);
       if (idx >= 0) matches[idx] = light;
     }
   }
+  scheduleBadgeBackfill(uncached);
   const withStreaming = await Promise.all(
     matches.map(async (m) => ({ ...m, streaming: await streaming.forMatch(m) }))
   );
   await annotateSquadStatus(withStreaming);
   return { source: provider.name, matches: withStreaming };
+}
+
+// Background badge backfill: fetches the finished-match details the schedule
+// cache lacks and stores them (30d), so the NEXT /api/matches request can
+// apply the badges — the request itself never waits on upstream calls. One
+// drain loop at a time; each getMatches call REPLACES the queue (newest-first,
+// no duplicates), so a match whose fetch failed or isn't final yet is retried
+// no more often than requests arrive. Only genuinely finished details enter
+// the long-lived cache (the invariant match-final relies on).
+let backfillQueue = [];
+let backfillRunning = false;
+function scheduleBadgeBackfill(ids) {
+  if (!provider.matchDetail) return;
+  backfillQueue = ids;
+  if (backfillRunning || ids.length === 0) return;
+  backfillRunning = true;
+  (async () => {
+    let fetched = 0;
+    try {
+      while (backfillQueue.length > 0) {
+        const id = backfillQueue.shift();
+        if (cache.peek(`match-final:${id}`) !== undefined) continue;
+        try {
+          const det = await provider.matchDetail(id, trackedPlayers());
+          fetched++;
+          if (det?.status === 'finished') cache.set(`match-final:${id}`, TTL.finished, det);
+        } catch { /* retried when a later request re-queues it */ }
+      }
+      if (fetched > 0) console.log(`[backfill] fetched ${fetched} finished-match detail(s) in background`);
+    } finally {
+      backfillRunning = false;
+    }
+  })();
 }
 
 // Lineups publish ~an hour before kickoff: for scheduled matches close to kickoff,

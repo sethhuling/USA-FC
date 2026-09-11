@@ -131,8 +131,13 @@ unexpired-but-stale keys (24h stats right after a match) re-fetch. Logs as
 
 `getMatches` layers three passes on the cached schedule each request: a 60s live
 overlay, a reconcile for matches the cache thinks are live but the live feed dropped
-(they finished), and a badge backfill for finished matches (applies all cached details,
-fetches at most 15 uncached per request, newest first).
+(they finished), and a badge backfill for finished matches. The backfill applies
+cached details inline (in-memory, cheap) but NEVER fetches upstream in the request
+path — uncached ones go to a background drain (`scheduleBadgeBackfill`, one loop at
+a time, queue replaced per request) whose results the next request applies. Inline
+fetching used to add ~5s to every /api/matches response until a month's backlog
+drained after each restart, and the loading splash waits on this endpoint — don't
+reintroduce upstream awaits in getMatches' response path (perf fix, Sept 2026).
 
 `apiFootball.js` invariants:
 - All upstream calls go through `api()` — globally throttled (250ms spacing) with
@@ -346,8 +351,11 @@ preferences should route through this module rather than being hard-coded.
   spec). Wordmark and motto are nowrap with vw-scaled `clamp()` font sizes so
   the motto's single line clears the 16px side padding down to small phones.
   The LIVE dot is absolutely corner-anchored (top right) so it never fights the
-  stack for space. The splash title uses the same Bebas treatment — keep the
-  static index.html copy and the React `Splash` copy in sync.
+  stack for space. The splash wordmark matches the header exactly (user
+  request): same Bebas wordmark with red FC, same gradient underline, same
+  one-line motto beneath. Keep the static index.html copy and the React
+  `Splash` copy in sync, and keep the splash styles visually in step with
+  `.topbar h1` / `.motto` when either changes.
 - American goal marker (`UsaBall` in icons.jsx, settled Sept 2026): drawn to look
   exactly like the ⚽ emoji used for regular goals — same tilted pentagon layout,
   spherical shading, beveled panels, soft edge with NO hard outline ring — just
