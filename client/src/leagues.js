@@ -17,6 +17,13 @@ export function leagueCountry(league) {
   return coverage.leagues[league]?.country || null;
 }
 
+// Flag emoji for the country a competition is played in (leagues and domestic
+// cups); UEFA competitions map to "Europe" → 🇪🇺. Null for anything unlisted.
+export function competitionFlag(name) {
+  const country = coverage.leagues[name]?.country || coverage.cups[name]?.country;
+  return (country && coverage.flags[country]) || null;
+}
+
 export function leagueCountryCode(league) {
   return coverage.leagues[league]?.code || null;
 }

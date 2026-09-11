@@ -191,6 +191,7 @@ section h2.section-live { color: var(--live); }
   display: flex; justify-content: space-between; align-items: baseline;
   font-size: 0.72rem; color: var(--muted); margin-bottom: 6px;
 }
+.comp-flag { margin-right: 5px; font-size: 0.9rem; line-height: 1; }
 .minute { color: var(--live); font-weight: 700; animation: pulse 1.6s infinite; }
 .demo-badge {
   margin-left: 6px; padding: 1px 5px; border-radius: 5px;

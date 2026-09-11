@@ -3,6 +3,7 @@ import { PlayerLink } from './PlayerProfile.jsx';
 import MatchSheet from './MatchSheet.jsx';
 import { TeamLink } from './TeamSheet.jsx';
 import { UsaBall, UsaBoot } from './icons.jsx';
+import { competitionFlag } from '../leagues.js';
 
 const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
@@ -25,6 +26,9 @@ function MatchRow({ m, playersById, onOpen }) {
     <div className={`match ${m.status}`} onClick={() => onOpen(m)} role="button" tabIndex={0}>
       <div className="match-top">
         <span className="competition">
+          {competitionFlag(m.competition) && (
+            <span className="comp-flag" aria-hidden="true">{competitionFlag(m.competition)}</span>
+          )}
           {m.competition}
           {m.demo && <span className="demo-badge">DEMO</span>}
         </span>

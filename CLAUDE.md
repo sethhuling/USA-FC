@@ -312,7 +312,11 @@ it was deleted (Sept 2026) — don't reintroduce scraping in production paths.
 Deployment-level choices live in config files, not code — one instance, shared by
 everyone using it:
 - `coverage.json` — which leagues/cups this deployment tracks (name → API id,
-  country, FIFA code) and the tracked `nationality` ("USA") plus the
+  country, FIFA code; cups carry `{ id, country }`, UEFA cups use "Europe"),
+  a `flags` map (country → flag emoji, "Europe" → 🇪🇺) that puts a flag before
+  the competition name on Schedule cards (`competitionFlag()` in leagues.js —
+  a new league/cup country needs a `flags` entry or its cards show no flag),
+  and the tracked `nationality` ("USA") plus the
   `nationalTeamPattern` regex for splitting national-team career rows. Loaded
   server-side by `server/src/coverage.js`; the client imports the SAME file at
   build time via `client/src/leagues.js` (Vite bundles it — a coverage edit needs

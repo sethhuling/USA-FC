@@ -14,7 +14,9 @@ const coverage = require('../config/coverage.json');
 const LEAGUE_IDS = Object.fromEntries(
   Object.entries(coverage.leagues).map(([name, l]) => [name, l.id])
 );
-const CUP_IDS = { ...coverage.cups };
+const CUP_IDS = Object.fromEntries(
+  Object.entries(coverage.cups).map(([name, c]) => [name, c.id])
+);
 
 // Nationality string as API-Football reports it (e.g. "USA").
 const NATIONALITY = coverage.nationality;
