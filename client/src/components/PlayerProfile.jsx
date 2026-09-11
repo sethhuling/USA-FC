@@ -199,7 +199,6 @@ function ProfileSheet({ player, onClose }) {
     // field carries blocks) — label it honestly.
     ['Blocks', s.clearances],
     ['Def. actions', (s.tackles || 0) + (s.interceptions || 0) + (s.clearances || 0)],
-    ['Passes', s.passesCompleted],
     ['Pass %', s.passAccuracy != null ? `${s.passAccuracy}%` : '—'],
     ['Yellows', s.yellow], ['Reds', s.red],
   ] : [];
