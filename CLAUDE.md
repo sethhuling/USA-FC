@@ -373,13 +373,15 @@ preferences should route through this module rather than being hard-coded.
   stale note self-cleans when the API stops flagging the player. Read fresh
   each call — edits need no restart. Only add entries verified against a real
   source (the API publishes no return dates; this file is the ONLY place they
-  come from). No automated news scraping — the notes are refreshed by hand
-  (ask Claude to re-check the news for currently flagged players).
+  come from). No automated scraping in the app itself — the notes are
+  refreshed by the "Uncle Sam FC injury news scan" cloud routine (08:00 UTC
+  daily, game days only; web search + verified sources, pushes this file
+  only), or on request (ask Claude to re-check the news for flagged players).
 - `news.json` — News-tab headline links (`headlines` array + `blockedSources`).
   Each entry: exact published `title`, publisher `source` name, canonical
   `url`, `published` date, `category` (abroad | usmnt | youth), `players`
-  (roster ids), optional `paywall`, `added`. Maintained by the `news-headlines`
-  scheduled task; every entry must be verified against the live page (no
+  (roster ids), optional `paywall`, `added`. Maintained by the "Uncle Sam FC
+  news headlines" cloud routine (see News tab above); every entry must be verified against the live page (no
   fabrication). Pruned to ~14 days. To honor a publisher's removal request, add
   its domain to `blockedSources` (hides all its links) and delete its entries.
 - `demo/` — demo-mode dataset (fixtures generated relative to server start, includes a

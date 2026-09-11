@@ -1,5 +1,5 @@
 {
-  "_readme": "Hand-picked News-tab headlines, maintained by the daily news-headlines scheduled task (see CLAUDE.md). Legal rules: each entry is ONLY a link out to the publisher's own page — exact published headline, publisher name as plain text, publication date, canonical URL (https; plain http only when the site has no https). Never add summaries, article text, or images. category: abroad | usmnt | youth. players: roster ids the story is about. paywall: true for subscriber-only stories. blockedSources: domains whose links must never show (add a domain here when a publisher asks us to remove links). Read fresh on every request.",
+  "_readme": "Hand-picked News-tab headlines, maintained by the \"Uncle Sam FC news headlines\" cloud routine (see CLAUDE.md). Legal rules: each entry is ONLY a link out to the publisher's own page — exact published headline, publisher name as plain text, publication date, canonical URL (https; plain http only when the site has no https). Never add summaries, article text, or images. category: abroad | usmnt | youth. players: roster ids the story is about. paywall: true for subscriber-only stories. blockedSources: domains whose links must never show (add a domain here when a publisher asks us to remove links). Read fresh on every request.",
   "blockedSources": [],
   "headlines": [
     {
