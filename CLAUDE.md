@@ -153,9 +153,22 @@ built to stay legally above board (see "News legal rules" below):
 - Headlines: read fresh from hand-maintained `server/data/news.json` on every
   request (validated: http(s) URL, title, source, YYYY-MM-DD date, category
   abroad/usmnt/youth; unknown player ids dropped; domains in `blockedSources`
-  hidden). Maintained by the daily `news-headlines` scheduled task (local
-  Claude desktop, 6:00 AM, pushes only news.json → Render redeploys — like
-  `injury-news-scan`, it only runs while Seth's Mac/app is on).
+  hidden). Maintained by the CLOUD routine "Uncle Sam FC news headlines"
+  (claude.ai/code/routines/trig_018cAswdyaHHLELPGycctGVE; cron
+  `0 14,17,19,22 * * *` UTC = 10 AM / 1 PM / 3 PM / 6 PM Eastern during
+  daylight time — one hour earlier in winter, since routine cron is UTC-only),
+  running in the "USFC website" cloud environment like the "Uncle Sam FC
+  injury news scan" routine (08:00 UTC daily). Both run without Seth's Mac;
+  the old local desktop tasks of the same names are disabled — don't
+  re-enable them alongside the routines. Cloud runs can only open sites on
+  that environment's network allowlist (claude.ai/code → environment
+  settings → Network access); a blocked publisher can't be verified, so its
+  stories are dropped, and each run's report lists blocked domains. It pushes only
+  news.json and only when a run ADDED a link, because every push redeploys
+  (restart → cold caches, full startup warm + roster sync, ~2,400 calls).
+  Those restarts often land mid-match, which is why warm.js starts
+  `lastHandledKickoff` one match window before boot — a match in progress at
+  boot still gets its post-match refresh.
 - Daily roundup: plain sentences per match ("Weston McKennie started for
   Juventus as they hosted Palermo. McKennie scored 1 goal and was subbed off in
   the 67th minute.") — NO closing result sentence (user request: the article
@@ -544,9 +557,16 @@ monetized launch). What keeps the News tab low-risk:
 
 ## Known issues / next up
 
-- DMCA designated agent not yet registered (Seth to do: copyright.gov/dmca-directory,
-  $6, renew every 3 years) — do it before a public launch, then list the agent
-  alongside the contact email.
+- DMCA designated agent not yet registered — TABLED (Sept 11, 2026) until Seth
+  forms an LLC, so it's filed under the LLC's name and street address instead of
+  his home address (the directory is public). Seth files it himself at
+  dmca.copyright.gov/osp/login.html ($6, renew every 3 years); agent can be a
+  title ("Copyright Agent") with UncleSamFCapp@gmail.com and a P.O. box. Then
+  add the agent's name/address/phone/email to the app (17 USC 512(c)(2)
+  requires it on the site) and update this item. A one-time cloud routine
+  "Reminder: DMCA agent registration (LLC)" fires 2026-09-18 10 AM ET and
+  pushes a reminder unless this item says it's registered. Must be done before
+  a public launch.
 
 - streaming.json is hand-maintained by competition. Review each August when US rights
   change. Finding a licensed broadcast-data source is a future task, not something to

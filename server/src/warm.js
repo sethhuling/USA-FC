@@ -26,9 +26,13 @@ const WINDOW_OVER_MS = 3 * 60 * 60 * 1000;
 let warming = false;
 // Tracked-match kickoffs learned from the last warm's schedule: [{t, teamIds}].
 let kickoffs = [];
-// Kickoffs at/before this moment are already handled; start at boot so matches
-// that finished before the server started don't trigger a phantom warm.
-let lastHandledKickoff = Date.now();
+// Kickoffs at/before this moment are already handled. Start one match window
+// BEFORE boot: matches that finished well before the server started are
+// covered by the startup warm, but a match still being played at boot (the
+// News headlines task pushes — and so redeploys — up to 4x a day, often
+// mid-match) must still get its post-match refresh, or its stats stay
+// mid-game until the next daily warm.
+let lastHandledKickoff = Date.now() - WINDOW_OVER_MS;
 
 function rememberKickoffs(matches, tracked) {
   const teamByPlayer = new Map(
