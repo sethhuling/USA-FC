@@ -48,6 +48,11 @@ Sept 2026, spending real API calls on the startup warm) — after starting a pre
 check the reported port/name and `preview_logs` before letting it run; running the
 demo server via a plain background `node` command is a safe fallback.
 
+Demo-mode limits: match details carry no lineups, events, or stats (demo.js
+returns them empty), so MatchSheet events/lineup UI changes can't be exercised
+against demo data — verify by temporarily injecting sample markup into the page
+(then removing it), or check the production site after deploy.
+
 ## Environment
 
 - Secrets live in `.env` locally (git-ignored) and in the Render dashboard in
@@ -258,6 +263,10 @@ preferences should route through this module rather than being hard-coded.
   subst in/out slot order is unreliable, so both slots must be checked — this is how
   Pukštas went unmarked when subbed on). Schedule-card chips stay navy, red only when
   the player scored, no flags — do NOT re-add red/flags there.
+- Substitution icon (user preference, Sept 2026): the MatchSheet events list uses
+  a bold light-blue ⇄ text glyph (`.subst-icon` in styles.css, brighter tint in
+  dark mode), NOT the 🔁 emoji — its orange arrows read as a yellow card at
+  event-list size. Emoji can't be recolored, hence a styled glyph.
 - Loading splash (added Sept 2026): the full-bleed Uncle Sam crest artwork
   (`crest.png` as a cover background over navy) with the wordmark, motto, and
   red/white/blue bouncing dots anchored near the bottom over a navy gradient
