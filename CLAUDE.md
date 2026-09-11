@@ -349,6 +349,10 @@ preferences should route through this module rather than being hard-coded.
   content (Born, Hometown, Height, Weight, or Also eligible) — Nationality used
   to be its only guaranteed row, so without this guard an empty "Profile" box
   could appear.
+- Profile "This season" stat grid (PlayerProfile.jsx): 12 tiles, exactly 3 rows
+  of 4 on the sheet. The raw Passes tile was removed (user preference, Sept
+  2026) because a 13th tile pushed the grid onto an ugly 4th line — Pass %
+  stays. Don't re-add Passes, and adding any new tile means removing one.
 - Injury banner (PlayerProfile.jsx, Sept 2026; user wants it BRIEF): `profile.injury`
   renders a red banner in the profile sheet and a one-line note on the hover card.
   Headline = the injury name itself ("Hamstring Injury"); the classifying label
