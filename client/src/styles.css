@@ -82,6 +82,10 @@ body::before {
   padding: calc(30px + env(safe-area-inset-top, 0px)) 16px 22px;
   background: #0A3161; border-radius: 0 0 14px 14px;
   transition: padding 0.25s ease;
+  /* Tappable: scrolls to top, or (at the top) home to a fresh Schedule tab. */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none; -webkit-user-select: none;
 }
 .topbar h1 {
   /* Bebas Neue wordmark — tall condensed athletic caps. One line always;

@@ -37,6 +37,9 @@ export default function App() {
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  // Bumping this remounts ScheduleTab, resetting its view/filters/scroll —
+  // the "just opened the app" state the topbar tap returns to.
+  const [scheduleResetKey, setScheduleResetKey] = useState(0);
   const [booted, setBooted] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
 
@@ -95,11 +98,22 @@ export default function App() {
 
   const playersById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 
+  // Tapping the topbar wordmark: scroll to top if scrolled down; if already at
+  // the top, go "home" — the Schedule tab in its freshly-opened state.
+  const onBrandTap = useCallback(() => {
+    if (window.scrollY > 8) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setTab('schedule');
+      setScheduleResetKey((k) => k + 1);
+    }
+  }, []);
+
   return (
     <ProfileProvider>
     <TeamProvider playersById={playersById}>
     <div className="app">
-      <header className={scrolled ? "topbar scrolled" : "topbar"}>
+      <header className={scrolled ? "topbar scrolled" : "topbar"} onClick={onBrandTap}>
         <h1>Uncle Sam <span className="wm-fc">FC</span></h1>
         <span className="motto">
           <span className="motto-line">Oh when the</span>
@@ -120,7 +134,7 @@ export default function App() {
 
       <main className="content">
         {tab === 'schedule' && (
-          <ScheduleTab matches={matches} players={players} lastUpdated={lastUpdated} />
+          <ScheduleTab key={scheduleResetKey} matches={matches} players={players} lastUpdated={lastUpdated} />
         )}
         {tab === 'stats' && <StatsTab players={players} />}
         {tab === 'players' && <PlayersTab players={players} />}
