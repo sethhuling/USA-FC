@@ -231,7 +231,7 @@ function ProfileSheet({ player, onClose }) {
           <p className="empty">Demo mode — photos, hometowns and career history need an API key.</p>
         )}
 
-        {(bio || elig?.length > 0) && (
+        {(bio?.birth?.date || hometown(bio) || bio?.height || bio?.weight || elig?.length > 0) && (
           <section className="p-section">
           <h4 className="profile-h">Profile</h4>
           <div className="bio-grid">
@@ -243,7 +243,6 @@ function ProfileSheet({ player, onClose }) {
             {hometown(bio) && <div><span className="bio-label">Hometown</span>{hometown(bio)}</div>}
             {bio?.height && <div><span className="bio-label">Height</span>{formatHeight(bio.height)}</div>}
             {bio?.weight && <div><span className="bio-label">Weight</span>{formatWeight(bio.weight)}</div>}
-            <div><span className="bio-label">Nationality</span>{player.nationality}</div>
             {elig?.length > 0 && (
               <div><span className="bio-label">Also eligible</span>{elig.join(', ')}</div>
             )}
