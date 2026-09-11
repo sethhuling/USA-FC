@@ -67,8 +67,14 @@ export default function App() {
     const playersReady = fetchPlayers()
       .then((d) => setPlayers(d.players))
       .catch((e) => setError(e.message));
-    // Keep the splash up until both initial fetches settle (success or error).
-    Promise.allSettled([playersReady, loadMatches()]).then(() => setBooted(true));
+    // Keep the splash up until both initial fetches settle (success or error),
+    // AND at least 3s from page open (user preference: let the splash land
+    // now that the data loads near-instantly). performance.now() counts from
+    // navigation start, so the static pre-React splash time counts too.
+    Promise.allSettled([playersReady, loadMatches()]).then(() => {
+      const wait = Math.max(0, 3000 - performance.now());
+      setTimeout(() => setBooted(true), wait);
+    });
   }, [loadMatches]);
 
   // Fade the splash, then unmount it once the transition has finished.

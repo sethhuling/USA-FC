@@ -298,6 +298,9 @@ preferences should route through this module rather than being hard-coded.
   players AND matches fetches both settle, then fades out. It exists twice with
   identical markup — static HTML inside `#root` in `client/index.html` (paints before
   any JS loads) and a React `Splash` component in `App.jsx` (covers the data wait).
+  The splash stays up until the data settles AND at least 3s from page open
+  (user preference, Sept 2026, added once loads became near-instant) — the
+  minimum is measured with `performance.now()` so pre-React time counts.
   Both are styled by the inline `<style>` block in index.html — keep the two copies
   and that style block in sync.
 - Stats tab filters (Sept 2026): one Filters button (active-count badge) opens a
