@@ -202,7 +202,14 @@ built to stay legally above board (see "News legal rules" below):
   ("Reyna scores for Strasbourg as 15 Americans see action"; a national-team
   result leads when there is one), a one-line summary (dek), and stories
   ordered national team → matches with American goals/assists (biggest first)
-  → the rest by kickoff. Cached as `roundup` (1h, 5 min when a detail
+  → the rest by kickoff. The "N Americans see action" number counts only
+  Americans who STARTED or CAME ON (unique players that day) — not games, and
+  not the unused subs the article also names, so it's often lower than the
+  number of Americans named. User confirmed this is correct (Sept 2026, after
+  briefly reading it as wrong) — don't change it. Known gap: a match whose
+  data has no lineups (seen with Austrian Cup ties) gives its Americans no
+  squad status, so they're left out of the roundup entirely rather than
+  guessed at. Cached as `roundup` (1h, 5 min when a detail
   failed); built LAST in every warm (after profiles, so the badge backfill has
   already cached the details it needs — ~180 calls when fully cold) and
   force-rebuilt by daily/post-match warms. Demo mode has no lineups/events, so
