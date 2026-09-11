@@ -1,6 +1,11 @@
 {
-  "note": "Players the API lists as USA-nationality but who chose another national team. npm run discover skips these ids.",
+  "note": "Players the API lists as USA-nationality but who chose another national team. npm run discover and the automatic roster sync skip these ids.",
   "excluded": [
     "bajraktarevic-esmir"
+  ],
+  "departedNote": "Players no longer at a covered-league club (moved to MLS or an uncovered league) who would otherwise be re-added by discovery from their old league's season stat rows. Remove an id if the player returns to a covered league. Each entry: id — where they went, verified date.",
+  "departed": [
+    "gomez-johan",
+    "hoffmann-ian"
   ]
 }

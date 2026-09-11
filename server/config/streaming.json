@@ -2,7 +2,7 @@
   "Premier League": "Peacock / NBC / USA Network",
   "La Liga": "ESPN+",
   "Serie A": "Paramount+",
-  "Bundesliga": "ESPN+",
+  "Bundesliga": "USA Network / Fandango",
   "Ligue 1": "beIN SPORTS",
   "Liga MX": "TUDN / ViX",
   "Eredivisie": "ESPN+",
@@ -14,7 +14,7 @@
   "Copa del Rey": "ESPN+",
   "FA Cup": "ESPN+",
   "Coppa Italia": "Paramount+",
-  "DFB Pokal": "ESPN+",
+  "DFB Pokal": "DFB Play",
   "Coupe de France": "beIN SPORTS",
   "Premiership": "Paramount+",
   "League One": "Paramount+",
@@ -23,5 +23,11 @@
   "Belgian Pro League": "DAZN",
   "Brasileirão": "Fanatiz / TV Globo",
   "Liga Profesional (Argentina)": "Paramount+ / Fanatiz",
-  "EFL Cup": "Paramount+"
+  "EFL Cup": "Paramount+",
+  "La Liga 2": "ESPN+",
+  "Serie B": "Destination Calcio",
+  "Ligue 2": "beIN SPORTS",
+  "J. League": "J.LEAGUE International",
+  "Super League": "SFL TV",
+  "K League 1": "K League TV"
 }

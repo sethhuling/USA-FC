@@ -1,50 +1,178 @@
 {
   "_readme": "Hand-verified US birth states, keyed by player id. API-Football birth places have no state; the server merges these into profile bios (service.js). `state` is appended to the displayed hometown; `country` overrides a wrong API country. Only add entries verified against a real source (Wikipedia, club sites) — never guess: city names repeat across states (Clovis NM vs CA, Birmingham AL vs MI).",
-  "adeniran-samuel": { "state": "Texas" },
-  "kayo-bryang": { "state": "Maryland" },
-  "fossey-marlon": { "state": "California" },
-  "scally-joe": { "state": "New York" },
-  "castaneda-santiago": { "state": "Florida" },
-  "banks-noahkai": { "state": "Hawaii", "country": "USA" },
-  "campbell-william": { "state": "Texas" },
-  "morris-aidan": { "state": "Florida" },
-  "wiley-caleb": { "state": "Georgia" },
-  "campbell-george": { "state": "Georgia" },
-  "mcglynn-jack": { "state": "New York" },
-  "arfsten-maximilian": { "state": "California" },
-  "pukstas-rokas": { "state": "Oklahoma" },
-  "paredes-kevin": { "state": "Virginia" },
-  "pepi-ricardo": { "state": "Texas" },
-  "freeman-alexander": { "state": "Maryland" },
-  "cardoso-johnny": { "state": "New Jersey" },
-  "gooch-lynden": { "state": "California" },
-  "leyva-daniel": { "state": "Nevada" },
-  "cerrillo-edwin": { "state": "Texas" },
-  "juarez-arce-fernando": { "state": "California" },
-  "cuevas-aimar-mauricio": { "state": "California" },
-  "ledezma-richard": { "state": "Arizona" },
-  "sonora-alan": { "state": "New York" },
-  "miljevic-matko": { "state": "Florida" },
-  "jr-reynolds-bryan": { "state": "Texas" },
-  "balogun-folarin": { "state": "New York" },
-  "mckenzie-mark": { "state": "New York" },
-  "tessmann-tanner": { "state": "Alabama" },
-  "weah-timothy": { "state": "New York" },
-  "aaronson-brenden": { "state": "New Jersey" },
-  "richards-chris": { "state": "Alabama" },
-  "wright-haji": { "state": "California" },
-  "adams-tyler": { "state": "New York" },
-  "gozo-zavier": { "state": "Utah" },
-  "osundina-oluwakorede": { "state": "Illinois" },
-  "trusty-auston": { "state": "Pennsylvania" },
-  "brown-ethan": { "state": "Virginia" },
-  "murrell-jacob": { "state": "Maryland" },
-  "jr-williams-jerome": { "state": "New Mexico" },
-  "akinmboni-matai": { "state": "Maryland" },
-  "cremaschi-benjamin": { "state": "Florida" },
-  "pulisic-christian": { "state": "Pennsylvania" },
-  "busio-gianluca": { "state": "North Carolina" },
-  "marzi-de-giorgio": { "state": "Pennsylvania" },
-  "mckennie-weston": { "state": "Texas" },
-  "musah-yunus": { "state": "New York" }
+  "adeniran-samuel": {
+    "state": "Texas"
+  },
+  "kayo-bryang": {
+    "state": "Maryland"
+  },
+  "fossey-marlon": {
+    "state": "California"
+  },
+  "scally-joe": {
+    "state": "New York"
+  },
+  "castaneda-santiago": {
+    "state": "Florida"
+  },
+  "banks-noahkai": {
+    "state": "Hawaii",
+    "country": "USA"
+  },
+  "campbell-william": {
+    "state": "Texas"
+  },
+  "morris-aidan": {
+    "state": "Florida"
+  },
+  "wiley-caleb": {
+    "state": "Georgia"
+  },
+  "campbell-george": {
+    "state": "Georgia"
+  },
+  "mcglynn-jack": {
+    "state": "New York"
+  },
+  "arfsten-maximilian": {
+    "state": "California"
+  },
+  "pukstas-rokas": {
+    "state": "Oklahoma"
+  },
+  "paredes-kevin": {
+    "state": "Virginia"
+  },
+  "pepi-ricardo": {
+    "state": "Texas"
+  },
+  "freeman-alexander": {
+    "state": "Maryland"
+  },
+  "cardoso-johnny": {
+    "state": "New Jersey"
+  },
+  "gooch-lynden": {
+    "state": "California"
+  },
+  "leyva-daniel": {
+    "state": "Nevada"
+  },
+  "cerrillo-edwin": {
+    "state": "Texas"
+  },
+  "juarez-arce-fernando": {
+    "state": "California"
+  },
+  "cuevas-aimar-mauricio": {
+    "state": "California"
+  },
+  "ledezma-richard": {
+    "state": "Arizona"
+  },
+  "sonora-alan": {
+    "state": "New York"
+  },
+  "miljevic-matko": {
+    "state": "Florida"
+  },
+  "jr-reynolds-bryan": {
+    "state": "Texas"
+  },
+  "balogun-folarin": {
+    "state": "New York"
+  },
+  "mckenzie-mark": {
+    "state": "New York"
+  },
+  "tessmann-tanner": {
+    "state": "Alabama"
+  },
+  "weah-timothy": {
+    "state": "New York"
+  },
+  "aaronson-brenden": {
+    "state": "New Jersey"
+  },
+  "richards-chris": {
+    "state": "Alabama"
+  },
+  "wright-haji": {
+    "state": "California"
+  },
+  "adams-tyler": {
+    "state": "New York"
+  },
+  "gozo-zavier": {
+    "state": "Utah"
+  },
+  "osundina-oluwakorede": {
+    "state": "Illinois"
+  },
+  "trusty-auston": {
+    "state": "Pennsylvania"
+  },
+  "brown-ethan": {
+    "state": "Virginia"
+  },
+  "murrell-jacob": {
+    "state": "Maryland"
+  },
+  "jr-williams-jerome": {
+    "state": "New Mexico"
+  },
+  "akinmboni-matai": {
+    "state": "Maryland"
+  },
+  "cremaschi-benjamin": {
+    "state": "Florida"
+  },
+  "pulisic-christian": {
+    "state": "Pennsylvania"
+  },
+  "busio-gianluca": {
+    "state": "North Carolina"
+  },
+  "marzi-de-giorgio": {
+    "state": "Pennsylvania"
+  },
+  "mckennie-weston": {
+    "state": "Texas"
+  },
+  "musah-yunus": {
+    "state": "New York"
+  },
+  "siebatcheu-theosonjordan": {
+    "state": "D.C."
+  },
+  "tolkin-john": {
+    "state": "New Jersey"
+  },
+  "young-isaiah": {
+    "state": "New Jersey"
+  },
+  "mendoza-gomez-jonathan": {
+    "state": "Texas"
+  },
+  "dettoni-grayson": {
+    "state": "Virginia"
+  },
+  "malone-ryan": {
+    "state": "Massachusetts"
+  },
+  "gioacchini-selson-nicholas": {
+    "state": "Missouri"
+  },
+  "fuente-la-de-konrad": {
+    "state": "Florida"
+  },
+  "corboz-mael": {
+    "state": "Alabama"
+  },
+  "lansing-michael": {
+    "state": "New Jersey"
+  },
+  "michel-stanley-benjamin": {
+    "state": "Florida"
+  }
 }

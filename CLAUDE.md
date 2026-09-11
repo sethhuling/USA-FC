@@ -263,10 +263,16 @@ preferences should route through this module rather than being hard-coded.
   alone). Only set either field from a verified source — never guess.
   The `/api/players` payload also carries each player's `age`
   (from API-Football; demo mode simulates it), used by the Stats age filter.
-- `excluded.json` — **roster policy**: players the API calls USA-nationality who chose
-  another national team (e.g. Bajraktarević → Bosnia) are excluded here; `npm run
-  discover` skips them. Season stats count only the player's current club — no
-  prior-club (MLS) or national-team numbers; a mid-season transfer starts the line fresh.
+- `excluded.json` — **roster policy**: two skip lists, both honored by `npm run
+  discover` AND the automatic roster sync. `excluded`: players the API calls
+  USA-nationality who chose another national team (e.g. Bajraktarević →
+  Bosnia). `departed` (added Sept 2026): players who left covered leagues
+  mid-season (moved to MLS or an uncovered league, e.g. Johan Gómez → Chicago
+  Fire, Ian Hoffmann → Mjällby/Allsvenskan) — without this, their old league's
+  season stat rows would re-add them on every scan; remove the id if the
+  player returns to a covered league. Season stats count only the player's
+  current club — no prior-club (MLS) or national-team numbers; a mid-season
+  transfer starts the line fresh.
 - `hometowns.json` — hand-verified US birth states (and rare country corrections)
   keyed by player id; API-Football birth places have no state. Merged into profile
   bios by `withHometown()` in service.js, read fresh each call so edits need no

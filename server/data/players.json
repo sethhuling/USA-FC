@@ -189,7 +189,10 @@
     "position": "DF",
     "positionGroup": "DF",
     "nationality": "USA",
-    "apiFootballId": 380625
+    "apiFootballId": 380625,
+    "otherEligibility": [
+      "Italy"
+    ]
   },
   {
     "id": "young-isaiah",
@@ -202,16 +205,6 @@
     "apiFootballId": 91180
   },
   {
-    "id": "gomez-johan",
-    "name": "Johan Gómez",
-    "club": "Eintracht Braunschweig",
-    "league": "Bundesliga 2",
-    "position": "FW",
-    "positionGroup": "FW",
-    "nationality": "USA",
-    "apiFootballId": 161584
-  },
-  {
     "id": "tolkin-john",
     "name": "John Tolkin",
     "club": "Holstein Kiel",
@@ -219,17 +212,22 @@
     "position": "DF",
     "positionGroup": "DF",
     "nationality": "USA",
-    "apiFootballId": 119002
+    "apiFootballId": 119002,
+    "capTied": true
   },
   {
     "id": "mendoza-gomez-jonathan",
     "name": "Jonathan Gómez Mendoza",
     "club": "VfL Osnabrück",
     "league": "Bundesliga 2",
-    "position": "MF",
-    "positionGroup": "MF",
+    "position": "DF",
+    "positionGroup": "DF",
     "nationality": "USA",
-    "apiFootballId": 203426
+    "apiFootballId": 203426,
+    "otherEligibility": [
+      "Mexico",
+      "Spain"
+    ]
   },
   {
     "id": "butler-justin",
@@ -239,7 +237,10 @@
     "position": "FW",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 162945
+    "apiFootballId": 162945,
+    "otherEligibility": [
+      "Germany"
+    ]
   },
   {
     "id": "malone-ryan",
@@ -259,7 +260,8 @@
     "position": "FW",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 2219
+    "apiFootballId": 2219,
+    "capTied": true
   },
   {
     "id": "morris-aidan",
@@ -391,16 +393,6 @@
     "apiFootballId": 518353
   },
   {
-    "id": "hoffmann-ian",
-    "name": "Ian Hoffmann",
-    "club": "Ham-Kam",
-    "league": "Eliteserien",
-    "position": "DF",
-    "positionGroup": "DF",
-    "nationality": "USA",
-    "apiFootballId": 202850
-  },
-  {
     "id": "lansing-michael",
     "name": "Michael Lansing",
     "club": "Kristiansund BK",
@@ -465,7 +457,10 @@
     "position": "FW",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 50942
+    "apiFootballId": 50942,
+    "otherEligibility": [
+      "Haiti"
+    ]
   },
   {
     "id": "freeman-alexander",
@@ -499,7 +494,8 @@
     "position": "MF",
     "positionGroup": "MF",
     "nationality": "USA",
-    "apiFootballId": 161929
+    "apiFootballId": 161929,
+    "capTied": true
   },
   {
     "id": "gioacchini-selson-nicholas",
@@ -509,7 +505,8 @@
     "position": "FW",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 153465
+    "apiFootballId": 153465,
+    "capTied": true
   },
   {
     "id": "gooch-lynden",
@@ -788,7 +785,10 @@
     "position": "MF",
     "positionGroup": "MF",
     "nationality": "USA",
-    "apiFootballId": 88126
+    "apiFootballId": 88126,
+    "otherEligibility": [
+      "France"
+    ]
   },
   {
     "id": "robinson-antonee",

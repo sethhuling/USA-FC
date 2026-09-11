@@ -83,7 +83,11 @@ async function discoverFromApi(log = () => {}) {
 // have club/league refreshed when refreshExisting is set (manual script).
 // Returns { added, total } where added lists the newly appended players.
 function mergeIntoRoster(discovered, { refreshExisting = false } = {}) {
-  const excluded = new Set(JSON.parse(fs.readFileSync(EXCLUDED_FILE, 'utf8')).excluded);
+  // Skip both lists: players who chose another national team, and players who
+  // left covered leagues mid-season (their old league's stat rows would
+  // otherwise re-add them on every scan).
+  const ex = JSON.parse(fs.readFileSync(EXCLUDED_FILE, 'utf8'));
+  const excluded = new Set([...ex.excluded, ...(ex.departed || [])]);
   const existing = fs.existsSync(PLAYERS_FILE)
     ? JSON.parse(fs.readFileSync(PLAYERS_FILE, 'utf8')) : [];
   const byId = new Map(existing.map((p) => [p.id, p]));
