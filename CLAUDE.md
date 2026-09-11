@@ -117,8 +117,9 @@ timer stops when the match finishes or nobody has viewed it for 3 minutes. Each
 tick logs `[live-detail] refreshed N watched match(es)` (visible in Render logs).
 
 Cache warmer (`server/src/warm.js`, started from index.js): pre-fills every
-user-facing cache — players, schedule, leagues, all 55 team pages, all 72 player
-profiles (which also fill each club's `team-upcoming`) — so opens never hit
+user-facing cache — players, schedule, leagues, every team page, every player
+profile (85 players as of Sept 2026; profiles also fill each club's
+`team-upcoming`) — so opens never hit
 API-Football cold. It must run in-process because the caches are in-memory.
 Three triggers: **startup** (full fill, ~1,400 calls / ~6 min cold), **daily at
 09:00 UTC** (forced refresh, ~400 calls — quiet hour between South American late
@@ -427,7 +428,12 @@ start value and suppresses scroll-event dispatch — tests read as false failure
 
 - streaming.json is hand-maintained by competition. Review each August when US rights
   change. Finding a licensed broadcast-data source is a future task, not something to
-  attempt ad hoc.
+  attempt ad hoc. Entries verified Sept 2026 (only add source-verified carriers;
+  no entry = "Unknown" in the UI). Three gaps pending announcements — re-check:
+  Bundesliga 2 (no US home announced after its ESPN+ package ended with
+  2025-26), A-League (2026-27 US arrangement unannounced as of Sept 2026;
+  season starts mid-October — ESPN carried 2025-26), Eliteserien (league-run
+  international OTT only, no stable US brand to cite).
 - There is no settings UI: per-user preferences (`client/src/settings.js`, currently
   just `units`) can only be changed from the browser console. Build a small settings
   screen once a second preference exists.
