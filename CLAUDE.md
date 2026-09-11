@@ -159,8 +159,10 @@ built to stay legally above board (see "News legal rules" below):
   daylight time — one hour earlier in winter, since routine cron is UTC-only),
   running in the "USFC website" cloud environment like the "Uncle Sam FC
   injury news scan" routine (08:00 UTC daily). Both run without Seth's Mac;
-  the old local desktop tasks of the same names are disabled — don't
-  re-enable them alongside the routines. Cloud runs can only open sites on
+  the old local desktop tasks of the same names were deleted (Sept 2026) —
+  don't recreate local copies alongside the routines. Both routines push
+  with `git push origin HEAD:main` then point the local branch at
+  origin/main, so they leave no stray `claude/*` branches on GitHub. Cloud runs can only open sites on
   that environment's network allowlist; a blocked publisher can't be
   verified, so its stories are dropped, and each run's report lists blocked
   domains. Since Sept 11, 2026 "USFC website" uses a CUSTOM allowlist of the
@@ -255,6 +257,11 @@ reintroduce upstream awaits in getMatches' response path (perf fix, Sept 2026).
 - Squad status: `start`/`on`/`bench`/`out` per tracked player. "Subbed on" is detected
   from per-player minutes, NOT substitution events (the API's in/out field order is
   unreliable). `out` + fixture injury report → `outInjured` (red cross in UI).
+- A tracked player's goal list (`extractPlayerEvents`, drives the red Schedule
+  chips and goal markers) excludes missed penalties, OWN GOALS (the event names
+  the player who put it in his own net) and penalty-SHOOTOUT kicks
+  (`comments: "Penalty Shootout"`). Fixed Sept 2026 — before that an American's
+  own goal would have shown as his goal.
 - Player availability (`playerInjuryStatus`, added Sept 2026) comes from
   `/injuries?player&season` — fixture-dated missing/questionable rows with a reason,
   including upcoming fixtures a player is already ruled out of. Only rows within the

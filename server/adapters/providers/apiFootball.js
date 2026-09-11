@@ -178,7 +178,10 @@ function trackedOutExists(tracked, fx, pe) {
 function extractPlayerEvents(d) {
   const goals = new Map(), assists = new Map();
   for (const ev of d.events || []) {
-    if (ev.type === 'Goal' && !/Missed Penalty/i.test(ev.detail || '')) {
+    // A player's goals exclude missed penalties, own goals (the event names
+    // the player who put it in his own net) and penalty-shootout kicks.
+    if (ev.type === 'Goal' && !/Missed Penalty|Own Goal/i.test(ev.detail || '') &&
+      !/shootout/i.test(ev.comments || '')) {
       if (ev.player?.id) {
         if (!goals.has(ev.player.id)) goals.set(ev.player.id, []);
         goals.get(ev.player.id).push(ev.time?.elapsed);
