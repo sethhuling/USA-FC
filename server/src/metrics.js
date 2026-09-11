@@ -1,6 +1,7 @@
 // In-memory counters behind /api/admin/stats. Upstream request timestamps are
-// kept for 24h (7,500/day cap makes the array small); cache counters run since
-// boot — like the caches themselves, everything resets on restart.
+// kept for 24h (a few thousand entries on a typical day — trivial memory);
+// cache counters run since boot — like the caches themselves, everything
+// resets on restart.
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 

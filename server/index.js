@@ -77,7 +77,7 @@ app.use((req, res) => {
 const port = process.env.PORT || 8787;
 app.listen(port, () => {
   console.log(`[americans-abroad] listening on http://localhost:${port}`);
-  console.log(`[americans-abroad] data provider: ${require('../server/adapters/providers').name}`);
+  console.log(`[americans-abroad] data provider: ${require('./adapters/providers').name}`);
   // Cache warmer: full warm now, forced re-warm daily and after each match
   // window, so user opens never hit API-Football cold (see src/warm.js).
   require('./src/warm').start();

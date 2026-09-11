@@ -193,7 +193,6 @@ section h2.section-live { color: var(--live); }
 }
 .chip.scored { background: var(--scored-soft); color: var(--scored); }
 .match-bottom { margin-top: 8px; font-size: 0.75rem; color: var(--muted); }
-.stream-source { opacity: 0.75; }
 
 /* Stats */
 .preset-row { display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 2px; }
@@ -284,9 +283,6 @@ section h2.section-live { color: var(--live); }
   border: none; background: var(--border); color: var(--text);
   border-radius: 999px; width: 30px; height: 30px; font-size: 0.9rem; cursor: pointer;
 }
-.statline { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.9rem; }
-.statline td { padding: 7px 4px; border-bottom: 1px solid var(--border); }
-.statline .num { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* Players directory */
 .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }

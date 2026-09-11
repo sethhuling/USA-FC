@@ -44,9 +44,6 @@ Set `SEASON=2026` (season start year) if the auto-computed season is wrong for
 your plan. **The key never reaches the browser**; all upstream calls happen in
 the Node server.
 
-> Honesty note: the API-Football adapter is written to the documented v3 API but
-> was developed and verified against demo mode (no key was available in this
-> session). Expect possible small field-mapping fixes on first live run.
 > Known mapping caveat: API-Football exposes *blocks*, not true clearances — the
 > server's internal `clearances` field carries blocks, and the UI labels it
 > "Blocks" accordingly.
@@ -56,8 +53,11 @@ the Node server.
 England: Premier League, Championship, League One. Top 5: La Liga, Serie A,
 Bundesliga, Ligue 1. Plus: Liga MX, Eredivisie, Scottish Premiership,
 Primeira Liga (Portugal), Belgian Pro League, Süper Lig (Turkey),
-Brasileirão (Brazil), Liga Profesional (Argentina), Austrian Bundesliga,
-and Champions League / Europa League fixtures.
+Brasileirão (Brazil), Liga Profesional (Argentina), Austrian Bundesliga.
+Cup fixtures are tracked too: Champions League, Europa League, Conference
+League, and the domestic cups of the covered countries (FA Cup, EFL Cup,
+Copa del Rey, Coppa Italia, DFB Pokal, and so on) — the full list lives in
+[`server/config/coverage.json`](server/config/coverage.json).
 
 Note: API-Football reuses league names across countries (Brazil's top flight is
 named "Serie A", Austria's "Bundesliga"), so fixtures are always labeled with the
@@ -95,9 +95,10 @@ the free tier.
 
 ## Adding leagues
 
-1. Add the league id to `LEAGUE_IDS` in
-   [`server/adapters/providers/apiFootball.js`](server/adapters/providers/apiFootball.js)
-   (ids are in the API-Football docs).
+1. Add the league (name, API-Football id, country, FIFA code) to
+   [`server/config/coverage.json`](server/config/coverage.json)
+   (ids are in the API-Football docs), then `npm run build` — the client
+   bundles the same file at build time.
 2. Add a US broadcaster entry to
    [`server/config/streaming.json`](server/config/streaming.json).
 3. Add or discover players in that league.
@@ -145,8 +146,9 @@ the Render dashboard. To set one up from scratch:
 Notes:
 - The **free tier sleeps after ~15 min idle**; the next visitor waits ~a minute
   while it wakes and re-warms caches. Render's paid Starter tier stays always-on.
-- Anyone with the URL consumes your API-Football daily quota (7,500 req/day on
-  Pro). Caching keeps per-visitor cost near zero, but don't post the URL publicly.
+- Anyone with the URL consumes your API-Football daily quota (plan-dependent —
+  150,000 req/day on Mega). Caching keeps per-visitor cost near zero, but don't
+  post the URL publicly.
 - The server's disk on Render is ephemeral: fine for this app (players.json ships
   in the repo; resolved ids re-save on boot at trivial API cost).
 

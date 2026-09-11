@@ -441,8 +441,6 @@ async function matchDetail(fixtureId, tracked) {
 module.exports = {
   name: 'api-football',
   LEAGUE_IDS,
-  CUP_IDS,
-  api,
   season,
   diag,
   playerProfile,

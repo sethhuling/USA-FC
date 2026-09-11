@@ -8,7 +8,8 @@
 //                  refresh stats plus the caches of the teams that played
 // A fully cold warm is ~1,400 throttled calls (~6 min at api()'s 250ms spacing);
 // the daily forced warm re-fetches only expired/forced keys, ~400 calls. Both
-// fit the Pro plan's 7,500/day with room for several restarts.
+// are small against the Mega plan's 150,000/day — the per-minute burst limit,
+// not the daily cap, is what the throttle is protecting.
 const cache = require('./cache');
 const {
   getPlayers, getMatches, getLeagues, getPlayerProfile, getTeamOverview, trackedPlayers,
