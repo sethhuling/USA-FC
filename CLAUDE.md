@@ -409,6 +409,13 @@ preferences should route through this module rather than being hard-coded.
   oscillates on Android — Chrome's scroll anchoring shifts scrollY to compensate for
   the shrink, re-crossing the threshold in a loop. iOS Safari has no scroll anchoring,
   so iPhone testing will never catch a regression here.
+- Tappable topbar (Sept 2026): tapping the topbar smooth-scrolls to the top
+  (`scrollY > 8`, matching the re-expand threshold); tapping at the top goes
+  "home" — `setTab('schedule')` plus a bumped `scheduleResetKey` passed as
+  ScheduleTab's React `key`, remounting it in its freshly-opened state (default
+  Live & Upcoming view, filters cleared, scrolled to top). `onBrandTap` in
+  App.jsx; the whole header is the tap target (cursor/tap-highlight styles on
+  `.topbar` in styles.css).
 
 ## Conventions
 
