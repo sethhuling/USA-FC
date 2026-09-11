@@ -161,9 +161,19 @@ built to stay legally above board (see "News legal rules" below):
   injury news scan" routine (08:00 UTC daily). Both run without Seth's Mac;
   the old local desktop tasks of the same names are disabled — don't
   re-enable them alongside the routines. Cloud runs can only open sites on
-  that environment's network allowlist (claude.ai/code → environment
-  settings → Network access); a blocked publisher can't be verified, so its
-  stories are dropped, and each run's report lists blocked domains. It pushes only
+  that environment's network allowlist; a blocked publisher can't be
+  verified, so its stories are dropped, and each run's report lists blocked
+  domains. Since Sept 11, 2026 "USFC website" uses a CUSTOM allowlist of the
+  app itself plus major outlets (ESPN, Guardian, U.S. Soccer, Goal, CBS, Fox,
+  Yahoo Sports, SI, USA Today, SBI, American Soccer Now, Stars and Stripes FC,
+  NYT/The Athletic, Reuters, AP, BBC, Sky Sports) — chosen over Full access
+  because these runs can push to main. Add a domain there when run reports
+  keep listing it (e.g. soccerwire.com was blocked on the first run). Editing
+  it: claude.ai/code/routines → routine → pencil → cloud icon under
+  Instructions → HOVER the environment row → gear icon → Network access. The
+  gear only appears on mouse hover, so it can't be done from the iPad/phone.
+  Verification falls back to `curl` + og:title/published_time when WebFetch
+  refuses a site (USA Today, Reuters, AP). It pushes only
   news.json and only when a run ADDED a link, because every push redeploys
   (restart → cold caches, full startup warm + roster sync, ~2,400 calls).
   Those restarts often land mid-match, which is why warm.js starts
@@ -453,7 +463,10 @@ preferences should route through this module rather than being hard-coded.
   linking out (new tab, never framed or shown in-app), the publisher name as
   plain text, the date, a "Subscriber" tag when paywalled, and tagged-player
   chips (PlayerLink). Never add snippets, thumbnails, publisher logos, or an
-  in-app reader view for outside stories — see News legal rules. A roundup
+  in-app reader view for outside stories — see News legal rules. No artwork
+  or photos of our own either (branded tiles, licensed player photos were
+  offered; user declined Sept 2026: "leave it as is") — the list stays
+  text-only. A roundup
   teaser (red left rule, "Daily Roundup" kicker, serif headline + 2-line dek,
   "Uncle Sam FC" as source) opens `RoundupArticle`, an article-styled sheet:
   headline, dek, byline ("Written automatically from match data"), one
