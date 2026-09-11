@@ -343,6 +343,12 @@ preferences should route through this module rather than being hard-coded.
   list is displayed only in the full profile sheet ("Also eligible" row in
   PlayerProfile.jsx) — deliberately not on hover cards, Players-tab cards, or
   the leaderboard.
+- Profile sheet bio grid (PlayerProfile.jsx): NO Nationality row — every tracked
+  player is USA by definition, so it was removed (user preference, Sept 2026);
+  don't re-add it. The Profile section renders only when at least one row has
+  content (Born, Hometown, Height, Weight, or Also eligible) — Nationality used
+  to be its only guaranteed row, so without this guard an empty "Profile" box
+  could appear.
 - Injury banner (PlayerProfile.jsx, Sept 2026; user wants it BRIEF): `profile.injury`
   renders a red banner in the profile sheet and a one-line note on the hover card.
   Headline = the injury name itself ("Hamstring Injury"); the classifying label
