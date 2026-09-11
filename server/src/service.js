@@ -6,6 +6,7 @@ const streaming = require('../adapters/streaming');
 
 const TTL = {
   profile: 7 * 24 * 60 * 60 * 1000, // bio/career: weekly
+  injury: 12 * 60 * 60 * 1000, // injury/availability reports: twice a day
 
   stats: 24 * 60 * 60 * 1000, // player season stats: daily
   schedule: 60 * 60 * 1000,   // fixtures: hourly
@@ -217,6 +218,26 @@ function withHometown(profile, id) {
   };
 }
 
+// Hand-verified injury notes (server/data/injury-notes.json): press/club-sourced
+// expected-return text and more specific injury names than the API's labels.
+// Applied only to an ACTIVE API injury report, so a stale note self-cleans the
+// moment the API stops flagging the player. Read fresh each call, like
+// hometowns.json, so hand-edits apply without a restart.
+function withInjuryNote(injury, id) {
+  if (!injury) return injury;
+  let entry;
+  try {
+    const file = path.join(__dirname, '..', 'data', 'injury-notes.json');
+    entry = JSON.parse(fs.readFileSync(file, 'utf8'))[id];
+  } catch { return injury; }
+  if (!entry) return injury;
+  return {
+    ...injury,
+    ...(entry.reason ? { reason: entry.reason } : {}),
+    ...(entry.expectedReturn ? { expectedReturn: entry.expectedReturn } : {}),
+  };
+}
+
 async function getPlayerProfile(id) {
   const p = trackedPlayers().find((x) => x.id === id);
   if (!p) return null;
@@ -232,6 +253,14 @@ async function getPlayerProfile(id) {
       );
       profile = { ...profile, upcoming };
     } catch { /* profile still useful without fixtures */ }
+  }
+  // Injury/availability report lives outside the 7d profile cache — it changes
+  // week to week. null (fit) is cached too, so fit players cost one call per TTL.
+  if (provider.playerInjuryStatus) {
+    try {
+      const injury = await cache.wrap(`injury:${id}`, TTL.injury, () => provider.playerInjuryStatus(p));
+      profile = { ...profile, injury: withInjuryNote(injury, id) };
+    } catch { /* profile still useful without it */ }
   }
   // Current-season stats come from the (fresher) players cache when available.
   try {

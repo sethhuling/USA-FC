@@ -105,8 +105,8 @@ page. Like the caches, counters reset on every restart (`serverStartedAt` in the
 response says when).
 
 Cache TTLs (service.js): player stats 24h, schedules 1h, live overlay 60s, player
-profiles 7d (upcoming fixtures separately at 1h), team pages 6h, finished-match
-details 30d. Match details use two keys: `match:<id>` (60s, live/upcoming) and
+profiles 7d (upcoming fixtures separately at 1h, injury reports at 12h), team pages
+6h, finished-match details 30d. Match details use two keys: `match:<id>` (60s, live/upcoming) and
 `match-final:<id>` (30d) — `getMatchDetail` serves the long-lived copy first, and
 both it and the badge backfill write to it, but ONLY details whose status is
 actually `finished` (a null or still-live detail must never be long-cached).
@@ -152,6 +152,15 @@ fetches at most 15 uncached per request, newest first).
 - Squad status: `start`/`on`/`bench`/`out` per tracked player. "Subbed on" is detected
   from per-player minutes, NOT substitution events (the API's in/out field order is
   unreliable). `out` + fixture injury report → `outInjured` (red cross in UI).
+- Player availability (`playerInjuryStatus`, added Sept 2026) comes from
+  `/injuries?player&season` — fixture-dated missing/questionable rows with a reason,
+  including upcoming fixtures a player is already ruled out of. Only rows within the
+  last 10 days or in the future count as "current". Do NOT use `/sidelined` for
+  "injured now": its open-ended entries never get closed (Cardoso carried a
+  year-old "Ankle Injury" while starting weekly). The API publishes no
+  expected-return date, so `expectedReturn` is always null and the UI shows
+  "Unknown" — never invent one. Cached as `injury:<id>` (12h) in service.js,
+  merged into the profile payload as `profile.injury` (null = fit, also cached).
 
 ## Data sources (server/adapters/)
 
@@ -242,6 +251,16 @@ preferences should route through this module rather than being hard-coded.
   restart. Only add entries verified against a real source — city names repeat
   across states (Clovis NM vs CA, Birmingham AL vs MI). New roster additions won't
   have an entry until one is added by hand.
+- `injury-notes.json` — hand-verified injury notes keyed by player id:
+  press/club-sourced `expectedReturn` free text ("around Christmas") and a more
+  specific `reason` than the API's label ("Quad Injury" where the API says
+  "Muscle Injury"), each with a `source` URL and `verified` date. Merged by
+  `withInjuryNote()` in service.js ONLY onto an active API injury report, so a
+  stale note self-cleans when the API stops flagging the player. Read fresh
+  each call — edits need no restart. Only add entries verified against a real
+  source (the API publishes no return dates; this file is the ONLY place they
+  come from). No automated news scraping — the notes are refreshed by hand
+  (ask Claude to re-check the news for currently flagged players).
 - `demo/` — demo-mode dataset (fixtures generated relative to server start, includes a
   simulated live match so the 60s poll path works keyless).
 
@@ -288,6 +307,16 @@ preferences should route through this module rather than being hard-coded.
   list is displayed only in the full profile sheet ("Also eligible" row in
   PlayerProfile.jsx) — deliberately not on hover cards, Players-tab cards, or
   the leaderboard.
+- Injury banner (PlayerProfile.jsx, Sept 2026; user wants it BRIEF): `profile.injury`
+  renders a red banner in the profile sheet and a one-line note on the hover card.
+  Headline = the injury name itself ("Hamstring Injury"); the classifying label
+  (Injured / Doubtful / Suspended / Unavailable) stands in only when the reason
+  is missing or the bare word "Injury". Detail is one line: "Injured Sep 2 ·
+  Expected return late October" ("Out since …" for non-injury absences,
+  "Doubtful for the … fixture" for questionable). Expected return comes only
+  from hand-verified injury-notes.json; "unknown" otherwise — never fabricate
+  one. Demo mode simulates Pulisic (out, with a return note) and Cardoso
+  (doubtful) so the banner is testable offline.
 - The service worker (`public/sw.js`) is network-first for `/api/` and navigations so
   deploys and live scores are never stale; bump its cache name if you change caching.
 - An open `MatchSheet` on a live match re-pulls detail every 60s

@@ -361,6 +361,52 @@ async function playerProfile(p) {
   return { player: p, bio, career, national, transfers };
 }
 
+// Current availability from the API's fixture-level injury reports
+// (/injuries?player&season): dated fixtures the player is listed as missing or
+// questionable for — including upcoming ones — each with a reason. That's what
+// we report, verbatim. The /sidelined endpoint is NOT used for "injured now":
+// its open-ended entries never get closed (a year-old "Ankle Injury" persists
+// on players who start every week). The API publishes no expected-return date,
+// so none is shown — only fixture dates the report actually names.
+async function playerInjuryStatus(p) {
+  const id = p.apiFootballId;
+  if (!id) return null;
+  const resp = await api('/injuries', { player: id, season: season() });
+  // The same absence appears once per competition — dedupe by fixture date.
+  const rows = [];
+  const seen = new Set();
+  for (const r of resp || []) {
+    const date = r.fixture?.date?.slice(0, 10);
+    if (!date || seen.has(date)) continue;
+    seen.add(date);
+    rows.push({ date, type: r.player?.type || null, reason: r.player?.reason || null });
+  }
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+  const today = new Date().toISOString().slice(0, 10);
+  const cutoff = new Date(Date.now() - 10 * 864e5).toISOString().slice(0, 10);
+  // Only a report within the last 10 days (or for an upcoming fixture) counts
+  // as current — older rows are history, the player may long since be back.
+  const current = rows.filter((r) => r.date >= cutoff);
+  if (!current.length) return null;
+  const latest = current[current.length - 1];
+  // Walk back through the contiguous same-reason run so "since" spans the whole
+  // absence even where it started before the 10-day window.
+  let since = latest.date;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    if (rows[i].reason === latest.reason) since = rows[i].date;
+    else break;
+  }
+  return {
+    reason: latest.reason,
+    status: /questionable/i.test(latest.type || '') ? 'doubtful' : 'out',
+    since,                                                  // first fixture of the run
+    lastListed: latest.date,                                // most recent fixture named
+    upcomingRuledOut: latest.date > today ? latest.date : null,
+    missedCount: rows.filter((r) => r.reason === latest.reason && r.date >= since && r.date <= today).length,
+    expectedReturn: null, // API-Football does not publish one
+  };
+}
+
 // Fixture payloads name the venue and city but not its country; /venues has it.
 // Stadiums don't move, so one lookup per venue for the life of the process.
 const venueLocations = new Map();
@@ -444,6 +490,7 @@ module.exports = {
   season,
   diag,
   playerProfile,
+  playerInjuryStatus,
   matchDetail,
   leagueRounds,
   teamOverview,

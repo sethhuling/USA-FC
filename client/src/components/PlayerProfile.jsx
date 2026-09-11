@@ -48,6 +48,54 @@ function seasonLabel(y) {
   return `${y}/${String((y + 1) % 100).padStart(2, '0')}`;
 }
 
+/* ---------- Injury / availability (server: API-Football injury reports) ---------- */
+// Noon anchor so a bare YYYY-MM-DD never shifts a day in US timezones.
+function fmtDay(d) {
+  return new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// The report's reason is shown verbatim, but the headline distinguishes real
+// injuries from suspensions and squad omissions the same feed reports.
+function injuryLabel(inj) {
+  if (/suspend/i.test(inj.reason || '')) return 'Suspended';
+  if (inj.status === 'doubtful') return 'Doubtful';
+  if (inj.reason && !/inactive|coach|national|international|personal|rest/i.test(inj.reason)) {
+    return 'Injured';
+  }
+  return 'Unavailable';
+}
+
+// Headline is the injury itself ("Hamstring Injury"); the classifying label
+// stands in when the API's reason is missing or just the bare word "Injury".
+function injuryTitle(inj) {
+  const reason = (inj.reason || '').trim();
+  if (!reason || /^injur(y|ed)$/i.test(reason)) return injuryLabel(inj);
+  return reason;
+}
+
+// expectedReturn is either an API date (never happens today — the API has no
+// such field) or hand-verified free text from injury-notes.json ("late October").
+function fmtReturn(v) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? fmtDay(v) : v;
+}
+
+function InjuryBanner({ inj }) {
+  const label = injuryLabel(inj);
+  const when = label === 'Doubtful'
+    ? (inj.upcomingRuledOut ? `Doubtful for the ${fmtDay(inj.upcomingRuledOut)} fixture` : 'Doubtful')
+    : `${label === 'Injured' ? 'Injured' : 'Out since'} ${fmtDay(inj.since)}`;
+  const ret = `Expected return ${inj.expectedReturn ? fmtReturn(inj.expectedReturn) : 'unknown'}`;
+  return (
+    <div className="injury-banner">
+      <span className="inj-cross banner-cross">✚</span>
+      <div>
+        <div className="injury-title">{injuryTitle(inj)}</div>
+        <div className="injury-detail">{when} · {ret}</div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Hover preview card ---------- */
 function HoverCard({ player, profile, pos }) {
   const bio = profile?.bio;
@@ -74,6 +122,12 @@ function HoverCard({ player, profile, pos }) {
               hometown(bio),
             ].filter(Boolean).join(' · ') : 'Loading profile…'}
           </div>
+          {profile?.injury && (
+            <div className="hovercard-sub hovercard-injury">
+              <span className="inj-cross">✚</span>
+              {injuryTitle(profile.injury)}
+            </div>
+          )}
         </div>
       </div>
       {s && (
@@ -168,6 +222,8 @@ function ProfileSheet({ player, onClose }) {
           </div>
           <button className="close" onClick={onClose} aria-label="Close">✕</button>
         </div>
+
+        {profile?.injury && <InjuryBanner inj={profile.injury} />}
 
         {!profile && !failed && <p className="empty">Loading full profile…</p>}
         {failed && <p className="empty">Couldn’t load the extended profile right now.</p>}

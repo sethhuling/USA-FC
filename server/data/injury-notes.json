@@ -1,0 +1,27 @@
+{
+  "_readme": "Hand-verified injury notes keyed by player id. Merged onto an ACTIVE API injury report only (self-cleaning: ignored once the API stops flagging the player). reason overrides the API's label when press/club info is more specific; expectedReturn is free text shown verbatim. Only add entries verified against a real source — never guess. Read fresh each call, so edits need no restart.",
+  "agyemang-patrick": {
+    "reason": "Ruptured Achilles",
+    "expectedReturn": "around Christmas",
+    "source": "https://the72.co.uk/2026/04/24/derby-county-potential-patrick-agyemang-return-date/ (John Eustace, Apr 24 2026)",
+    "verified": "2026-09-10"
+  },
+  "balogun-folarin": {
+    "reason": "Knee Injury",
+    "expectedReturn": "mid-September",
+    "source": "https://ca.sports.yahoo.com/news/folarin-balogun-almost-fit-monaco-081000344.html (L'Équipe via Yahoo, Sep 9 2026 — targeting the Lens match)",
+    "verified": "2026-09-10"
+  },
+  "wright-haji": {
+    "reason": "Quad Injury",
+    "expectedReturn": "mid-November",
+    "source": "https://www.ccfc.co.uk/news/2026/august/19/head-coach-frank-lampard-provides-an-update-on-haji-wright/ (Frank Lampard: up to 12 weeks, Aug 2026)",
+    "verified": "2026-09-10"
+  },
+  "mckennie-weston": {
+    "reason": "Muscle Fatigue",
+    "expectedReturn": "mid-September",
+    "source": "https://www.rotowire.com/soccer/headlines/weston-mckennie-injury-wont-return-against-milan-531158 (day-to-day per Juventus, Sep 2026)",
+    "verified": "2026-09-10"
+  }
+}

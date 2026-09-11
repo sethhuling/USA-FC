@@ -72,6 +72,21 @@ module.exports = {
     return { player: { ...p, stats: STATS[p.id] || null }, bio: null,
       career: [], national: [], transfers: [], demo: true };
   },
+  // One simulated ongoing injury (and one doubtful) so the profile's injury
+  // banner can be exercised offline. Dates are relative to "now" like fixtures.
+  async playerInjuryStatus(p) {
+    const day = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+    if (p.id === 'pulisic-christian') {
+      return { reason: 'Hamstring Injury', status: 'out', since: day(-9),
+        lastListed: day(3), upcomingRuledOut: day(3), missedCount: 2,
+        expectedReturn: 'late October' };
+    }
+    if (p.id === 'cardoso-johnny') {
+      return { reason: 'Knock', status: 'doubtful', since: day(2),
+        lastListed: day(2), upcomingRuledOut: day(2), missedCount: 0, expectedReturn: null };
+    }
+    return null;
+  },
   async seasonStats(tracked) {
     // Deterministic simulated age (18–32) so the Stats tab's age filter can be
     // exercised offline; real roster capTied flags pass through untouched.
