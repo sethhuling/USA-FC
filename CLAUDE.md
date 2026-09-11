@@ -305,7 +305,11 @@ preferences should route through this module rather than being hard-coded.
   and that style block in sync.
 - Stats tab filters (Sept 2026): one Filters button (active-count badge) opens a
   panel holding every filter — league toggles (moved from the old always-visible
-  row), multi-select position and age-range chips (empty selection = All; picking
+  row; grouped under country headings in a fixed user-chosen order — England,
+  Spain, Italy, Germany, France, Scotland, Belgium, Netherlands, Austria,
+  Mexico, Brazil, Argentina, then unlisted countries alphabetically — with
+  leagues inside a country in coverage.json order, top tier first, via
+  `leagueRank()` in leagues.js), multi-select position and age-range chips (empty selection = All; picking
   every option collapses back to All), a 0→max minimum-minutes slider (max is the
   roster's top minutes total, so it grows with the season), cap-tied
   Include/Hide, and other-country eligibility All/Eligible/Not eligible. The
