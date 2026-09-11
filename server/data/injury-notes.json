@@ -2,9 +2,9 @@
   "_readme": "Hand-verified injury notes keyed by player id. Merged onto an ACTIVE API injury report only (self-cleaning: ignored once the API stops flagging the player). reason overrides the API's label when press/club info is more specific; expectedReturn is free text shown verbatim. Only add entries verified against a real source — never guess. Read fresh each call, so edits need no restart.",
   "agyemang-patrick": {
     "reason": "Ruptured Achilles",
-    "expectedReturn": "around Christmas",
-    "source": "https://the72.co.uk/2026/04/24/derby-county-potential-patrick-agyemang-return-date/ (John Eustace, Apr 24 2026)",
-    "verified": "2026-09-10"
+    "expectedReturn": "November/December",
+    "source": "https://ca.sports.yahoo.com/news/eustace-gives-latest-injured-derby-154000463.html (John Eustace: \"around November, December time, I think, with Pat\", Sep 2026)",
+    "verified": "2026-09-11"
   },
   "balogun-folarin": {
     "reason": "Knee Injury",
