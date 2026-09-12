@@ -238,6 +238,27 @@ function bestStat(s, { cleanSheet }) {
   return c[0] && c[0].score >= HIGHLIGHT_MIN ? c[0].text : null;
 }
 
+// Raw numbers behind the day article's "American stats" readout at the bottom
+// of each roundup (rendered client-side with the same tiles as the MatchSheet's
+// American stats window). Same null rules as those tiles: inside a stat line
+// that exists an absent count means 0, while a player with no stat line at all
+// (lower-division cup ties) claims nothing (null) — except goals and assists,
+// which fall back to the event-derived lists like the match view does.
+function dayStatLine(tp, d, team) {
+  const st = d.trackedStats?.[tp.playerId] || null;
+  const z = (v) => (st ? (v ?? 0) : null);
+  return {
+    id: tp.playerId, name: tp.name, team, status: tp.squadStatus,
+    minutes: st ? (st.minutes ?? 0) : (tp.minutes ?? null),
+    goals: st ? (st.goals ?? 0) : (tp.goals?.length ?? null),
+    assists: st ? (st.assists ?? 0) : (tp.assists?.length ?? null),
+    tackles: z(st?.tackles), interceptions: z(st?.interceptions), blocks: z(st?.blocks),
+    keyPasses: z(st?.keyPasses), passes: z(st?.passes), passesAccurate: z(st?.passesAccurate),
+    yellow: z(st?.yellow), red: z(st?.red),
+    shotsOn: z(st?.shotsOn), duelsWon: z(st?.duelsWon),
+  };
+}
+
 // One club match → sentences about every tracked American who started, came
 // on, featured (start/sub unknown), or sat unused on the bench. Players left
 // out of the squad aren't mentioned.
@@ -257,6 +278,7 @@ function clubEntry(d, rosterById) {
 
   const sentences = [];
   const scorers = [];
+  const statLines = [];
   let contextGiven = false;
   for (const side of ['home', 'away']) {
     const list = involved
@@ -284,6 +306,7 @@ function clubEntry(d, rosterById) {
       }
       contextGiven = true;
       if (tp.squadStatus === 'bench') return;
+      statLines.push(dayStatLine(tp, d, team));
 
       const parts = [];
       if (tp.squadStatus === 'start' && !f.subOff && !f.red) {
@@ -335,6 +358,7 @@ function clubEntry(d, rosterById) {
     // For the article's headline/summary and story order.
     played: involved.filter((tp) => tp.squadStatus !== 'bench').map((tp) => tp.playerId),
     scorers,
+    statLines,
   };
 }
 

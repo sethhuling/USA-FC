@@ -265,6 +265,23 @@ built to stay legally above board (see "News legal rules" below):
   minutes are still never claimed there (the API's sub in/out slot order is
   unreliable and there is no lineup to disambiguate it), and an American who
   featured without an event to his name is still unknowable, so still unnamed.
+  Day stat readout (user request, Sept 2026): every club entry also carries
+  `statLines` — one raw stat line per American who took the pitch (unused
+  subs excluded), built by `dayStatLine()` in news.js with the SAME null
+  rules as the match-sheet tiles (absent count on an existing line = 0, no
+  stat line at all = null, goals/assists fall back to the event lists). The
+  client renders them at the BOTTOM of each roundup article as an "American
+  stats" section (`DayAmericanStats` in NewsTab.jsx): an "All Americans"
+  combined block (skipped when only one player played), then one block per
+  player ordered like the match view (minutes desc, unknown sinks, ties on
+  displayed name), each the same `.stat-tiles` grid but 16 tiles / 4 rows of
+  4 — Apps, Starts, Minutes, Goals, Assists, Tackles, Intercepts, Blocks,
+  Def. actions, Key passes, Passes, Pass %, Yellows, Reds, Shots on target,
+  Duels won (the last two picked to round the user's 14 out to a 4×4 grid;
+  swap candidates already on statLines' source `trackedStats`: dribbles,
+  saves, foulsDrawn, penWon/penSaved). A same-day double appearance merges
+  into one line (`apps: 2`, role tag "2 apps"); Pass % and Def. actions are
+  derived client-side exactly as the match view derives them.
   Cached as `roundup` (1h, 5 min when a detail
   failed); built LAST in every warm (after profiles, so the badge backfill has
   already cached the details it needs — ~180 calls when fully cold) and
