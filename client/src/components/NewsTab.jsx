@@ -77,14 +77,11 @@ function RoundupTeaser({ day, onOpen }) {
 }
 
 /* ---------- Day stat readout ("American stats" at the bottom of a roundup) ---------- */
-// Same look and rules as the MatchSheet's American stats window, but covering
-// every American who took the pitch that day (unused subs are skipped). Each
-// player gets the 16-tile grid below; an "All Americans" block on top combines
-// everyone. Values arrive as raw numbers on each match's statLines (built
-// server-side in news.js with the match-tile null rules: null means "no stat
-// line at all", rendered as —).
-
-const DAY_ROLE = { start: 'Started', on: 'Off the bench', played: 'Featured' };
+// ONE combined "All Americans" block covering everyone who took the pitch that
+// day (user request, Sept 2026 — no per-player blocks here; those live in each
+// match's MatchSheet). Same tiles and null rules as the MatchSheet's American
+// stats window; values arrive as raw numbers on each club match's statLines
+// (built server-side in news.js — null means "no stat line at all").
 
 // Nullable add: two unknowns stay unknown; otherwise an unknown counts as 0.
 const addN = (a, b) => (a == null && b == null ? null : (a || 0) + (b || 0));
@@ -92,41 +89,17 @@ const addN = (a, b) => (a == null && b == null ? null : (a || 0) + (b || 0));
 const SUM_KEYS = ['minutes', 'goals', 'assists', 'tackles', 'interceptions', 'blocks',
   'keyPasses', 'passes', 'passesAccurate', 'yellow', 'red', 'shotsOn', 'duelsWon'];
 
-// One line per player across the day's matches (a same-day double appearance
-// merges into apps: 2), ordered like the match view: most minutes first, ties
-// alphabetically, unknown minutes last.
-function dayStatLines(matches) {
-  const byId = new Map();
-  for (const m of matches) {
-    for (const l of m.statLines || []) {
-      const prev = byId.get(l.id);
-      if (!prev) {
-        byId.set(l.id, { ...l, apps: 1, starts: l.status === 'start' ? 1 : 0 });
-      } else {
-        prev.apps += 1;
-        prev.starts += l.status === 'start' ? 1 : 0;
-        for (const k of SUM_KEYS) prev[k] = addN(prev[k], l[k]);
-      }
-    }
-  }
-  return [...byId.values()].sort((a, b) => {
-    if (a.minutes !== b.minutes) {
-      if (a.minutes == null) return 1;
-      if (b.minutes == null) return -1;
-      return b.minutes - a.minutes;
-    }
-    return a.name.localeCompare(b.name);
-  });
-}
-
-function combineLines(lines) {
-  const total = { apps: 0, starts: 0 };
-  for (const k of SUM_KEYS) total[k] = null;
-  for (const l of lines) {
-    total.apps += l.apps;
-    total.starts += l.starts;
-    for (const k of SUM_KEYS) total[k] = addN(total[k], l[k]);
-  }
+// Each stat line is one appearance, so apps is simply the line count (a player
+// featuring twice in one day counts twice — that's two appearances).
+function combineDay(matches) {
+  const lines = matches.flatMap((m) => m.statLines || []);
+  if (!lines.length) return null;
+  const total = {
+    apps: lines.length,
+    starts: lines.filter((l) => l.status === 'start').length,
+    players: new Set(lines.map((l) => l.id)).size,
+  };
+  for (const k of SUM_KEYS) total[k] = lines.reduce((t, l) => addN(t, l[k]), null);
   return total;
 }
 
@@ -145,40 +118,26 @@ function dayStatTiles(l) {
   ];
 }
 
-function StatBlock({ name, role, line }) {
-  return (
-    <div className="player-stat-block">
-      <p className="player-stat-name">{name}<span className="role">{role}</span></p>
-      <div className="stat-tiles">
-        {dayStatTiles(line).map(([k, v]) => (
-          <div key={k} className="stat-tile">
-            <span className="val">{v ?? '—'}</span>
-            <span className="lab">{k}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function DayAmericanStats({ day, playersById }) {
-  const lines = dayStatLines(day.matches);
-  if (!lines.length) return null;
+function DayAmericanStats({ day }) {
+  const total = combineDay(day.matches);
+  if (!total) return null;
   return (
     <section className="p-section">
       <h4 className="profile-h">American stats</h4>
-      {lines.length > 1 && (
-        <StatBlock name="All Americans" role={`${lines.length} players`} line={combineLines(lines)} />
-      )}
-      {lines.map((l) => {
-        const p = playersById.get(l.id);
-        return (
-          <StatBlock key={l.id}
-            name={p ? <PlayerLink player={p}>{l.name}</PlayerLink> : l.name}
-            role={`${l.apps > 1 ? `${l.apps} apps` : DAY_ROLE[l.status] || 'Played'} · ${l.team}`}
-            line={l} />
-        );
-      })}
+      <div className="player-stat-block">
+        <p className="player-stat-name">
+          All Americans
+          <span className="role">{total.players} player{total.players === 1 ? '' : 's'}</span>
+        </p>
+        <div className="stat-tiles">
+          {dayStatTiles(total).map(([k, v]) => (
+            <div key={k} className="stat-tile">
+              <span className="val">{v ?? '—'}</span>
+              <span className="lab">{k}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -207,7 +166,7 @@ function RoundupArticle({ day, playersById, onClose, onOpenMatch }) {
             </section>
           ))}
         </div>
-        <DayAmericanStats day={day} playersById={playersById} />
+        <DayAmericanStats day={day} />
       </article>
     </div>,
     document.body,

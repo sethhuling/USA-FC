@@ -271,17 +271,17 @@ built to stay legally above board (see "News legal rules" below):
   rules as the match-sheet tiles (absent count on an existing line = 0, no
   stat line at all = null, goals/assists fall back to the event lists). The
   client renders them at the BOTTOM of each roundup article as an "American
-  stats" section (`DayAmericanStats` in NewsTab.jsx): an "All Americans"
-  combined block (skipped when only one player played), then one block per
-  player ordered like the match view (minutes desc, unknown sinks, ties on
-  displayed name), each the same `.stat-tiles` grid but 16 tiles / 4 rows of
-  4 — Apps, Starts, Minutes, Goals, Assists, Tackles, Intercepts, Blocks,
-  Def. actions, Key passes, Passes, Pass %, Yellows, Reds, Shots on target,
-  Duels won (the last two picked to round the user's 14 out to a 4×4 grid;
-  swap candidates already on statLines' source `trackedStats`: dribbles,
-  saves, foulsDrawn, penWon/penSaved). A same-day double appearance merges
-  into one line (`apps: 2`, role tag "2 apps"); Pass % and Def. actions are
-  derived client-side exactly as the match view derives them.
+  stats" section (`DayAmericanStats` in NewsTab.jsx): ONE combined
+  "All Americans" block — the user asked for combined only, no per-player
+  blocks (those live in each match's MatchSheet), so don't re-add them —
+  using the same `.stat-tiles` grid but 16 tiles / 4 rows of 4 — Apps (=
+  appearances that day), Starts, Minutes, Goals, Assists, Tackles,
+  Intercepts, Blocks, Def. actions, Key passes, Passes, Pass %, Yellows,
+  Reds, Shots on target, Duels won (the last two picked to round the user's
+  14 out to a 4×4 grid; swap candidates already on statLines' source
+  `trackedStats`: dribbles, saves, foulsDrawn, penWon/penSaved). Pass % and
+  Def. actions are derived client-side exactly as the match view derives
+  them; a stat unknown for the whole day (every line null) renders —.
   Cached as `roundup` (1h, 5 min when a detail
   failed); built LAST in every warm (after profiles, so the badge backfill has
   already cached the details it needs — ~180 calls when fully cold) and
