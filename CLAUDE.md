@@ -448,7 +448,11 @@ preferences should route through this module rather than being hard-coded.
   "This season" uses: minutes, goals, assists, tackles, intercepts, blocks,
   def. actions, key passes, passes, pass %, yellows, reds. Values come from
   `trackedStats[playerId]` on the match detail (`matchStatTiles()` in
-  MatchSheet.jsx). Rules: a zero comes back as null inside an API-Football
+  MatchSheet.jsx). Blocks are ordered by MINUTES PLAYED, most first (user
+  request), ties broken alphabetically on the DISPLAYED name (so "Antonee
+  Robinson" before "Weston McKennie" — not by surname); a player whose minutes
+  are unknown, meaning no stat line, sinks to the bottom instead of sorting as
+  a zero. Rules: a zero comes back as null inside an API-Football
   player stat line, so an absent count on a line that EXISTS renders 0, while a
   player with no stat line at all (lower-division cup ties) renders "—"
   everywhere except goals/assists, which fall back to the event-derived arrays

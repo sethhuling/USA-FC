@@ -92,6 +92,13 @@ function LineupSide({ side, playersById, events }) {
 // (cup ties with no lineups) featured on the evidence of an event.
 const ROLE_LABEL = { start: 'Started', on: 'Off the bench', played: 'Featured' };
 
+// Minutes for this match: the stat line when there is one (a null count on a
+// line that exists really is 0), else whatever the fixture knew. null means
+// genuinely unknown — no stat line at all — not zero.
+function minutesOf(tp, st) {
+  return st ? (st.minutes ?? 0) : (tp.minutes ?? null);
+}
+
 // Same twelve tiles as the profile sheet's "This season", for this match only.
 // Inside an API-Football player stat line a zero comes back as null, so an
 // absent count on a line that exists is shown as 0; with no stat line at all
@@ -104,7 +111,7 @@ function matchStatTiles(tp, st) {
   const passPct = st?.passes > 0 && st.passesAccurate != null
     ? `${Math.round((100 * st.passesAccurate) / st.passes)}%` : null;
   return [
-    ['Minutes', st ? (st.minutes ?? 0) : (tp.minutes ?? null)],
+    ['Minutes', minutesOf(tp, st)],
     ['Goals', st ? (st.goals ?? 0) : (tp.goals?.length ?? null)],
     ['Assists', st ? (st.assists ?? 0) : (tp.assists?.length ?? null)],
     ['Tackles', tackles], ['Intercepts', intercepts], ['Blocks', blocks],
@@ -119,12 +126,26 @@ function matchStatTiles(tp, st) {
 }
 
 function AmericanStats({ detail, playersById }) {
-  const played = (detail?.trackedPlayers || []).filter((tp) => ROLE_LABEL[tp.squadStatus]);
+  // Most minutes first (user request), ties broken alphabetically on the
+  // displayed name. A player whose minutes are unknown (no stat line) sinks to
+  // the bottom rather than sorting as if he'd played zero.
+  const played = (detail?.trackedPlayers || [])
+    .filter((tp) => ROLE_LABEL[tp.squadStatus])
+    .map((tp) => ({ tp, st: detail.trackedStats?.[tp.playerId] || null }))
+    .sort((x, y) => {
+      const mx = minutesOf(x.tp, x.st), my = minutesOf(y.tp, y.st);
+      if (mx !== my) {
+        if (mx == null) return 1;
+        if (my == null) return -1;
+        return my - mx;
+      }
+      return x.tp.name.localeCompare(y.tp.name);
+    });
   if (played.length === 0) return null;
   return (
     <section className="p-section">
       <h4 className="profile-h">American stats</h4>
-      {played.map((tp) => {
+      {played.map(({ tp, st }) => {
         const tracked = playersById.get(tp.playerId);
         return (
           <div key={tp.playerId} className="player-stat-block">
@@ -133,7 +154,7 @@ function AmericanStats({ detail, playersById }) {
               <span className="role">{ROLE_LABEL[tp.squadStatus]}</span>
             </p>
             <div className="stat-tiles">
-              {matchStatTiles(tp, detail.trackedStats?.[tp.playerId] || null).map(([k, v]) => (
+              {matchStatTiles(tp, st).map(([k, v]) => (
                 <div key={k} className="stat-tile">
                   <span className="val">{v ?? '—'}</span>
                   <span className="lab">{k}</span>
