@@ -555,6 +555,21 @@ preferences should route through this module rather than being hard-coded.
   of 4 on the sheet. The raw Passes tile was removed (user preference, Sept
   2026) because a 13th tile pushed the grid onto an ugly 4th line — Pass %
   stays. Don't re-add Passes, and adding any new tile means removing one.
+- Career table season spells (user request, Sept 2026): consecutive seasons at
+  the same club collapse into ONE row ("2019-2024 · 5 seasons") carrying the
+  summed apps/goals/assists/minutes; clicking it — Enter/Space too, the row is
+  a focusable button — drops the individual seasons in beneath it, each
+  labelled with that season's competition and its own numbers. `groupSpells()`
+  in PlayerProfile.jsx matches a run by club PLUS the adjoining season, never
+  by row position: one season can carry two clubs (Donovan Pines was at
+  Barnsley AND DC United in 2023), which breaks a positional scan for whichever
+  club sorts second. Spans follow the table's own season labels, so the seasons
+  shown as 2021/22 through 2023/24 read "2021-2024"; a lone season renders
+  exactly as before, with no caret and nothing clickable. The NATIONAL-team
+  table deliberately keeps its flat per-season rows — it was grouped the same
+  way in the same session and the user reverted it, so don't re-apply the
+  grouping there (`SeasonTable` is career-only by design; the shared `.spell-*`
+  styles in styles.css are used by that one table).
 - Injury banner (PlayerProfile.jsx, Sept 2026; user wants it BRIEF): `profile.injury`
   renders a red banner in the profile sheet and a one-line note on the hover card.
   Headline = the injury name itself ("Hamstring Injury"); the classifying label
@@ -663,6 +678,17 @@ page) shows live request counts and cache hit rate.
 When verifying scroll/animation behavior in the Claude browser pane, the tab must be
 visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their
 start value and suppresses scroll-event dispatch — tests read as false failures.
+
+Verifying the PROFILE SHEET's career/national tables needs the REAL key —
+demo mode returns `career: []` and `national: []` (demo.js), so those sections
+don't render at all there and the `window.fetch` override trick is the only
+offline option. The profile route is `/api/player/<id>` (singular, no
+`/profile` suffix); one player's first profile costs ~15 throttled calls, then
+caches 7d. A freshly started local server also sits on the splash for ~30s
+while the cold warm runs before `/api/players` answers — that's the warm, not
+a broken build. Donovan Pines is the standing test case for career grouping:
+he has two clubs inside one season (Barnsley + DC United, 2023), a five-season
+run, and overlapping DC United / Loudoun United rows.
 
 WHEN A PLAYER IS MISSING FROM THE ROUNDUP, walk the pipeline in this order —
 each step rules out a whole layer, and the answer has never yet been the one
