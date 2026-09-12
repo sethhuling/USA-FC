@@ -9,8 +9,9 @@ const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
 });
 
-const SQUAD_BADGES = { start: 'XI', on: 'ON', bench: 'BENCH', out: 'OUT' };
-const SQUAD_RANK = { start: 0, on: 1, bench: 2, out: 3 };
+// 'played' = featured, but the match data had no lineups, so start vs. sub is unknown.
+const SQUAD_BADGES = { start: 'XI', played: 'PLAYED', on: 'ON', bench: 'BENCH', out: 'OUT' };
+const SQUAD_RANK = { start: 0, played: 1, on: 2, bench: 3, out: 4 };
 const byStatus = (a, b) => (SQUAD_RANK[a.squadStatus] ?? 4) - (SQUAD_RANK[b.squadStatus] ?? 4);
 
 const norm = (x) => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');

@@ -218,10 +218,18 @@ built to stay legally above board (see "News legal rules" below):
   Americans who STARTED or CAME ON (unique players that day) — not games, and
   not the unused subs the article also names, so it's often lower than the
   number of Americans named. User confirmed this is correct (Sept 2026, after
-  briefly reading it as wrong) — don't change it. Known gap: a match whose
-  data has no lineups (seen with Austrian Cup ties) gives its Americans no
-  squad status, so they're left out of the roundup entirely rather than
-  guessed at. Cached as `roundup` (1h, 5 min when a detail
+  briefly reading it as wrong) — don't change it. Matches whose data has NO
+  lineups and no per-player stats (lower-division cup ties: Austrian Cup,
+  Stenhousemuir–Hearts in the Scottish League Cup, Sept 11 2026) used to be
+  dropped from the roundup entirely, because every American in them had a null
+  squad status — which silently lost a goal-and-two-assists game. Now anyone
+  NAMED BY AN EVENT (goal, assist, card, substitution) in such a match gets
+  squad status `'played'` — "featured, start vs. sub unknown" — and is written
+  up as "X played for Y as they visited Z" plus goals/assists/cards. Start/sub
+  minutes are still never claimed there (the API's sub in/out slot order is
+  unreliable and there is no lineup to disambiguate it), and an American who
+  featured without an event to his name is still unknowable, so still unnamed.
+  Cached as `roundup` (1h, 5 min when a detail
   failed); built LAST in every warm (after profiles, so the badge backfill has
   already cached the details it needs — ~180 calls when fully cold) and
   force-rebuilt by daily/post-match warms. Demo mode has no lineups/events, so
@@ -504,7 +512,8 @@ preferences should route through this module rather than being hard-coded.
 - Branding: Old Glory red `#B31942` (motto uses brightened `#E0455F`), navy `#0A3161`,
   logo is a full-color Uncle Sam illustration (`client/public/crest.png`, replaced the
   original USAFC shield crest Sept 2026; deliberately NOT the trademarked USMNT logo). Squad badge
-  labels: XI / ON / BENCH / OUT.
+  labels: XI / PLAYED / ON / BENCH / OUT (PLAYED = featured in a match whose
+  data has no lineups, so start vs. sub is unknown).
 - Topbar wordmark (user-directed layout, Sept 2026 — header felt "clunky"/"stock"):
   STACKED and centered — big text-only "Uncle Sam FC" in Bebas Neue (loaded from
   the existing Google Fonts link in index.html, alongside Pinyon Script), white

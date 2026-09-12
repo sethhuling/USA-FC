@@ -189,7 +189,9 @@ function resultSentence(d) {
   return h > a ? `${d.home} won ${h}–${a}${aet}.` : `${d.away} won ${a}–${h}${aet}.`;
 }
 
-const STATUS_ORDER = { start: 0, on: 1, bench: 2 };
+// 'played' = featured, but the match data carried no lineups so we can't say
+// whether he started or came on (see apiFootball mapFixture).
+const STATUS_ORDER = { start: 0, played: 1, on: 2, bench: 3 };
 
 // The single most positive thing in a player's stat line for this match (user
 // request: "if a player had a 96% pass rate but only made 1 defensive
@@ -237,7 +239,8 @@ function bestStat(s, { cleanSheet }) {
 }
 
 // One club match → sentences about every tracked American who started, came
-// on, or sat unused on the bench. Players left out of the squad aren't mentioned.
+// on, featured (start/sub unknown), or sat unused on the bench. Players left
+// out of the squad aren't mentioned.
 function clubEntry(d, rosterById) {
   const involved = (d.trackedPlayers || []).filter((tp) => tp.squadStatus in STATUS_ORDER);
   if (!involved.length) return null;
@@ -272,6 +275,8 @@ function clubEntry(d, rosterById) {
       const onWhen = whenPhrase(f.subOn);
       if (tp.squadStatus === 'start') {
         sentences.push(`${tp.name} ${also}started for ${team}${ctx}.`);
+      } else if (tp.squadStatus === 'played') {
+        sentences.push(`${tp.name} ${also}played for ${team}${ctx}.`);
       } else if (tp.squadStatus === 'on') {
         sentences.push(`${tp.name} ${also}came off the bench for ${team}${onWhen ? ` ${onWhen}` : ''}${ctx}.`);
       } else {

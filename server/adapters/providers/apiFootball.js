@@ -135,11 +135,15 @@ function mapFixture(fx, tracked, playerEvents = new Map()) {
       : null,
     trackedPlayers: inMatch.map((p) => {
       const pe = playerEvents.get(fx.fixture.id);
+      // Without lineups we can't tell a starter from a sub, but an event that
+      // names the player proves he featured: 'played' says exactly that and no
+      // more. Null stays "nothing known" (no detail fetched yet).
       const squadStatus = pe?.hasLineups
         ? (pe.start.has(p.apiFootballId) ? 'start'
           : pe.bench.has(p.apiFootballId)
             ? (pe.played?.has(p.apiFootballId) ? 'on' : 'bench')
             : 'out')
+        : pe?.inEvents?.has(p.apiFootballId) ? 'played'
         : null;
       return {
         playerId: p.id, name: p.name, club: p.club,
@@ -177,7 +181,13 @@ function trackedOutExists(tracked, fx, pe) {
 // Pull tracked-player-relevant sets out of a full fixture detail payload.
 function extractPlayerEvents(d) {
   const goals = new Map(), assists = new Map();
+  // Anyone named by any event was on the pitch at some point. Lower-division
+  // cup ties often come back with NO lineups and no per-player stats, only
+  // events — this is then the only evidence a player featured at all.
+  const inEvents = new Set();
   for (const ev of d.events || []) {
+    if (ev.player?.id) inEvents.add(ev.player.id);
+    if (ev.assist?.id) inEvents.add(ev.assist.id);
     // A player's goals exclude missed penalties, own goals (the event names
     // the player who put it in his own net) and penalty-shootout kicks.
     if (ev.type === 'Goal' && !/Missed Penalty|Own Goal/i.test(ev.detail || '') &&
@@ -206,7 +216,7 @@ function extractPlayerEvents(d) {
       if (pp.player?.id && (mins || 0) > 0) played.add(pp.player.id);
     }
   }
-  return { goals, assists, start, bench, played, minutes, hasLineups: (d.lineups || []).length > 0 };
+  return { goals, assists, start, bench, played, minutes, inEvents, hasLineups: (d.lineups || []).length > 0 };
 }
 
 // Loose club-name comparison: the API's names differ from ours in accents and

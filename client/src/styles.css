@@ -485,6 +485,7 @@ section h2.section-live { color: var(--live); }
 }
 .squad-badge.start { background: var(--accent); color: #fff; }
 .squad-badge.on { background: var(--live); color: #fff; }
+.squad-badge.played { background: var(--accent); color: #fff; }
 .squad-badge.bench { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
 .squad-badge.out { background: var(--border); color: var(--muted); }
 .chip.benched-out { opacity: 0.55; }
