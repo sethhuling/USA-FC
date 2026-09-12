@@ -429,6 +429,16 @@ section h2.section-live { color: var(--live); }
 .career th { text-align: left; color: var(--muted); font-size: 0.7rem; padding: 4px 6px; }
 .career td { padding: 5px 6px; border-top: 1px solid var(--border); white-space: nowrap; }
 .career .num, .career th.num { text-align: right; }
+.career tr.expandable { cursor: pointer; }
+.career tr.expandable:hover { background: var(--accent-soft); }
+.spell-caret {
+  display: inline-block; width: 12px; color: var(--muted);
+  transition: transform 0.15s ease;
+}
+.career tr.open .spell-caret { transform: rotate(90deg); }
+.spell-count { color: var(--muted); font-size: 0.7rem; }
+.career tr.spell-season td { color: var(--muted); font-size: 0.76rem; border-top: none; }
+.career tr.spell-season .spell-season-label { padding-left: 24px; }
 .transfer-list { list-style: none; margin: 0; padding: 0; font-size: 0.82rem; }
 .transfer-list li { padding: 6px 0; border-top: 1px solid var(--border); }
 .transfer-date { color: var(--muted); margin-right: 8px; font-size: 0.75rem; }

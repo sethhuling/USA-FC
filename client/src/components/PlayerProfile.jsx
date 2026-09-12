@@ -48,6 +48,93 @@ function seasonLabel(y) {
   return `${y}/${String((y + 1) % 100).padStart(2, '0')}`;
 }
 
+/* ---------- Career table ---------- */
+// Consecutive seasons at the same club collapse into a single "spell" line
+// (2021/22 + 2022/23 + 2023/24 -> "2021–2024"); the individual seasons stay
+// available as a dropdown behind it. Rows arrive newest-first, and a single
+// season can carry two teams, so a run is continued by matching team + the
+// season directly after the one being merged in rather than by position.
+function groupSpells(rows) {
+  const out = [];
+  for (const r of rows) {
+    const run = out.find((g) => g.team === r.team && g.from === r.season + 1);
+    if (run) {
+      run.from = r.season;
+      run.seasons.push(r);
+      for (const k of ['apps', 'goals', 'assists', 'minutes']) run[k] += r[k] || 0;
+      for (const l of (r.leagues || '').split(', ')) if (l) run.leagueSet.add(l);
+      continue;
+    }
+    out.push({
+      team: r.team, from: r.season, to: r.season, seasons: [r],
+      apps: r.apps || 0, goals: r.goals || 0, assists: r.assists || 0, minutes: r.minutes || 0,
+      leagueSet: new Set((r.leagues || '').split(', ').filter(Boolean)),
+    });
+  }
+  return out.map(({ leagueSet, ...g }) => ({ ...g, leagues: [...leagueSet].join(', ') }));
+}
+
+function SeasonTable({ rows }) {
+  const [open, setOpen] = useState(() => new Set());
+  const groups = groupSpells(rows);
+
+  const fmtSpan = (g) => (g.from === g.to ? seasonLabel(g.from) : `${g.from}–${g.to + 1}`);
+  const nums = (r) => [r.apps, r.goals, r.assists, r.minutes];
+
+  const toggle = (key) => setOpen((prev) => {
+    const next = new Set(prev);
+    if (!next.delete(key)) next.add(key);
+    return next;
+  });
+
+  return (
+    <div className="table-wrap">
+      <table className="career">
+        <thead>
+          <tr><th>Season</th><th>Team</th><th className="num">Apps</th>
+            <th className="num">G</th><th className="num">A</th><th className="num">Min</th></tr>
+        </thead>
+        <tbody>
+          {groups.map((g) => {
+            const key = `${g.team}-${g.to}`;
+            const many = g.seasons.length > 1;
+            const isOpen = open.has(key);
+            return (
+              <React.Fragment key={key}>
+                <tr
+                  className={`spell${many ? ' expandable' : ''}${isOpen ? ' open' : ''}`}
+                  onClick={many ? () => toggle(key) : undefined}
+                  role={many ? 'button' : undefined}
+                  tabIndex={many ? 0 : undefined}
+                  aria-expanded={many ? isOpen : undefined}
+                  onKeyDown={many ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(key); }
+                  } : undefined}
+                >
+                  <td>
+                    {many && <span className="spell-caret" aria-hidden="true">▸</span>}
+                    {fmtSpan(g)}
+                    {many && <span className="spell-count"> · {g.seasons.length} seasons</span>}
+                  </td>
+                  <td title={g.leagues}>{g.team}</td>
+                  {nums(g).map((v, i) => <td key={i} className="num">{v}</td>)}
+                </tr>
+                {many && isOpen && g.seasons.map((r) => (
+                  <tr key={r.season} className="spell-season">
+                    <td className="spell-season-label">{seasonLabel(r.season)}</td>
+                    <td title={r.team}>{r.leagues || r.team}</td>
+                    {nums(r).map((v, i) => <td key={i} className="num">{v}</td>)}
+                  </tr>
+                ))}
+              </React.Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 /* ---------- Injury / availability (server: API-Football injury reports) ---------- */
 // Noon anchor so a bare YYYY-MM-DD never shifts a day in US timezones.
 function fmtDay(d) {
@@ -277,26 +364,7 @@ function ProfileSheet({ player, onClose }) {
         {profile?.career?.length > 0 && (
           <section className="p-section">
             <h4 className="profile-h">Career</h4>
-            <div className="table-wrap">
-              <table className="career">
-                <thead>
-                  <tr><th>Season</th><th>Team</th><th className="num">Apps</th>
-                    <th className="num">G</th><th className="num">A</th><th className="num">Min</th></tr>
-                </thead>
-                <tbody>
-                  {profile.career.map((r, i) => (
-                    <tr key={i}>
-                      <td>{seasonLabel(r.season)}</td>
-                      <td title={r.leagues}>{r.team}</td>
-                      <td className="num">{r.apps}</td>
-                      <td className="num">{r.goals}</td>
-                      <td className="num">{r.assists}</td>
-                      <td className="num">{r.minutes}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <SeasonTable rows={profile.career} />
           </section>
         )}
 
