@@ -473,6 +473,16 @@ section h2.section-live { color: var(--live); }
   display: inline-block; min-width: 22px; color: var(--muted);
   font-variant-numeric: tabular-nums; font-weight: 600; font-size: 0.72rem;
 }
+/* Per-American match stat tiles (same tiles as the profile's "This season") */
+.player-stat-block + .player-stat-block { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.player-stat-name {
+  display: flex; align-items: baseline; gap: 7px; flex-wrap: wrap;
+  margin: 0 0 7px; font-size: 0.85rem; font-weight: 800; color: var(--live);
+}
+.player-stat-name .role {
+  font-size: 0.62rem; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
 .match-stats { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
 .match-stats td { padding: 5px 6px; border-top: 1px solid var(--border); }
 .match-stats .stat-label { text-align: center; color: var(--muted); font-size: 0.76rem; }

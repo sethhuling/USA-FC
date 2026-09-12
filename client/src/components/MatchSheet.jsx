@@ -52,6 +52,66 @@ function LineupSide({ side, playersById }) {
   );
 }
 
+/* ---------- Per-American match stat line ---------- */
+// Only players who actually took the pitch: started, came off the bench, or
+// (cup ties with no lineups) featured on the evidence of an event.
+const ROLE_LABEL = { start: 'Started', on: 'Off the bench', played: 'Featured' };
+
+// Same twelve tiles as the profile sheet's "This season", for this match only.
+// Inside an API-Football player stat line a zero comes back as null, so an
+// absent count on a line that exists is shown as 0; with no stat line at all
+// (lower-division ties return events and nothing else) nothing is claimed.
+function matchStatTiles(tp, st) {
+  const z = (v) => (st ? (v ?? 0) : null);
+  const tackles = z(st?.tackles), intercepts = z(st?.interceptions), blocks = z(st?.blocks);
+  // In /fixtures payloads passes.accuracy is the COUNT of accurate passes
+  // ("39" of 43), not a percentage as in season stats — derive the percentage.
+  const passPct = st?.passes > 0 && st.passesAccurate != null
+    ? `${Math.round((100 * st.passesAccurate) / st.passes)}%` : null;
+  return [
+    ['Minutes', st ? (st.minutes ?? 0) : (tp.minutes ?? null)],
+    ['Goals', st ? (st.goals ?? 0) : (tp.goals?.length ?? null)],
+    ['Assists', st ? (st.assists ?? 0) : (tp.assists?.length ?? null)],
+    ['Tackles', tackles], ['Intercepts', intercepts], ['Blocks', blocks],
+    ['Def. actions', st ? tackles + intercepts + blocks : null],
+    // Chances created — the stat that says a player was involved when he
+    // didn't score or assist. (Touches would sit here, but API-Football's
+    // fixture player stats carry no touches field at all.)
+    ['Key passes', z(st?.keyPasses)],
+    ['Passes', z(st?.passes)], ['Pass %', passPct],
+    ['Yellows', z(st?.yellow)], ['Reds', z(st?.red)],
+  ];
+}
+
+function AmericanStats({ detail, playersById }) {
+  const played = (detail?.trackedPlayers || []).filter((tp) => ROLE_LABEL[tp.squadStatus]);
+  if (played.length === 0) return null;
+  return (
+    <section className="p-section">
+      <h4 className="profile-h">American stats</h4>
+      {played.map((tp) => {
+        const tracked = playersById.get(tp.playerId);
+        return (
+          <div key={tp.playerId} className="player-stat-block">
+            <p className="player-stat-name">
+              {tracked ? <PlayerLink player={tracked}>{tp.name}</PlayerLink> : tp.name}
+              <span className="role">{ROLE_LABEL[tp.squadStatus]}</span>
+            </p>
+            <div className="stat-tiles">
+              {matchStatTiles(tp, detail.trackedStats?.[tp.playerId] || null).map(([k, v]) => (
+                <div key={k} className="stat-tile">
+                  <span className="val">{v ?? '—'}</span>
+                  <span className="lab">{k}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
 const STAT_ORDER = [
   'Ball Possession', 'Total Shots', 'Shots on Goal', 'expected_goals',
   'Corner Kicks', 'Fouls', 'Yellow Cards', 'Red Cards', 'Offsides', 'Total passes',
@@ -143,6 +203,8 @@ export default function MatchSheet({ match, playersById, onClose }) {
         {!detail && !failed && <p className="empty">Loading match details…</p>}
         {failed && <p className="empty">Couldn’t load match details right now.</p>}
         {detail?.demo && <p className="empty">Demo mode — lineups and match stats need an API key.</p>}
+
+        <AmericanStats detail={detail} playersById={playersById} />
 
         {events.length > 0 && (
           <section className="p-section">

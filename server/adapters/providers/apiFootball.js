@@ -507,6 +507,12 @@ async function matchDetail(fixtureId, tracked) {
       if (!t || !s) continue;
       trackedStats[t.id] = {
         minutes: num(s.games?.minutes), position: s.games?.position || null,
+        // Goals / assists / cards off the same stat line the rest of these come
+        // from, so the match sheet's per-American tiles are one coherent source.
+        // (The News roundup keeps using event-derived goals — it has extra
+        // safety rules about own goals, missed penalties and shootout kicks.)
+        goals: num(s.goals?.total), assists: num(s.goals?.assists),
+        yellow: num(s.cards?.yellow), red: num(s.cards?.red),
         passes: num(s.passes?.total), passesAccurate: num(s.passes?.accuracy), keyPasses: num(s.passes?.key),
         tackles: num(s.tackles?.total), interceptions: num(s.tackles?.interceptions), blocks: num(s.tackles?.blocks),
         duels: num(s.duels?.total), duelsWon: num(s.duels?.won),

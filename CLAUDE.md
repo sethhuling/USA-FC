@@ -440,6 +440,31 @@ preferences should route through this module rather than being hard-coded.
   subst in/out slot order is unreliable, so both slots must be checked — this is how
   Pukštas went unmarked when subbed on). Schedule-card chips stay navy, red only when
   the player scored, no flags — do NOT re-add red/flags there.
+- Per-American match stats (user request, Sept 2026): the MatchSheet shows an
+  "American stats" section BETWEEN Match info and Events — one block per tracked
+  American whose `squadStatus` is `start` / `on` / `played` (unused subs and
+  out-of-squad players are skipped), each a name line (role tag: Started / Off
+  the bench / Featured) over the SAME `.stat-tiles` grid the profile sheet's
+  "This season" uses: minutes, goals, assists, tackles, intercepts, blocks,
+  def. actions, key passes, passes, pass %, yellows, reds. Values come from
+  `trackedStats[playerId]` on the match detail (`matchStatTiles()` in
+  MatchSheet.jsx). Rules: a zero comes back as null inside an API-Football
+  player stat line, so an absent count on a line that EXISTS renders 0, while a
+  player with no stat line at all (lower-division cup ties) renders "—"
+  everywhere except goals/assists, which fall back to the event-derived arrays
+  on `trackedPlayers`. Pass % is derived — in /fixtures payloads
+  `passes.accuracy` is the accurate-pass COUNT, not a percentage. The 8th tile
+  was originally TOUCHES, which has no source — API-Football's fixture player
+  stats carry no touches field — so it was replaced (user request) with key
+  passes; don't re-add touches expecting data behind it. Other unused stats
+  already on `trackedStats` if this tile is ever swapped again: duels/duelsWon,
+  dribbles/dribblesWon, shots/shotsOn, saves, foulsDrawn, penWon, penSaved.
+  `goals`/`assists`/`yellow`/`red` were
+  added to `trackedStats` in apiFootball.js for this; the News roundup still
+  uses its own event-derived goals (extra safety rules). Also 12 tiles / 3 rows
+  of 4 — but unlike the profile's season grid this one KEEPS raw Passes (user
+  asked for it; per-match pass volume is the context for pass %), so the two
+  grids differ by one tile on purpose. Adding a tile here means removing one.
 - Substitution icon (user preference, Sept 2026): the MatchSheet events list uses
   a bold light-blue ⇄ text glyph (`.subst-icon` in styles.css, brighter tint in
   dark mode), NOT the 🔁 emoji — its orange arrows read as a yellow card at
