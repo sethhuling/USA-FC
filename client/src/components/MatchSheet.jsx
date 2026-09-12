@@ -21,10 +21,39 @@ function eventIcon(ev) {
   return EVENT_ICONS[ev.type] || '•';
 }
 
-function LineupSide({ side, playersById }) {
+// Who came on and who went off, for one side. The API's substitution in/out
+// SLOT ORDER is unreliable (the same trap that once left Pukštas unmarked), so
+// direction is never read from the slots — it's resolved against the lineup:
+// of the two players named, the one currently on the pitch is going off and the
+// one on the bench is coming on. Events are walked in match order, so a player
+// subbed on and later subbed off is flagged both ways. When neither player can
+// be placed (no ids, a name-only feed), nothing is claimed.
+function subsForSide(side, events) {
+  const on = new Map(), off = new Map(); // apiId -> minute label
+  if (!side) return { on, off };
+  const bench = new Set((side.substitutes || []).map((p) => p.apiId).filter(Boolean));
+  const onPitch = new Set((side.startXI || []).map((p) => p.apiId).filter(Boolean));
+  for (const e of events) {
+    if (e.type !== 'subst' || e.team !== side.team) continue;
+    const a = e.playerId, b = e.assistId;
+    if (!a || !b) continue;
+    let offId, onId;
+    if (onPitch.has(a) && bench.has(b)) { offId = a; onId = b; }
+    else if (onPitch.has(b) && bench.has(a)) { offId = b; onId = a; }
+    else continue; // can't place them — say nothing rather than guess
+    onPitch.delete(offId); onPitch.add(onId);
+    const min = `${e.minute ?? ''}${e.extra ? `+${e.extra}` : ''}`;
+    off.set(offId, min); on.set(onId, min);
+  }
+  return { on, off };
+}
+
+function LineupSide({ side, playersById, events }) {
   if (!side) return null;
+  const subs = subsForSide(side, events);
   const renderPlayer = (pl) => {
     const tracked = pl.trackedId ? playersById.get(pl.trackedId) : null;
+    const onMin = subs.on.get(pl.apiId), offMin = subs.off.get(pl.apiId);
     const label = (
       <>
         <span className="shirt-no">{pl.number ?? '–'}</span>
@@ -34,6 +63,12 @@ function LineupSide({ side, playersById }) {
     return (
       <li key={`${pl.apiId ?? pl.name}`} className={tracked ? 'lineup-player american' : 'lineup-player'}>
         {tracked ? <PlayerLink player={tracked}>{label}</PlayerLink> : label}
+        {onMin !== undefined && (
+          <span className="sub-arrow on" title={`Subbed on ${onMin}′`} aria-label={`Subbed on ${onMin} minutes`}>▲</span>
+        )}
+        {offMin !== undefined && (
+          <span className="sub-arrow off" title={`Subbed off ${offMin}′`} aria-label={`Subbed off ${offMin} minutes`}>▼</span>
+        )}
       </li>
     );
   };
@@ -235,8 +270,10 @@ export default function MatchSheet({ match, playersById, onClose }) {
           <section className="p-section">
             <h4 className="profile-h">Lineups</h4>
             <div className="lineups">
-              <LineupSide side={detail.lineups.home} playersById={playersById} />
-              <LineupSide side={detail.lineups.away} playersById={playersById} />
+              {/* Match order, NOT the reversed display list above — sub
+                  direction is worked out by replaying the match. */}
+              <LineupSide side={detail.lineups.home} playersById={playersById} events={detail.events || []} />
+              <LineupSide side={detail.lineups.away} playersById={playersById} events={detail.events || []} />
             </div>
           </section>
         ) : detail && !detail.demo && m.status === 'scheduled' ? (

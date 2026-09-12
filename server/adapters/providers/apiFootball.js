@@ -542,6 +542,11 @@ async function matchDetail(fixtureId, tracked) {
     events: (d.events || []).map((e) => ({
       minute: e.time?.elapsed ?? null, extra: e.time?.extra ?? null,
       team: e.team?.name, player: e.player?.name, assist: e.assist?.name || null,
+      // Ids for BOTH slots. The match sheet pairs substitution events against
+      // the lineup to work out who actually came on and who went off — the
+      // API's in/out slot order is unreliable, but whether a player is in the
+      // startXI or on the bench is not. Names alone can't do this safely.
+      playerId: e.player?.id ?? null, assistId: e.assist?.id ?? null,
       type: e.type, detail: e.detail,
       comments: e.comments || null, // e.g. "Penalty Shootout" on shootout kicks
       trackedId: trackedByApiId.get(e.player?.id)?.id || null,

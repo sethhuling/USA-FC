@@ -465,6 +465,18 @@ preferences should route through this module rather than being hard-coded.
   of 4 — but unlike the profile's season grid this one KEEPS raw Passes (user
   asked for it; per-match pass volume is the context for pass %), so the two
   grids differ by one tile on purpose. Adding a tile here means removing one.
+- Lineup sub arrows (user request, Sept 2026): in the MatchSheet lineups a green
+  ▲ marks a player subbed ON and a red ▼ one subbed OFF, with the minute in the
+  title/aria label. Direction is NEVER read from the API's substitution in/out
+  slots — they're unreliable (the Pukštas trap above). `subsForSide()` in
+  MatchSheet.jsx replays each side's subst events IN MATCH ORDER against a
+  running on-pitch set seeded from the startXI: of the two players named, the
+  one on the pitch is going off and the one on the bench is coming on. A player
+  subbed on and later subbed off gets BOTH arrows; when neither player can be
+  placed (or the event has no ids) NOTHING is drawn rather than a guess. This
+  needs `playerId`/`assistId` on mapped events (added to apiFootball.js for
+  it) — matching lineup entries by name is not safe. Pass `detail.events`, not
+  the reversed display list the events section renders from.
 - Substitution icon (user preference, Sept 2026): the MatchSheet events list uses
   a bold light-blue ⇄ text glyph (`.subst-icon` in styles.css, brighter tint in
   dark mode), NOT the 🔁 emoji — its orange arrows read as a yellow card at
