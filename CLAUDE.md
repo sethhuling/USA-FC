@@ -89,6 +89,22 @@ the service's dashboard settings, not render.yaml). Confirm a deploy landed by g
 for the new hashed bundle name from `client/dist/assets/`. To see a shipped change on
 the iPad/phone, hard-relaunch the app after the Render build finishes.
 
+The cloud routines commit to `main` on their own schedule, so a local `git push`
+is often rejected as non-fast-forward with work you don't have (a headline or
+injury-note refresh landed first). REBASE onto `origin/main` rather than merging
+or forcing: the routines only ever touch `server/data/news.json` and
+`server/data/injury-notes.json`, so they never collide with code changes, and
+rebasing keeps this repo's history linear (it has only ever had `main` — no
+feature branches, no merge commits). Re-run `npm run build` only if the rebase
+pulled in client changes, which routine commits never do.
+
+A server-side change is only confirmed live once the REBUILT DATA shows it —
+the hashed bundle name proves the client shipped, not that the server logic
+ran. Poll the relevant endpoint until its content changes (for the roundup,
+`/api/news` until `roundupGeneratedAt` moves past the deploy). The old output
+survives the push by design: the running process holds the pre-fix code AND a
+warm in-memory cache, and only the restart clears both.
+
 ## Architecture
 
 Request flow: `server/index.js` (routes, rate limit) → `server/src/service.js`
@@ -574,6 +590,27 @@ page) shows live request counts and cache hit rate.
 When verifying scroll/animation behavior in the Claude browser pane, the tab must be
 visible (fronted): hidden tabs pause rendering, which freezes CSS transitions at their
 start value and suppresses scroll-event dispatch — tests read as false failures.
+
+WHEN A PLAYER IS MISSING FROM THE ROUNDUP, walk the pipeline in this order —
+each step rules out a whole layer, and the answer has never yet been the one
+that looks most likely (the roster):
+1. `players.json` — is he on it, with the right `apiFootballId` and
+   `apiFootballTeamId`? Confirm both against `/players/profiles?player=<id>`
+   and `/teams?id=<id>` rather than assuming.
+2. Was the competition FETCHED? `getFixtures` queries only the leagues its
+   tracked players list plus every id in `coverage.json`'s `cups`. A cup
+   missing from that map is invisible no matter who played in it.
+3. Is the match in `/api/matches` with him in `trackedPlayers`? If yes, the
+   schedule and club matching are fine and the problem is downstream.
+4. Fetch `/fixtures?id=<fixtureId>` DIRECTLY and count `lineups`, `players`
+   and `events`. Lower-division cup ties come back with events but zero
+   lineups and zero per-player stats — the case the `'played'` status now
+   covers. Anything else missing here is an upstream data gap, not our bug.
+5. Only then read `clubEntry`. Its first line filters on squad status, so a
+   null status silently drops the ENTIRE match, not just the one player.
+Reproduce a fix without a server: require `matchDetail` and `clubEntry` in a
+node one-liner against the real key and print the sentences for that fixture id.
+That is seconds and ~1 call, versus ~180 for a full `buildRoundup()`.
 
 ## News legal rules (user-set, Sept 2026 — "stay very above board")
 
