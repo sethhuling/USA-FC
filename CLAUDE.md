@@ -315,6 +315,15 @@ reintroduce upstream awaits in getMatches' response path (perf fix, Sept 2026).
   expected-return date, so `expectedReturn` is always null and the UI shows
   "Unknown" — never invent one. Cached as `injury:<id>` (12h) in service.js,
   merged into the profile payload as `profile.injury` (null = fit, also cached).
+- Transfer history (`playerProfile`) dedupes the API's `/transfers` rows (fixed
+  Sept 2026 — transfers showed twice in the profile sheet): the API often lists
+  the same move twice with dates 1–2 days apart (announcement vs. effective
+  date), sometimes under different type labels ("Free Transfer" / "Free agent",
+  "N/A" / "Return from loan"). Same-club moves within 60 days collapse into one
+  row keeping the most informative type (fee > named type > "N/A"); real repeat
+  moves between the same clubs (a loan and a later permanent transfer, months
+  apart — Tillman's Bayern→PSV pair) are kept. 8 of 85 tracked players had
+  doubled rows when scanned.
 
 ## Data sources (server/adapters/)
 
