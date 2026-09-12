@@ -192,7 +192,8 @@
     "apiFootballId": 380625,
     "otherEligibility": [
       "Italy"
-    ]
+    ],
+    "apiFootballTeamId": 181
   },
   {
     "id": "young-isaiah",
@@ -202,7 +203,8 @@
     "position": "FW",
     "positionGroup": "FW",
     "nationality": "USA",
-    "apiFootballId": 91180
+    "apiFootballId": 91180,
+    "apiFootballTeamId": 188
   },
   {
     "id": "tolkin-john",
@@ -213,7 +215,8 @@
     "positionGroup": "DF",
     "nationality": "USA",
     "apiFootballId": 119002,
-    "capTied": true
+    "capTied": true,
+    "apiFootballTeamId": 191
   },
   {
     "id": "mendoza-gomez-jonathan",
@@ -227,7 +230,8 @@
     "otherEligibility": [
       "Mexico",
       "Spain"
-    ]
+    ],
+    "apiFootballTeamId": 1324
   },
   {
     "id": "butler-justin",
@@ -240,7 +244,8 @@
     "apiFootballId": 162945,
     "otherEligibility": [
       "Germany"
-    ]
+    ],
+    "apiFootballTeamId": 1320
   },
   {
     "id": "malone-ryan",
@@ -250,7 +255,8 @@
     "position": "DF",
     "positionGroup": "DF",
     "nationality": "USA",
-    "apiFootballId": 125276
+    "apiFootballId": 125276,
+    "apiFootballTeamId": 1320
   },
   {
     "id": "siebatcheu-theosonjordan",
@@ -261,7 +267,8 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 2219,
-    "capTied": true
+    "capTied": true,
+    "apiFootballTeamId": 178
   },
   {
     "id": "morris-aidan",
@@ -390,7 +397,8 @@
     "position": "MF",
     "positionGroup": "MF",
     "nationality": "USA",
-    "apiFootballId": 518353
+    "apiFootballId": 518353,
+    "apiFootballTeamId": 2149
   },
   {
     "id": "lansing-michael",
@@ -400,7 +408,8 @@
     "position": "GK",
     "positionGroup": "GK",
     "nationality": "USA",
-    "apiFootballId": 15707
+    "apiFootballId": 15707,
+    "apiFootballTeamId": 320
   },
   {
     "id": "hawkins-jalen",
@@ -460,7 +469,8 @@
     "apiFootballId": 50942,
     "otherEligibility": [
       "Haiti"
-    ]
+    ],
+    "apiFootballTeamId": 2767
   },
   {
     "id": "freeman-alexander",
@@ -495,7 +505,8 @@
     "positionGroup": "MF",
     "nationality": "USA",
     "apiFootballId": 161929,
-    "capTied": true
+    "capTied": true,
+    "apiFootballTeamId": 731
   },
   {
     "id": "gioacchini-selson-nicholas",
@@ -506,7 +517,8 @@
     "positionGroup": "FW",
     "nationality": "USA",
     "apiFootballId": 153465,
-    "capTied": true
+    "capTied": true,
+    "apiFootballTeamId": 9593
   },
   {
     "id": "gooch-lynden",
@@ -788,7 +800,8 @@
     "apiFootballId": 88126,
     "otherEligibility": [
       "France"
-    ]
+    ],
+    "apiFootballTeamId": 101
   },
   {
     "id": "robinson-antonee",
