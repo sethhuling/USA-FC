@@ -395,9 +395,22 @@ async function playerProfile(p) {
     }
   }
 
-  const transfers = (transfersResp[0]?.transfers || [])
-    .map((t) => ({ date: t.date, from: t.teams?.out?.name, to: t.teams?.in?.name, type: t.type }))
-    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  // The API often lists the same move twice with dates a few days apart
+  // (announcement vs. effective date) and sometimes different type labels
+  // ("Free Transfer" / "Free agent", "N/A" / "Return from loan"). Collapse
+  // same-club moves within 60 days into one row, keeping the more informative
+  // type — but keep real repeat moves (a loan and a later permanent transfer
+  // between the same clubs are months apart).
+  const typeScore = (v) => (!v || v === 'N/A' ? 0 : /\d/.test(v) ? 2 : 1);
+  const transfers = [];
+  for (const t of (transfersResp[0]?.transfers || [])
+    .map((x) => ({ date: x.date, from: x.teams?.out?.name, to: x.teams?.in?.name, type: x.type }))
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))) {
+    const dup = transfers.find((k) => k.from === t.from && k.to === t.to &&
+      Math.abs(new Date(k.date) - new Date(t.date)) <= 60 * 86400000);
+    if (!dup) transfers.push(t);
+    else if (typeScore(t.type) > typeScore(dup.type)) dup.type = t.type;
+  }
 
   return { player: p, bio, career, national, transfers };
 }
