@@ -50,9 +50,22 @@ check the reported port/name and `preview_logs` before letting it run; running t
 demo server via a plain background `node` command is a safe fallback.
 
 Demo-mode limits: match details carry no lineups, events, or stats (demo.js
-returns them empty), so MatchSheet events/lineup UI changes can't be exercised
-against demo data — verify by temporarily injecting sample markup into the page
-(then removing it), or check the production site after deploy.
+returns them empty), so MatchSheet events/lineup/stat UI can't be exercised
+against demo data as-is. Best way in (used for the American stats tiles, the
+lineup sub arrows and the minutes ordering, Sept 2026): run the demo server,
+then in the browser console override `window.fetch` so `/api/match/` calls
+await the real response, graft a hand-built `lineups` / `events` /
+`trackedPlayers` / `trackedStats` onto it, and return it as a new `Response`.
+The rest of the app still talks to the demo server, so it costs zero upstream
+calls, and unlike injecting markup it runs the REAL React code paths — the same
+trick already noted below for `/api/news`. Build the fixture to cover the edge
+cases deliberately (reversed substitution slots, a null count on a stat line
+that exists, a player with NO stat line, tied minutes, an unused sub) — several
+bugs would have shipped looking fine on a happy-path fixture. Then read the
+result back out of the DOM with `document.querySelectorAll` rather than eyeballing
+a screenshot: it is exact, and it is what caught ordering and label mistakes.
+Finish on the deployed site against a real match anyway — production is the only
+place the SERVER half of a change is proven.
 
 ## Environment
 
@@ -84,10 +97,17 @@ against demo data — verify by temporarily injecting sample markup into the pag
 ## Deploy
 
 Push to `main` (the repo's default branch) on GitHub → the `uncle-sam-fc` web
-service auto-deploys from its GitHub link (~3 min; build/start commands live in
+service auto-deploys from its GitHub link (build/start commands live in
 the service's dashboard settings, not render.yaml). Confirm a deploy landed by grepping the served HTML
-for the new hashed bundle name from `client/dist/assets/`. To see a shipped change on
+for the new hashed bundle name from `client/dist/assets/` — poll for it rather than
+guessing at a wait: three client deploys in Sept 2026 each went live ~45s after the
+push, not the ~3 min previously assumed here. To see a shipped change on
 the iPad/phone, hard-relaunch the app after the Render build finishes.
+
+A deploy RESTARTS the process, which clears every in-memory cache with it. So a
+server-side change is never waiting behind stale cached data after a deploy —
+details are refetched with the new code on first request. (The warm-cache caveat
+below is about polling BEFORE the restart completes, not after.)
 
 The cloud routines commit to `main` on their own schedule, so a local `git push`
 is often rejected as non-fast-forward with work you don't have (a headline or
@@ -448,11 +468,14 @@ preferences should route through this module rather than being hard-coded.
   "This season" uses: minutes, goals, assists, tackles, intercepts, blocks,
   def. actions, key passes, passes, pass %, yellows, reds. Values come from
   `trackedStats[playerId]` on the match detail (`matchStatTiles()` in
-  MatchSheet.jsx). Blocks are ordered by MINUTES PLAYED, most first (user
+  MatchSheet.jsx). When several Americans played, their BLOCKS (the per-player
+  sections, not the blocks stat) are ordered by MINUTES PLAYED, most first (user
   request), ties broken alphabetically on the DISPLAYED name (so "Antonee
   Robinson" before "Weston McKennie" — not by surname); a player whose minutes
   are unknown, meaning no stat line, sinks to the bottom instead of sorting as
-  a zero. Rules: a zero comes back as null inside an API-Football
+  a zero. The sort and the Minutes tile share one `minutesOf()` helper so the
+  number shown and the number sorted on can't drift apart.
+  Rules: a zero comes back as null inside an API-Football
   player stat line, so an absent count on a line that EXISTS renders 0, while a
   player with no stat line at all (lower-division cup ties) renders "—"
   everywhere except goals/assists, which fall back to the event-derived arrays
