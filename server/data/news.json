@@ -3,6 +3,28 @@
   "blockedSources": [],
   "headlines": [
     {
+      "title": "2. Bundesliga: Hertha BSC maintain perfect start with 3-1 win at Osnabrück",
+      "source": "Yahoo Sports",
+      "url": "https://ca.sports.yahoo.com/news/2-bundesliga-hertha-bsc-maintain-133800994.html",
+      "published": "2026-09-13",
+      "category": "abroad",
+      "players": [
+        "mendoza-gomez-jonathan"
+      ],
+      "added": "2026-09-13"
+    },
+    {
+      "title": "2. Bundesliga: Energie Cottbus seal big win at Karlsruhe",
+      "source": "Yahoo Sports",
+      "url": "https://ca.sports.yahoo.com/news/2-bundesliga-energie-cottbus-seal-132500136.html",
+      "published": "2026-09-13",
+      "category": "abroad",
+      "players": [
+        "butler-justin"
+      ],
+      "added": "2026-09-13"
+    },
+    {
       "title": "Middlesbrough 4-3 Norwich City: Ashley Phillips scores late Boro winner in thriller",
       "source": "Sky Sports",
       "url": "https://www.skysports.com/football/middlesbrough-vs-norwich-city/report/560574",
@@ -35,6 +57,18 @@
         "pulisic-christian"
       ],
       "added": "2026-09-12"
+    },
+    {
+      "title": "Sebastian Berhalter, Jack McGlynn score first goals in EFL Championship",
+      "source": "SBI Soccer",
+      "url": "https://sbisoccer.com/2026/09/sebastian-berhalter-jack-mcglynn-score-first-goals-in-efl-championship",
+      "published": "2026-09-12",
+      "category": "abroad",
+      "players": [
+        "berhalter-sebastian",
+        "mcglynn-jack"
+      ],
+      "added": "2026-09-13"
     },
     {
       "title": "Stenhousemuir 0-3 Hearts: Williams scores on first start to ease side into last four",
