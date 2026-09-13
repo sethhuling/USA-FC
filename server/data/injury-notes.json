@@ -8,9 +8,9 @@
   },
   "balogun-folarin": {
     "reason": "Knee Injury",
-    "expectedReturn": "mid-September",
-    "source": "https://ca.sports.yahoo.com/news/folarin-balogun-almost-fit-monaco-081000344.html (L'Équipe via Yahoo, Sep 9 2026 — targeting the Lens match)",
-    "verified": "2026-09-10"
+    "expectedReturn": "possible return vs. Lens (~Sept 19)",
+    "source": "https://www.getfootballnewsfrance.com/2026/folarin-balogun-almost-fit-to-make-as-monaco-return/ (Get French Football News, Sep 9 2026: not fit for Strasbourg this weekend, could be in the squad for Lens a week later)",
+    "verified": "2026-09-13"
   },
   "wright-haji": {
     "reason": "Quad Injury",
@@ -26,8 +26,8 @@
   },
   "mckennie-weston": {
     "reason": "Muscle Fatigue",
-    "expectedReturn": "mid-September",
-    "source": "https://www.rotowire.com/soccer/headlines/weston-mckennie-injury-wont-return-against-milan-531158 (day-to-day per Juventus, Sep 2026)",
-    "verified": "2026-09-10"
+    "expectedReturn": "possible return vs. NEC Nijmegen (Sept 17) or before the international break",
+    "source": "https://www.rotowire.com/soccer/headlines/weston-mckennie-injury-out-again-versus-sassuolo-532960 (RotoWire, Sep 13 2026: missing a third straight match, could return midweek in the Europa League or vs. Atalanta before the break)",
+    "verified": "2026-09-13"
   }
 }
