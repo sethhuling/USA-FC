@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getSetting, setSetting } from '../settings.js';
-import { fetchMe, savePrefs, sendTestPush } from '../api.js';
+import { fetchMe, savePrefs } from '../api.js';
 import {
   pushSupported, isIOS, isStandalone, getExistingSubscription, enablePush, disablePush,
 } from '../push.js';
@@ -78,12 +78,6 @@ function NotificationsSection({ me, refreshMe }) {
     try { await disablePush(); setSubscribed(false); } catch { /* best effort */ }
     setBusy(false);
   };
-  const onTest = async () => {
-    setBusy(true); setNote(null);
-    try { await sendTestPush(); setNote('Test sent — it should arrive in a few seconds.'); }
-    catch { setNote('Couldn’t send the test. Try turning notifications off and on again.'); }
-    setBusy(false);
-  };
   const setPref = (key, value) => {
     const next = { ...prefs, [key]: value };
     setPrefs(next);
@@ -117,7 +111,6 @@ function NotificationsSection({ me, refreshMe }) {
             ))}
           </ul>
           <div className="club-actions">
-            <button className="btn-ghost" disabled={busy} onClick={onTest}>Send test notification</button>
             <button className="btn-ghost danger" disabled={busy} onClick={onDisable}>Turn off on this device</button>
           </div>
         </>

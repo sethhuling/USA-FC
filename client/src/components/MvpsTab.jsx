@@ -51,9 +51,6 @@ export default function MvpsTab({ players, matches }) {
             ))}
           </ul>
         )}
-        <p className="club-note">
-          Notification and account settings are behind the ⚙ gear at the top of the app.
-        </p>
       </section>
 
       {favPlayers.length > 0 && (
