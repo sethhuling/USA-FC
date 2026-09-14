@@ -2,7 +2,7 @@
 // Signing in doesn't replace the device profile — it LINKS this device to the
 // account so favorites sync across devices. Configured entirely by build-time
 // env vars; when they're absent (demo mode, local builds) every export
-// degrades and the MVPs tab hides its sign-in section.
+// degrades and the Favorites tab hides its sign-in section.
 //
 // supabase-js is loaded with a dynamic import so the auth bundle is only
 // fetched on configured deployments.

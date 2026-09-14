@@ -6,10 +6,10 @@ import MatchSheet from './MatchSheet.jsx';
 import FavoriteStar from './FavoriteStar.jsx';
 import { useFavorites } from '../favorites.js';
 
-// The MVPs tab: the user's favorited players, plus their live and upcoming
+// The Favorites tab: the user's favorited players, plus their live and upcoming
 // games (same cards as the Schedule tab). Notifications, account, and display
 // settings live in SettingsSheet.jsx (the topbar gear).
-export default function MvpsTab({ players, matches }) {
+export default function FavoritesTab({ players, matches }) {
   const favs = useFavorites();
   const [selectedMatch, setSelectedMatch] = useState(null);
 
@@ -30,9 +30,9 @@ export default function MvpsTab({ players, matches }) {
   );
 
   return (
-    <div className="mvps-tab">
+    <div className="favorites-tab">
       <section className="p-section">
-        <h4 className="profile-h">Favorites</h4>
+        <h4 className="profile-h">Players</h4>
         {favPlayers.length === 0 ? (
           <p className="club-note">
             No favorites yet. Tap the ☆ on any player — in the Players tab or on a
@@ -55,9 +55,9 @@ export default function MvpsTab({ players, matches }) {
 
       {favPlayers.length > 0 && (
         <section>
-          <h2>Upcoming games</h2>
+          <h2>Schedule</h2>
           {favMatches.length === 0 ? (
-            <p className="empty">No live or upcoming games for your favorites right now.</p>
+            <p className="empty">No live or upcoming games for your players right now.</p>
           ) : (
             favMatches.map((m) => (
               <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />

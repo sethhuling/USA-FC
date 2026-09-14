@@ -31,7 +31,7 @@ const sameClub = (a, b) => {
   return !!na && !!nb && (na === nb || na.includes(nb) || nb.includes(na));
 };
 
-// Exported: the MVPs tab reuses these cards for its favorites' upcoming games.
+// Exported: the Favorites tab reuses these cards for its favorites' upcoming games.
 export function MatchRow({ m, playersById, onOpen }) {
   const kickoff = new Date(m.kickoff);
   const favs = useFavorites(); // red ★ inside a favorited player's chip

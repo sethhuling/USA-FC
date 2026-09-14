@@ -29,7 +29,7 @@ export async function getExistingSubscription() {
 }
 
 // Must run inside a user gesture. Throws with a human-readable message the
-// MVPs tab shows verbatim.
+// settings sheet shows verbatim.
 export async function enablePush(vapidPublicKey) {
   if (!pushSupported()) throw new Error('Push notifications aren’t supported in this browser.');
   if (!vapidPublicKey) throw new Error('Notifications aren’t configured on the server yet.');

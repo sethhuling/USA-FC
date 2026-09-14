@@ -17,8 +17,10 @@ scheduler.
 
 Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
 Players (profiles with bio and season stats), News (hand-picked headline links +
-an auto-written daily roundup), MVPs (the favorites list + their live/upcoming games, reusing ScheduleTab's exported MatchRow; renamed from
-"My Club" Sept 14, 2026). Notifications, account/sign-in, and display settings
+an auto-written daily roundup), Favorites (sections "Players" — the starred
+list — and "Schedule" — their live/upcoming games, reusing ScheduleTab's
+exported MatchRow; the tab was "My Club" then briefly "MVPs", both renamed
+Sept 14, 2026 at user request). Notifications, account/sign-in, and display settings
 all live behind the ⚙ gear in the topbar's LEFT corner (SettingsSheet.jsx) — a
 user-requested placement mirroring the LIVE dot; the gear stops propagation so
 it doesn't trigger the header's brand tap. Primary user is Seth, mostly on an iPad
@@ -378,7 +380,7 @@ notes and the final session summary; schema SQL: `docs/supabase-schema.sql`.
   (useSyncExternalStore; settings.js stays non-reactive by design) —
   localStorage-first for instant/offline UI, best-effort server sync, union
   reconcile on boot. Star toggles: `FavoriteStar.jsx` (Players cards, profile
-  sheet hero). The 5th tab `MvpsTab.jsx` holds ONLY the favorites list; SettingsSheet.jsx (topbar gear) holds notification
+  sheet hero). The 5th tab `FavoritesTab.jsx` holds ONLY the favorites list; SettingsSheet.jsx (topbar gear) holds notification
   toggles, sign-in, units setting, and Privacy/Terms links.
 - Push: standard Web Push/VAPID (`web-push` package; NO Firebase). sw.js has
   the push/notificationclick handlers (cache name bumped to unclesamfc-v2).
@@ -417,7 +419,7 @@ enable procedure (custom domain UncleSamFC.com, AdSense application, ads.txt,
 Google's CMP for consent, privacy-policy rewrite) is
 `docs/ads-launch-checklist.md`. Legal pages: `/privacy` and `/terms`
 (server/privacy.html, server/terms.html, served like /admin; both marked
-draft pending lawyer review; linked from the News footer, the MVPs tab, and
+draft pending lawyer review; linked from the News footer, the Favorites tab, and
 the settings sheet).
 
 ## Data sources (server/adapters/)
@@ -550,7 +552,7 @@ store like favorites.js.
 
 ## Client notes (client/src/)
 
-- MVPs tab (`MvpsTab.jsx`, 5th tab, Sept 2026): the favorites list; SettingsSheet.jsx (topbar ⚙ gear) holds push
+- Favorites tab (`FavoritesTab.jsx`, 5th tab, Sept 2026; labeled "Favorites", was "MVPs" then "My Club"): the favorites list; SettingsSheet.jsx (topbar ⚙ gear) holds push
   enable/prefs (with iOS add-to-home-screen guidance), optional sign-in, the
   units setting, Privacy/Terms links. Favorite stars (`FavoriteStar.jsx`) sit
   on Players-tab cards (corner-pinned) and in the profile sheet hero; both

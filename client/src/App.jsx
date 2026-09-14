@@ -4,7 +4,7 @@ import ScheduleTab from './components/ScheduleTab.jsx';
 import StatsTab from './components/StatsTab.jsx';
 import PlayersTab from './components/PlayersTab.jsx';
 import NewsTab from './components/NewsTab.jsx';
-import MvpsTab from './components/MvpsTab.jsx';
+import FavoritesTab from './components/FavoritesTab.jsx';
 import SettingsSheet from './components/SettingsSheet.jsx';
 import { ProfileProvider } from './components/PlayerProfile.jsx';
 import { TeamProvider } from './components/TeamSheet.jsx';
@@ -16,7 +16,7 @@ const TABS = [
   { key: 'stats', label: 'Stats', icon: '📊' },
   { key: 'players', label: 'Players', icon: '🇺🇸' },
   { key: 'news', label: 'News', icon: '📰' },
-  { key: 'mvps', label: 'MVPs', icon: '⭐' },
+  { key: 'favorites', label: 'Favorites', icon: '⭐' },
 ];
 
 // Mirrors the static splash in index.html (same classes, styled by the inline
@@ -161,7 +161,7 @@ export default function App() {
         {tab === 'stats' && <StatsTab players={players} />}
         {tab === 'players' && <PlayersTab players={players} />}
         {tab === 'news' && <NewsTab players={players} />}
-        {tab === 'mvps' && <MvpsTab players={players} matches={matches} />}
+        {tab === 'favorites' && <FavoritesTab players={players} matches={matches} />}
       </main>
 
       <nav className="tabbar">

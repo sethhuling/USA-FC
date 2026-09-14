@@ -11,7 +11,7 @@ import {
 
 // The app's control center, opened from the gear in the topbar's left corner:
 // notification settings, the optional account, and display settings. Same
-// portal/backdrop pattern as the player/match/team sheets. The MVPs tab keeps
+// portal/backdrop pattern as the player/match/team sheets. The Favorites tab keeps
 // only the favorites themselves.
 
 const PREFS = [
@@ -90,7 +90,7 @@ function NotificationsSection({ me, refreshMe }) {
         <>
           <p className="club-note">
             Get a push when your favorite players score, start, or make headlines.
-            Only players you’ve starred in the MVPs tab trigger notifications.
+            Only players you’ve starred in the Favorites tab trigger notifications.
           </p>
           <button className="btn-primary" disabled={busy || subscribed === null || !me} onClick={onEnable}>
             Enable notifications

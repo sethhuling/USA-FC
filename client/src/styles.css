@@ -714,7 +714,7 @@ section h2.section-live { color: var(--live); }
 .player-hero .hero-star { color: rgba(255, 255, 255, 0.6); font-size: 1.35rem; }
 .player-hero .hero-star.active { color: #E0455F; }
 
-/* ---------- MVPs tab ---------- */
+/* ---------- Favorites tab ---------- */
 .club-note { color: var(--muted); font-size: 0.84rem; line-height: 1.5; margin: 4px 0 8px; }
 .error-note { color: var(--live); }
 .fav-list { list-style: none; margin: 0; padding: 0; }
