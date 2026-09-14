@@ -702,6 +702,9 @@ section h2.section-live { color: var(--live); }
   -webkit-tap-highlight-color: transparent;
 }
 .fav-star.active { color: var(--live); }
+/* Passive favorite indicator: a small red ★ inside schedule chips and next to
+   names in the stats table (the interactive toggle stays .fav-star). */
+.fav-mark { color: var(--live); margin-right: 3px; font-size: 0.9em; }
 /* On player cards: pinned to the corner so it never fights the name for space. */
 .player-card { position: relative; }
 .player-card .card-star { position: absolute; top: 4px; right: 4px; }

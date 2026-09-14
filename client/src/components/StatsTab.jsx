@@ -4,6 +4,7 @@ import { leagueCountryCode, leagueCountry, leagueRank } from '../leagues.js';
 import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
 import { TeamLink } from './TeamSheet.jsx';
 import AdSlot from './AdSlot.jsx';
+import { useFavorites } from '../favorites.js';
 
 const PRESETS = [
   { key: 'goals', label: 'Goals' },
@@ -126,6 +127,7 @@ export default function StatsTab({ players }) {
   const [minMinutes, setMinMinutes] = useState(0);
   const [rounds, setRounds] = useState({});
   const openProfile = useOpenProfile();
+  const favs = useFavorites(); // red ★ next to favorited players in the table
 
   useEffect(() => {
     fetchLeagues()
@@ -312,7 +314,10 @@ export default function StatsTab({ players }) {
             {rows.map((p) => (
               <tr key={p.id} onClick={() => openProfile(p)}>
                 <td className="sticky-col">
-                  <div className="cell-name"><PlayerLink player={p} /></div>
+                  <div className="cell-name">
+                    {favs.has(p.id) && <span className="fav-mark" title="Favorite">★</span>}
+                    <PlayerLink player={p} />
+                  </div>
                   <div className="cell-sub">
                     <TeamLink id={p.apiFootballTeamId} name={p.club} />
                     {leagueCountryCode(p.league) && ` · ${leagueCountryCode(p.league)}`}

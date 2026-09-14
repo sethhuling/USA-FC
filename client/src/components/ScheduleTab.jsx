@@ -5,6 +5,7 @@ import { TeamLink } from './TeamSheet.jsx';
 import { UsaBall, UsaBoot } from './icons.jsx';
 import { competitionFlag } from '../leagues.js';
 import AdSlot from './AdSlot.jsx';
+import { useFavorites } from '../favorites.js';
 
 // One ad slot after the 4th card, and only when the list is long enough that
 // it doesn't dominate (see AdSlot.jsx — renders nothing until ads are enabled).
@@ -33,6 +34,7 @@ const sameClub = (a, b) => {
 // Exported: the MVPs tab reuses these cards for its favorites' upcoming games.
 export function MatchRow({ m, playersById, onOpen }) {
   const kickoff = new Date(m.kickoff);
+  const favs = useFavorites(); // red ★ inside a favorited player's chip
   const scorers = m.trackedPlayers.filter((p) => p.goals?.length > 0);
   return (
     <div className={`match ${m.status}`} onClick={() => onOpen(m)} role="button" tabIndex={0}>
@@ -65,6 +67,7 @@ export function MatchRow({ m, playersById, onOpen }) {
                 <span className={`squad-badge ${p.squadStatus}`}>{SQUAD_BADGES[p.squadStatus]}</span>
               )}
               {p.outInjured && <span className="inj-cross" title="Injured">✚</span>}
+              {favs.has(p.playerId) && <span className="fav-mark" title="Favorite">★</span>}
               {p.name}
             </span>
             {feats && (
