@@ -6,7 +6,8 @@ import {
   pushSupported, isIOS, isStandalone, getExistingSubscription, enablePush, disablePush,
 } from '../push.js';
 import {
-  authConfigured, getUser, onAuthChange, signInWithEmail, signInWithGoogle, signOut,
+  authConfigured, getUser, onAuthChange, signInWithEmail, verifyEmailCode,
+  signInWithGoogle, signOut,
 } from '../auth.js';
 
 // The app's control center, opened from the gear in the topbar's left corner:
@@ -124,10 +125,16 @@ function AccountSection({ me }) {
   const [user, setUser] = useState(getUser());
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [code, setCode] = useState('');
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => onAuthChange(setUser), []);
+
+  // Inside the installed iOS app, OAuth (and magic-link taps) complete in a
+  // separate browser context whose session iOS won't share with the app — the
+  // typed email code is the only flow that lands here. Hide Google there.
+  const inIOSApp = isIOS() && isStandalone();
 
   if (!authConfigured() || !me?.enabled) {
     return (
@@ -146,9 +153,15 @@ function AccountSection({ me }) {
       </>
     );
   }
-  const sendLink = async () => {
+  const sendCode = async () => {
     setBusy(true); setErr(null);
-    try { await signInWithEmail(email.trim()); setSent(true); }
+    try { await signInWithEmail(email.trim()); setSent(true); setCode(''); }
+    catch (e) { setErr(e.message); }
+    setBusy(false);
+  };
+  const submitCode = async () => {
+    setBusy(true); setErr(null);
+    try { await verifyEmailCode(email.trim(), code); } // success fires onAuthChange
     catch (e) { setErr(e.message); }
     setBusy(false);
   };
@@ -158,22 +171,44 @@ function AccountSection({ me }) {
         Optional — sign in to use the same favorites on your phone and tablet.
       </p>
       {sent ? (
-        <p className="club-note"><strong>Check your email</strong> — tap the sign-in link we sent to {email.trim()}.</p>
+        <div className="signin">
+          <p className="club-note">
+            <strong>Check your email</strong> — enter the 6-digit code we sent
+            to {email.trim()}.{!inIOSApp && ' (The link in the email works too.)'}
+          </p>
+          <div className="signin-row">
+            <input
+              className="search signin-input code-input" type="text" inputMode="numeric"
+              autoComplete="one-time-code" maxLength={6} placeholder="123456"
+              value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              aria-label="6-digit sign-in code"
+              onKeyDown={(e) => { if (e.key === 'Enter' && code.length === 6) submitCode(); }}
+            />
+            <button className="btn-ghost" disabled={busy || code.length !== 6} onClick={submitCode}>
+              Sign in
+            </button>
+          </div>
+          <button className="btn-ghost resend" disabled={busy} onClick={sendCode}>Resend email</button>
+        </div>
       ) : (
         <div className="signin">
-          <button className="btn-primary" onClick={() => signInWithGoogle().catch((e) => setErr(e.message))}>
-            Continue with Google
-          </button>
-          <div className="signin-or">or</div>
+          {!inIOSApp && (
+            <>
+              <button className="btn-primary" onClick={() => signInWithGoogle().catch((e) => setErr(e.message))}>
+                Continue with Google
+              </button>
+              <div className="signin-or">or</div>
+            </>
+          )}
           <div className="signin-row">
             <input
               className="search signin-input" type="email" placeholder="you@example.com"
               value={email} onChange={(e) => setEmail(e.target.value)}
               aria-label="Email address"
-              onKeyDown={(e) => { if (e.key === 'Enter' && email.includes('@')) sendLink(); }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && email.includes('@')) sendCode(); }}
             />
-            <button className="btn-ghost" disabled={busy || !email.includes('@')} onClick={sendLink}>
-              Email me a link
+            <button className="btn-ghost" disabled={busy || !email.includes('@')} onClick={sendCode}>
+              Email me a code
             </button>
           </div>
         </div>

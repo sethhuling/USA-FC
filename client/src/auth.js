@@ -58,6 +58,22 @@ export async function signInWithEmail(email) {
   if (error) throw new Error(error.message);
 }
 
+// The 6-digit code from the sign-in email, typed straight into the app. This
+// is the ONLY flow that works inside the installed iOS app: OAuth redirects
+// and magic-link taps both open a separate browser context whose session iOS
+// won't share with the home-screen app. Requires {{ .Token }} in Supabase's
+// Magic Link email template.
+export async function verifyEmailCode(email, code) {
+  const sb = await client();
+  if (!sb) throw new Error('Sign-in isn’t configured.');
+  const { error } = await sb.auth.verifyOtp({ email, token: code.trim(), type: 'email' });
+  if (error) {
+    throw new Error(/expired|invalid/i.test(error.message)
+      ? 'That code didn’t work — check the digits or request a new email.'
+      : error.message);
+  }
+}
+
 export async function signInWithGoogle() {
   const sb = await client();
   if (!sb) throw new Error('Sign-in isn’t configured.');

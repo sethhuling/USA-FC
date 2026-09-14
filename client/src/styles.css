@@ -765,6 +765,8 @@ section h2.section-live { color: var(--live); }
 .signin-or { text-align: center; color: var(--muted); font-size: 0.72rem; margin: 8px 0; }
 .signin-row { display: flex; gap: 8px; }
 .signin-input { flex: 1; margin: 0; }
+.code-input { letter-spacing: 0.3em; font-variant-numeric: tabular-nums; }
+.signin .resend { margin-top: 8px; }
 
 .settings-sheet { max-height: 86vh; }
 .settings-sheet .news-footer { margin-top: 10px; }
