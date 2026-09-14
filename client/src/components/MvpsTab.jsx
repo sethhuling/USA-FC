@@ -10,7 +10,6 @@ import {
 import {
   authConfigured, getUser, onAuthChange, signInWithEmail, signInWithGoogle, signOut,
 } from '../auth.js';
-import { getSetting, setSetting } from '../settings.js';
 
 const PREFS = [
   ['goals', 'Goals & assists', 'The moment a favorite scores or assists'],
@@ -188,10 +187,9 @@ function AccountSection({ me }) {
   );
 }
 
-export default function MyClubTab({ players }) {
+export default function MvpsTab({ players }) {
   const favs = useFavorites();
   const [me, setMe] = useState(null);
-  const [units, setUnits] = useState(() => getSetting('units'));
 
   const refreshMe = () => fetchMe().then(setMe).catch(() => setMe({ enabled: false }));
   useEffect(() => { refreshMe(); }, []);
@@ -202,7 +200,7 @@ export default function MyClubTab({ players }) {
   );
 
   return (
-    <div className="club-tab">
+    <div className="mvps-tab">
       <section className="p-section">
         <h4 className="profile-h">Favorites</h4>
         {favPlayers.length === 0 ? (
@@ -233,25 +231,6 @@ export default function MyClubTab({ players }) {
       <section className="p-section">
         <h4 className="profile-h">Account</h4>
         <AccountSection me={me} />
-      </section>
-
-      <section className="p-section">
-        <h4 className="profile-h">Settings</h4>
-        <div className="pref-row">
-          <div>
-            <div className="pref-label">Height & weight units</div>
-            <div className="pref-sub">How player measurements are shown</div>
-          </div>
-          <div className="fchips">
-            {[['imperial', 'ft / lbs'], ['metric', 'cm / kg']].map(([val, label]) => (
-              <button key={val}
-                className={units === val ? 'fchip active' : 'fchip'}
-                onClick={() => { setSetting('units', val); setUnits(val); }}>
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
       </section>
 
       <footer className="news-footer">

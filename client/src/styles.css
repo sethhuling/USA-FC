@@ -128,6 +128,14 @@ body::before {
   color: #ff8098;
   position: absolute; right: 16px; top: calc(env(safe-area-inset-top, 0px) + 10px);
 }
+/* Settings gear: mirrors the LIVE dot's corner anchoring on the left. */
+.topbar .settings-gear {
+  position: absolute; left: 12px; top: calc(env(safe-area-inset-top, 0px) + 4px);
+  border: none; background: none; cursor: pointer; padding: 4px 6px;
+  color: rgba(255, 255, 255, 0.72); font-size: 1.25rem; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.topbar .settings-gear:hover { color: #fff; }
 .topbar.scrolled .motto { opacity: 0; max-height: 0; }
 /* Scrolled: shrink to the compact height; the wordmark shrinks with the bar
    (it IS the identity now — never fade it out). Safe-area padding is kept so
@@ -703,7 +711,7 @@ section h2.section-live { color: var(--live); }
 .player-hero .hero-star { color: rgba(255, 255, 255, 0.6); font-size: 1.35rem; }
 .player-hero .hero-star.active { color: #E0455F; }
 
-/* ---------- My Club tab ---------- */
+/* ---------- MVPs tab ---------- */
 .club-note { color: var(--muted); font-size: 0.84rem; line-height: 1.5; margin: 4px 0 8px; }
 .error-note { color: var(--live); }
 .fav-list { list-style: none; margin: 0; padding: 0; }
@@ -754,6 +762,9 @@ section h2.section-live { color: var(--live); }
 .signin-or { text-align: center; color: var(--muted); font-size: 0.72rem; margin: 8px 0; }
 .signin-row { display: flex; gap: 8px; }
 .signin-input { flex: 1; margin: 0; }
+
+.settings-sheet { max-height: 60vh; }
+.settings-sheet .news-footer { margin-top: 10px; }
 
 /* ---------- Ad slots (see AdSlot.jsx; nothing renders until enabled) ---------- */
 .ad-slot { min-height: 100px; margin: 12px 0; }

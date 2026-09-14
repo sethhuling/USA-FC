@@ -4,7 +4,8 @@ import ScheduleTab from './components/ScheduleTab.jsx';
 import StatsTab from './components/StatsTab.jsx';
 import PlayersTab from './components/PlayersTab.jsx';
 import NewsTab from './components/NewsTab.jsx';
-import MyClubTab from './components/MyClubTab.jsx';
+import MvpsTab from './components/MvpsTab.jsx';
+import SettingsSheet from './components/SettingsSheet.jsx';
 import { ProfileProvider } from './components/PlayerProfile.jsx';
 import { TeamProvider } from './components/TeamSheet.jsx';
 import { syncFavorites } from './favorites.js';
@@ -15,7 +16,7 @@ const TABS = [
   { key: 'stats', label: 'Stats', icon: '📊' },
   { key: 'players', label: 'Players', icon: '🇺🇸' },
   { key: 'news', label: 'News', icon: '📰' },
-  { key: 'club', label: 'My Club', icon: '⭐' },
+  { key: 'mvps', label: 'MVPs', icon: '⭐' },
 ];
 
 // Mirrors the static splash in index.html (same classes, styled by the inline
@@ -48,6 +49,7 @@ export default function App() {
   const [scheduleResetKey, setScheduleResetKey] = useState(0);
   const [booted, setBooted] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     // Hysteresis: collapse past 24px, re-expand only near the top. A single
@@ -128,6 +130,12 @@ export default function App() {
     <TeamProvider playersById={playersById}>
     <div className="app">
       <header className={scrolled ? "topbar scrolled" : "topbar"} onClick={onBrandTap}>
+        {/* Corner-anchored like the LIVE dot (opposite side); stopPropagation
+            keeps a gear tap from also triggering the header's brand tap. */}
+        <button
+          className="settings-gear" aria-label="Settings" title="Settings"
+          onClick={(e) => { e.stopPropagation(); setSettingsOpen(true); }}
+        >⚙</button>
         <h1>Uncle Sam <span className="wm-fc">FC</span></h1>
         <span className="motto">
           <span className="motto-line">Oh when the</span>
@@ -153,7 +161,7 @@ export default function App() {
         {tab === 'stats' && <StatsTab players={players} />}
         {tab === 'players' && <PlayersTab players={players} />}
         {tab === 'news' && <NewsTab players={players} />}
-        {tab === 'club' && <MyClubTab players={players} />}
+        {tab === 'mvps' && <MvpsTab players={players} />}
       </main>
 
       <nav className="tabbar">
@@ -169,6 +177,7 @@ export default function App() {
         ))}
       </nav>
 
+      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
       {!splashDone && <Splash out={booted} />}
     </div>
     </TeamProvider>
