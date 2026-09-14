@@ -853,18 +853,26 @@ monetized launch). What keeps the News tab low-risk:
   2025-26), A-League (2026-27 US arrangement unannounced as of Sept 2026;
   season starts mid-October — ESPN carried 2025-26), Eliteserien (league-run
   international OTT only, no stable US brand to cite).
-- Profiles/push are BUILT BUT DARK (Sept 2026): the code ships disabled until
-  Seth creates the Supabase project, runs `docs/supabase-schema.sql`, sets up
-  the auth providers (Google OAuth client + magic-link email), generates VAPID
-  keys, and adds the seven env vars in the Render dashboard + local `.env`
-  (list in .env.example). Until then: favorites work per-device via
-  localStorage only; no push, no sign-in. Google sign-in needs an OAuth client
-  in Google Cloud Console with Supabase's callback URL. After the first deploy
-  with push, delete + re-add the PWA on the iPad/phone once (new sw.js).
+- Profiles/push are LIVE (Sept 14, 2026): Supabase project `uncle-sam-fc`
+  (Postgres + Auth; schema from docs/supabase-schema.sql is applied), VAPID
+  keys generated, all seven env vars set in the Render dashboard and local
+  `.env`. Verified end-to-end in production (test push delivered; notifier
+  running). Sign-in: email magic link is enabled; GOOGLE OAuth setup is in
+  progress by Seth (Google Cloud OAuth client → paste into Supabase's Google
+  provider; callback `https://ggswnidgabtinbuvfztp.supabase.co/auth/v1/callback`).
+  APPLE sign-in is deliberately deferred until the LLC exists (needs a $99/yr
+  Apple Developer membership — enroll the LLC, not Seth personally). The
+  Supabase dashboard uses the NEW key style (sb_publishable_/sb_secret_), not
+  legacy anon/service_role JWTs.
+- Domain LIVE (Sept 14, 2026): unclesamfc.com is a Render custom domain
+  serving the app directly (www redirects to the bare domain; certs issued).
+  The onrender.com subdomain stays enabled — Seth's installed PWAs live on
+  that origin; don't force-redirect onrender → the domain without a plan for
+  reinstalling the PWAs and re-doing their push subscriptions. Supabase Site
+  URL should be https://unclesamfc.com (Seth flipping it Sept 14) with
+  redirect URLs kept for onrender + localhosts.
 - `/privacy` and `/terms` are drafts — a lawyer must review before public
-  launch; the terms' governing-law placeholder waits on the LLC. The domain
-  for launch is UncleSamFC.com (purchased/decided Sept 2026; not yet pointed
-  at Render — step 1 of docs/ads-launch-checklist.md).
+  launch; the terms' governing-law placeholder waits on the LLC.
 
 ## Working style
 

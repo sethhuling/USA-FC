@@ -17,10 +17,11 @@ localStorage.setItem('unclesamfc-settings', JSON.stringify({ adPreview: true }))
 - [ ] **LLC formed**, then register the DMCA agent under the LLC's name
       (see the tabled item in CLAUDE.md → Known issues; must be done before a
       public launch).
-- [ ] **Custom domain live**: point **UncleSamFC.com** at the Render service
-      (Render dashboard → uncle-sam-fc → Settings → Custom Domains; set the DNS
-      records Render shows; wait for the certificate). Decide whether
-      uncle-sam-fc.onrender.com should redirect to the domain.
+- [x] **Custom domain live** (done Sept 14, 2026): UncleSamFC.com serves the
+      app directly via Render Custom Domains (www redirects to the bare
+      domain). The onrender.com subdomain stays enabled — the installed PWAs
+      live on that origin; don't redirect it to the domain without planning a
+      PWA reinstall + push re-subscription.
 - [ ] **Lawyer review** of `/privacy` and `/terms` (both are marked as drafts);
       fill in the terms' governing-law placeholder with the LLC's state; update
       both effective dates.
