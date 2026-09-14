@@ -7,10 +7,19 @@ import { competitionFlag } from '../leagues.js';
 import AdSlot from './AdSlot.jsx';
 import { useFavorites } from '../favorites.js';
 
-// One ad slot after the 4th card, and only when the list is long enough that
-// it doesn't dominate (see AdSlot.jsx — renders nothing until ads are enabled).
+const dayFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+const dayKey = (m) => new Date(m.kickoff).toDateString();
+
+// List decoration: a date divider wherever the calendar day changes between
+// two matches (an <h2>, so it inherits the exact section-heading look of
+// "Upcoming"/"Results"), plus one ad slot after the 4th card — only when the
+// list is long enough that it doesn't dominate (see AdSlot.jsx — renders
+// nothing until ads are enabled).
 const withInlineAd = (list, render) => list.map((m, i) => (
   <React.Fragment key={m.id}>
+    {i > 0 && dayKey(list[i - 1]) !== dayKey(m) && (
+      <h2 className="day-divider">{dayFmt.format(new Date(m.kickoff))}</h2>
+    )}
     {render(m)}
     {i === 3 && list.length >= 5 && <AdSlot name="schedule-inline" />}
   </React.Fragment>
