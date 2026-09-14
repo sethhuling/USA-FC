@@ -51,3 +51,12 @@ alter table public.devices            enable row level security;
 alter table public.favorites          enable row level security;
 alter table public.push_subscriptions enable row level security;
 alter table public.sent_notifications enable row level security;
+
+-- Belt and suspenders: make the grants explicit regardless of the project's
+-- "automatically expose new tables" setting — the server's service_role keeps
+-- access, the public API roles lose even nominal privileges (RLS already
+-- blocks them, but revoking removes the question entirely).
+grant all on public.devices, public.favorites, public.push_subscriptions,
+  public.sent_notifications to service_role;
+revoke all on public.devices, public.favorites, public.push_subscriptions,
+  public.sent_notifications from anon, authenticated;
