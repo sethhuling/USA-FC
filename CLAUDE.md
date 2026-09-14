@@ -380,8 +380,11 @@ notes and the final session summary; schema SQL: `docs/supabase-schema.sql`.
   (useSyncExternalStore; settings.js stays non-reactive by design) —
   localStorage-first for instant/offline UI, best-effort server sync, union
   reconcile on boot. Star toggles: `FavoriteStar.jsx` (Players cards, profile
-  sheet hero). The 5th tab `FavoritesTab.jsx` holds ONLY the favorites list; SettingsSheet.jsx (topbar gear) holds notification
-  toggles, sign-in, units setting, and Privacy/Terms links.
+  sheet hero); passive `.fav-mark` ★ marks favorites in schedule chips and the
+  stats table. The 5th tab `FavoritesTab.jsx` holds the favorites ("Players")
+  and their matches ("Schedule"); SettingsSheet.jsx (topbar gear) holds
+  notification toggles, sign-in, units setting, and Privacy/Terms links (no
+  test-push button — removed at user request; the endpoint remains).
 - Push: standard Web Push/VAPID (`web-push` package; NO Firebase). sw.js has
   the push/notificationclick handlers (cache name bumped to unclesamfc-v2).
   iOS requires the PWA installed to the Home Screen (16.4+) and the permission
@@ -419,8 +422,8 @@ enable procedure (custom domain UncleSamFC.com, AdSense application, ads.txt,
 Google's CMP for consent, privacy-policy rewrite) is
 `docs/ads-launch-checklist.md`. Legal pages: `/privacy` and `/terms`
 (server/privacy.html, server/terms.html, served like /admin; both marked
-draft pending lawyer review; linked from the News footer, the Favorites tab, and
-the settings sheet).
+draft pending lawyer review; linked from the News footer and the settings
+sheet — the Favorites tab no longer carries a footer).
 
 ## Data sources (server/adapters/)
 
@@ -552,12 +555,26 @@ store like favorites.js.
 
 ## Client notes (client/src/)
 
-- Favorites tab (`FavoritesTab.jsx`, 5th tab, Sept 2026; labeled "Favorites", was "MVPs" then "My Club"): the favorites list; SettingsSheet.jsx (topbar ⚙ gear) holds push
-  enable/prefs (with iOS add-to-home-screen guidance), optional sign-in, the
-  units setting, Privacy/Terms links. Favorite stars (`FavoriteStar.jsx`) sit
-  on Players-tab cards (corner-pinned) and in the profile sheet hero; both
-  stopPropagation so starring never opens a sheet. The Players tab pins a
-  "⭐ Favorites" section above the league groups when any exist.
+- Favorites tab (`FavoritesTab.jsx`, 5th tab, Sept 2026; label evolved
+  My Club → MVPs → "Favorites", all Sept 14 user requests — don't rename again
+  without asking): two sections, "Players" (the starred list) and "Schedule"
+  (their live/upcoming matches via ScheduleTab's exported `MatchRow`, opening
+  the MatchSheet). SettingsSheet.jsx (topbar ⚙ gear) holds push enable/prefs
+  (with iOS add-to-home-screen guidance), optional sign-in, the units setting,
+  and Privacy/Terms links. The "Send test notification" button was REMOVED
+  (user request, Sept 14) — `POST /api/me/push/test` stays for curl debugging;
+  don't re-add the button. Favorite stars (`FavoriteStar.jsx`, the interactive
+  toggle) sit on Players-tab cards (corner-pinned) and in the profile sheet
+  hero; both stopPropagation so starring never opens a sheet. The Players tab
+  pins a "⭐ Favorites" section above the league groups when any exist. A
+  PASSIVE red ★ (`.fav-mark`) marks favorited players inside schedule-card
+  chips (Schedule + Favorites tabs share MatchRow) and before names in the
+  Stats leaderboard.
+- Schedule lists (Upcoming AND Results) insert a date divider `<h2
+  className="day-divider">` wherever the calendar day changes between
+  consecutive cards (user request, Sept 14; inherits the `section h2` style so
+  it matches the "Upcoming" heading exactly) — built into `withInlineAd()` in
+  ScheduleTab.jsx alongside the ad slot after the 4th card.
 - Overlay sheets (player profile, match, team) render through React portals to
   `document.body` — the leaderboard's sticky column creates stacking contexts that
   otherwise paint over them. Modal backdrop z-index is 100, above the sticky topbar (40).
@@ -660,6 +677,9 @@ store like favorites.js.
   of 4 on the sheet. The raw Passes tile was removed (user preference, Sept
   2026) because a 13th tile pushed the grid onto an ugly 4th line — Pass %
   stays. Don't re-add Passes, and adding any new tile means removing one.
+- Career table alignment (user request, Sept 14, 2026): EVERY row renders the
+  12px `.spell-caret` span (empty on single-season rows) so all season labels
+  start in one column — don't make the caret conditional again.
 - Career table season spells (user request, Sept 2026): consecutive seasons at
   the same club collapse into ONE row ("2019-2024 · 5 seasons") carrying the
   summed apps/goals/assists/minutes; clicking it — Enter/Space too, the row is
@@ -875,7 +895,8 @@ monetized launch). What keeps the News tab low-risk:
   The onrender.com subdomain stays enabled — Seth's installed PWAs live on
   that origin; don't force-redirect onrender → the domain without a plan for
   reinstalling the PWAs and re-doing their push subscriptions. Supabase Site
-  URL should be https://unclesamfc.com (Seth flipping it Sept 14) with
+  URL should be https://unclesamfc.com (asked of Seth Sept 14 — NOT yet
+  confirmed done; check the Supabase dashboard before relying on it) with
   redirect URLs kept for onrender + localhosts.
 - `/privacy` and `/terms` are drafts — a lawyer must review before public
   launch; the terms' governing-law placeholder waits on the LLC.
