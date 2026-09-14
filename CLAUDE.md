@@ -17,7 +17,7 @@ scheduler.
 
 Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
 Players (profiles with bio and season stats), News (hand-picked headline links +
-an auto-written daily roundup), MVPs (the favorites list ONLY; renamed from
+an auto-written daily roundup), MVPs (the favorites list + their live/upcoming games, reusing ScheduleTab's exported MatchRow; renamed from
 "My Club" Sept 14, 2026). Notifications, account/sign-in, and display settings
 all live behind the ⚙ gear in the topbar's LEFT corner (SettingsSheet.jsx) — a
 user-requested placement mirroring the LIVE dot; the gear stops propagation so

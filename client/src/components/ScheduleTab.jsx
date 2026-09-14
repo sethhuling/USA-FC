@@ -30,7 +30,8 @@ const sameClub = (a, b) => {
   return !!na && !!nb && (na === nb || na.includes(nb) || nb.includes(na));
 };
 
-function MatchRow({ m, playersById, onOpen }) {
+// Exported: the MVPs tab reuses these cards for its favorites' upcoming games.
+export function MatchRow({ m, playersById, onOpen }) {
   const kickoff = new Date(m.kickoff);
   const scorers = m.trackedPlayers.filter((p) => p.goals?.length > 0);
   return (

@@ -1,17 +1,32 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { PlayerLink } from './PlayerProfile.jsx';
 import { TeamLink } from './TeamSheet.jsx';
+import { MatchRow } from './ScheduleTab.jsx';
+import MatchSheet from './MatchSheet.jsx';
 import FavoriteStar from './FavoriteStar.jsx';
 import { useFavorites } from '../favorites.js';
 
-// The MVPs tab: just the user's favorited players. Notifications, account,
-// and display settings live in SettingsSheet.jsx (the topbar gear).
-export default function MvpsTab({ players }) {
+// The MVPs tab: the user's favorited players, plus their live and upcoming
+// games (same cards as the Schedule tab). Notifications, account, and display
+// settings live in SettingsSheet.jsx (the topbar gear).
+export default function MvpsTab({ players, matches }) {
   const favs = useFavorites();
+  const [selectedMatch, setSelectedMatch] = useState(null);
+
+  const playersById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 
   const favPlayers = useMemo(
     () => players.filter((p) => favs.has(p.id)).sort((a, b) => a.name.localeCompare(b.name)),
     [players, favs]
+  );
+
+  // Live first (they kicked off earliest), then upcoming by kickoff.
+  const favMatches = useMemo(
+    () => matches
+      .filter((m) => m.status !== 'finished' &&
+        m.trackedPlayers.some((tp) => favs.has(tp.playerId)))
+      .sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff)),
+    [matches, favs]
   );
 
   return (
@@ -40,6 +55,27 @@ export default function MvpsTab({ players }) {
           Notification and account settings are behind the ⚙ gear at the top of the app.
         </p>
       </section>
+
+      {favPlayers.length > 0 && (
+        <section>
+          <h2>Upcoming games</h2>
+          {favMatches.length === 0 ? (
+            <p className="empty">No live or upcoming games for your favorites right now.</p>
+          ) : (
+            favMatches.map((m) => (
+              <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />
+            ))
+          )}
+        </section>
+      )}
+
+      {selectedMatch && (
+        <MatchSheet
+          match={selectedMatch}
+          playersById={playersById}
+          onClose={() => setSelectedMatch(null)}
+        />
+      )}
     </div>
   );
 }

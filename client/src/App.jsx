@@ -161,7 +161,7 @@ export default function App() {
         {tab === 'stats' && <StatsTab players={players} />}
         {tab === 'players' && <PlayersTab players={players} />}
         {tab === 'news' && <NewsTab players={players} />}
-        {tab === 'mvps' && <MvpsTab players={players} />}
+        {tab === 'mvps' && <MvpsTab players={players} matches={matches} />}
       </main>
 
       <nav className="tabbar">
