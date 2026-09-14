@@ -113,7 +113,9 @@ function SeasonTable({ rows }) {
                   } : undefined}
                 >
                   <td>
-                    {many && <span className="spell-caret" aria-hidden="true">▸</span>}
+                    {/* Always rendered so every row reserves the caret's 12px —
+                        single-season years line up with the expandable ones. */}
+                    <span className="spell-caret" aria-hidden="true">{many ? '▸' : ''}</span>
                     {fmtSpan(g)}
                     {many && <span className="spell-count"> · {g.seasons.length} seasons</span>}
                   </td>
