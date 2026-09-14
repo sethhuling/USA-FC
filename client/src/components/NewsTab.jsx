@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { fetchNews } from '../api.js';
 import { PlayerLink } from './PlayerProfile.jsx';
 import MatchSheet from './MatchSheet.jsx';
+import AdSlot from './AdSlot.jsx';
 // Deployment-level contact address (build-time import, like coverage.json).
 import site from '../../../server/config/site.json';
 
@@ -230,6 +231,9 @@ export default function NewsTab({ players }) {
         ) : <p className="empty">No news here yet — new headlines are added each morning.</p>
       )}
 
+      {/* Below the headline list, above the footer — ads never mix with headlines. */}
+      <AdSlot name="news-list" />
+
       <footer className="news-footer">
         <p>
           Headlines link to stories on each publisher’s own website. Uncle Sam FC doesn’t
@@ -243,6 +247,9 @@ export default function NewsTab({ players }) {
         <p>
           Publisher or rights holder and want a link removed? Email{' '}
           <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+        </p>
+        <p>
+          <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a>
         </p>
       </footer>
 

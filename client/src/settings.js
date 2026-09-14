@@ -9,6 +9,7 @@ const OLD_KEY = 'usafc-settings'; // pre-rename key, read as a fallback
 
 export const DEFAULTS = {
   units: 'imperial', // 'imperial' | 'metric' — player height/weight display
+  adPreview: false,  // show placeholder ad slots (dev preview; see AdSlot.jsx)
 };
 
 export function getSettings() {

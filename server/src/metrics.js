@@ -24,6 +24,12 @@ function recordApiCall() {
 function recordCacheHit() { cacheHits++; }
 function recordCacheMiss() { cacheMisses++; }
 
+// Web Push deliveries (profile/push.js). Since boot, like the cache counters.
+let pushSent = 0;
+let pushErrors = 0;
+function recordPushSent() { pushSent++; }
+function recordPushError() { pushErrors++; }
+
 function snapshot() {
   prune();
   const now = Date.now();
@@ -42,7 +48,14 @@ function snapshot() {
       misses: cacheMisses,
       hitRate: total ? Number((cacheHits / total).toFixed(4)) : null,
     },
+    push: {
+      sent: pushSent,
+      errors: pushErrors,
+    },
   };
 }
 
-module.exports = { recordApiCall, recordCacheHit, recordCacheMiss, snapshot };
+module.exports = {
+  recordApiCall, recordCacheHit, recordCacheMiss,
+  recordPushSent, recordPushError, snapshot,
+};

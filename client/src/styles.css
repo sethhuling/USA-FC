@@ -686,3 +686,82 @@ section h2.section-live { color: var(--live); }
 }
 .news-footer p { margin: 0 0 6px; }
 .news-footer a { color: var(--accent); }
+
+/* ---------- Favorites ---------- */
+.fav-star {
+  border: none; background: none; cursor: pointer; padding: 2px 4px;
+  font-size: 1.15rem; line-height: 1; color: var(--muted);
+  -webkit-tap-highlight-color: transparent;
+}
+.fav-star.active { color: var(--live); }
+/* On player cards: pinned to the corner so it never fights the name for space. */
+.player-card { position: relative; }
+.player-card .card-star { position: absolute; top: 4px; right: 4px; }
+.player-card .cell-name, .player-card .cell-sub { padding-right: 26px; }
+/* In the profile sheet's navy hero band */
+.hero-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.player-hero .hero-star { color: rgba(255, 255, 255, 0.6); font-size: 1.35rem; }
+.player-hero .hero-star.active { color: #E0455F; }
+
+/* ---------- My Club tab ---------- */
+.club-note { color: var(--muted); font-size: 0.84rem; line-height: 1.5; margin: 4px 0 8px; }
+.error-note { color: var(--live); }
+.fav-list { list-style: none; margin: 0; padding: 0; }
+.fav-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0; border-top: 1px solid var(--border);
+}
+.fav-row:first-child { border-top: none; }
+.fav-row-main { flex: 1; min-width: 0; }
+.pref-list { list-style: none; margin: 0; padding: 0; }
+.pref-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 0; border-top: 1px solid var(--border);
+}
+.pref-list .pref-row:first-child, .p-section > .pref-row { border-top: none; }
+.pref-label { font-weight: 600; font-size: 0.86rem; }
+.pref-sub { color: var(--muted); font-size: 0.72rem; margin-top: 1px; }
+.switch {
+  position: relative; width: 44px; height: 26px; flex-shrink: 0;
+  border-radius: 999px; border: 1px solid var(--border);
+  background: var(--border); cursor: pointer; padding: 0;
+  transition: background 0.15s ease;
+}
+.switch .knob {
+  position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: #fff; transition: left 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.switch.on { background: var(--accent); border-color: var(--accent); }
+.switch.on .knob { left: 20px; }
+.btn-primary {
+  display: block; width: 100%; padding: 10px; border-radius: 12px;
+  border: none; background: var(--accent); color: #fff;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer;
+}
+@media (prefers-color-scheme: dark) {
+  .btn-primary { background: #2c5aa0; }
+}
+.btn-primary:disabled { opacity: 0.55; cursor: default; }
+.btn-ghost {
+  padding: 8px 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: transparent; color: var(--text);
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+}
+.btn-ghost.danger { color: var(--live); border-color: var(--live); }
+.club-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.signin { margin-top: 4px; }
+.signin-or { text-align: center; color: var(--muted); font-size: 0.72rem; margin: 8px 0; }
+.signin-row { display: flex; gap: 8px; }
+.signin-input { flex: 1; margin: 0; }
+
+/* ---------- Ad slots (see AdSlot.jsx; nothing renders until enabled) ---------- */
+.ad-slot { min-height: 100px; margin: 12px 0; }
+.ad-slot.placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; border: 2px dashed var(--border); border-radius: 14px; color: var(--muted);
+}
+.ad-slot .ad-kicker {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.ad-slot .ad-name { font-size: 0.72rem; }

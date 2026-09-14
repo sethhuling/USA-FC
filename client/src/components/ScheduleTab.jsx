@@ -4,6 +4,16 @@ import MatchSheet from './MatchSheet.jsx';
 import { TeamLink } from './TeamSheet.jsx';
 import { UsaBall, UsaBoot } from './icons.jsx';
 import { competitionFlag } from '../leagues.js';
+import AdSlot from './AdSlot.jsx';
+
+// One ad slot after the 4th card, and only when the list is long enough that
+// it doesn't dominate (see AdSlot.jsx — renders nothing until ads are enabled).
+const withInlineAd = (list, render) => list.map((m, i) => (
+  <React.Fragment key={m.id}>
+    {render(m)}
+    {i === 3 && list.length >= 5 && <AdSlot name="schedule-inline" />}
+  </React.Fragment>
+));
 
 const timeFmt = new Intl.DateTimeFormat(undefined, {
   weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
@@ -164,7 +174,7 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
           {upcoming.length > 0 && (
             <section>
               <h2>Upcoming</h2>
-              {upcoming.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
+              {withInlineAd(upcoming, (m) => <MatchRow m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
             </section>
           )}
           {live.length + upcoming.length === 0 && (
@@ -176,7 +186,7 @@ export default function ScheduleTab({ matches, players, lastUpdated }) {
         finished.length > 0 ? (
           <section>
             <h2>Results — last 30 days</h2>
-            {finished.map((m) => <MatchRow key={m.id} m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
+            {withInlineAd(finished, (m) => <MatchRow m={m} playersById={playersById} onOpen={setSelectedMatch} />)}
           </section>
         ) : <p className="empty">No results for this filter.</p>
       )}

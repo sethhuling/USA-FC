@@ -3,6 +3,7 @@ import { fetchLeagues } from '../api.js';
 import { leagueCountryCode, leagueCountry, leagueRank } from '../leagues.js';
 import { useOpenProfile, PlayerLink } from './PlayerProfile.jsx';
 import { TeamLink } from './TeamSheet.jsx';
+import AdSlot from './AdSlot.jsx';
 
 const PRESETS = [
   { key: 'goals', label: 'Goals' },
@@ -328,6 +329,7 @@ export default function StatsTab({ players }) {
         </table>
       </div>
       {rows.length === 0 && <p className="empty">No players match this filter.</p>}
+      <AdSlot name="stats-bottom" />
     </div>
   );
 }

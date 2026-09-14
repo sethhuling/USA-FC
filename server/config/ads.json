@@ -1,0 +1,10 @@
+{
+  "_readme": "Advertising config, imported by the client at BUILD time (like site.json — edits need `npm run build`). enabled=false ships no ad markup at all. At launch: follow docs/ads-launch-checklist.md — set enabled=true, put the AdSense publisher id (ca-pub-…) in client, and each ad-unit slot id below (a slot with an empty id renders nothing, so units can go live one at a time). To preview placeholder slots on a device today, run in the browser console: localStorage.setItem('unclesamfc-settings', JSON.stringify({adPreview:true})) and reload.",
+  "enabled": false,
+  "client": "",
+  "slots": {
+    "schedule-inline": "",
+    "news-list": "",
+    "stats-bottom": ""
+  }
+}

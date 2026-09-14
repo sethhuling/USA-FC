@@ -1,8 +1,39 @@
+import { getDeviceId } from './identity.js';
+
 async function get(path) {
   const res = await fetch(path);
   if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
   return res.json();
 }
+
+/* ---------- /api/me: per-device profile (favorites, prefs, push) ---------- */
+// Every call carries the anonymous device id; a Supabase access token rides
+// along when signed in (set by auth.js on session changes) so the server can
+// link the device to the account.
+let authToken = null;
+export function setAuthToken(token) { authToken = token || null; }
+
+async function me(path, { method = 'GET', body } = {}) {
+  const headers = { 'x-device-id': getDeviceId() };
+  if (authToken) headers.authorization = `Bearer ${authToken}`;
+  if (body !== undefined) headers['content-type'] = 'application/json';
+  const res = await fetch(path, {
+    method, headers,
+    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+  });
+  if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
+  return res.json();
+}
+
+export const fetchMe = () => me('/api/me');
+export const addFavorite = (id) => me(`/api/me/favorites/${encodeURIComponent(id)}`, { method: 'PUT' });
+export const removeFavorite = (id) => me(`/api/me/favorites/${encodeURIComponent(id)}`, { method: 'DELETE' });
+export const savePrefs = (prefs) => me('/api/me/prefs', { method: 'PUT', body: prefs });
+export const savePushSubscription = (sub) => me('/api/me/push', { method: 'POST', body: sub });
+export const deletePushSubscription = () => me('/api/me/push', { method: 'DELETE' });
+export const sendTestPush = () => me('/api/me/push/test', { method: 'POST' });
+export const linkDevice = () => me('/api/me/link', { method: 'POST' });
+export const unlinkDevice = () => me('/api/me/unlink', { method: 'POST' });
 
 export const fetchMeta = () => get('/api/meta');
 export const fetchPlayers = () => get('/api/players');

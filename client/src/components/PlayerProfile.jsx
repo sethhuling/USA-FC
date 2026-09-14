@@ -6,6 +6,7 @@ import { fetchPlayerProfile } from '../api.js';
 import { leagueCountry, NATIONALITY, isNationalTeam } from '../leagues.js';
 import { getSetting } from '../settings.js';
 import { FixtureLine } from './TeamSheet.jsx';
+import FavoriteStar from './FavoriteStar.jsx';
 
 const ProfileContext = createContext(() => {});
 export const useOpenProfile = () => useContext(ProfileContext);
@@ -306,7 +307,10 @@ function ProfileSheet({ player, onClose }) {
               </p>
             </div>
           </div>
-          <button className="close" onClick={onClose} aria-label="Close">✕</button>
+          <div className="hero-actions">
+            <FavoriteStar playerId={player.id} className="hero-star" />
+            <button className="close" onClick={onClose} aria-label="Close">✕</button>
+          </div>
         </div>
 
         {profile?.injury && <InjuryBanner inj={profile.injury} />}

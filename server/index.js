@@ -31,6 +31,15 @@ app.get('/api/admin/stats', (req, res) => {
 // Human-friendly view of the same stats: open /admin, enter the key once.
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 
+// Static legal pages, served like /admin (no rebuild needed for edits).
+app.get('/privacy', (req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+app.get('/terms', (req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+
+// Per-device profiles: favorites, notification prefs, push subscriptions,
+// optional account linking (server/src/profile/). JSON body parsing is scoped
+// to these routes — every other endpoint stays GET-only.
+app.use('/api/me', express.json({ limit: '10kb' }), require('./src/profile/routes'));
+
 app.get('/api/meta', async (req, res) => {
   try { res.json(await getMeta()); } catch (e) { res.status(502).json({ error: e.message }); }
 });
@@ -85,4 +94,6 @@ app.listen(port, () => {
   // Cache warmer: full warm now, forced re-warm daily and after each match
   // window, so user opens never hit API-Football cold (see src/warm.js).
   require('./src/warm').start();
+  // Push notification engine (no-ops unless Supabase + VAPID are configured).
+  require('./src/profile/notifier').start();
 });

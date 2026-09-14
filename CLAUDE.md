@@ -17,7 +17,8 @@ scheduler.
 
 Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
 Players (profiles with bio and season stats), News (hand-picked headline links +
-an auto-written daily roundup). Primary user is Seth, mostly on an iPad
+an auto-written daily roundup), My Club (favorites, notification settings,
+optional sign-in, app settings). Primary user is Seth, mostly on an iPad
 and phone — mobile/tablet layout is the priority, not desktop.
 
 Long-term goal: a public, monetized app. Prefer designs that scale beyond one user —
@@ -79,6 +80,13 @@ place the SERVER half of a change is proven.
   upstream request counts and cache hit rate; endpoint returns 503 if unset).
   `/admin` serves a human-friendly page (`server/admin.html`) for the same stats:
   it asks for the key once and stores it in localStorage.
+- Profiles/push vars (all optional; unset = those features off, see the
+  Profiles section): `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` (server-only
+  secret), `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (build-time, reach
+  the client bundle — vite.config.js has `envDir: '..'` so the root `.env`
+  supplies them locally; the anon key is public by design),
+  `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY` (generate once:
+  `npx web-push generate-vapid-keys`), `VAPID_SUBJECT` (mailto: contact).
 - The live `uncle-sam-fc` service is a PLAIN web service, not Blueprint-managed
   (since Sept 2026): the Render dashboard is the single source of truth for env
   vars, instance plan, and every other service setting. Set new secrets in the
@@ -342,6 +350,72 @@ reintroduce upstream awaits in getMatches' response path (perf fix, Sept 2026).
   apart — Tillman's Bayern→PSV pair) are kept. 8 of 85 tracked players had
   doubled rows when scanned.
 
+## Profiles, favorites & push notifications (server/src/profile/, added Sept 2026)
+
+Per-device profiles with optional sign-in, feeding personalized Web Push.
+DARK UNTIL CONFIGURED: every piece no-ops without its env vars (see
+Environment), so demo mode and unconfigured deploys are unaffected. Setup
+steps live in the "Manual steps" list in docs/supabase-schema.sql's companion
+notes and the final session summary; schema SQL: `docs/supabase-schema.sql`.
+
+- Identity: the client mints a random device UUID (localStorage,
+  `client/src/identity.js`) sent as `x-device-id`. No sign-in needed for
+  anything. Supabase Auth sign-in (Google or email magic link,
+  `client/src/auth.js`) LINKS the device to a user; a linked device's
+  effective favorites are the UNION across the user's devices (that's the
+  whole sync/merge mechanism — `visibleDeviceIds()` in profile/routes.js).
+- Storage: Supabase Postgres (tables devices / favorites / push_subscriptions
+  / sent_notifications), accessed ONLY by the server via the service-role key
+  (`profile/supabase.js`); RLS is on with zero policies so the public anon key
+  can touch nothing. The anon key is used client-side for AUTH only.
+- Routes: `/api/me` router (profile/routes.js), mounted with `express.json`
+  scoped to it — the rest of the API stays GET-only. Favorites are validated
+  against players.json ids; caps: 200 favorites, 3 push subscriptions/device.
+- Client: `client/src/favorites.js` is the reactive store
+  (useSyncExternalStore; settings.js stays non-reactive by design) —
+  localStorage-first for instant/offline UI, best-effort server sync, union
+  reconcile on boot. Star toggles: `FavoriteStar.jsx` (Players cards, profile
+  sheet hero). The 5th tab `MyClubTab.jsx` holds favorites, notification
+  toggles, sign-in, units setting, and Privacy/Terms links.
+- Push: standard Web Push/VAPID (`web-push` package; NO Firebase). sw.js has
+  the push/notificationclick handlers (cache name bumped to unclesamfc-v2).
+  iOS requires the PWA installed to the Home Screen (16.4+) and the permission
+  request inside a tap — MyClubTab shows add-to-home-screen guidance when
+  needed. After a sw.js change, delete + re-add the PWA once on each device.
+- Notifier (`profile/notifier.js`): ONE 60s timer started from index.js.
+  Five notification types, per-device prefs: kickoff reminders (≤30 min out,
+  with broadcaster, suppressed >5 min after kickoff), live goals & assists,
+  subbed-on, full-time summary (trackedStats lines, falling back to
+  event-derived; honors the null-means-zero vs no-stat-line rules), injury
+  notes (from injury-notes.json, verified within 7 days — the routine's commit
+  restarts the process, so the startup pass catches new notes).
+  KEY DESIGN: the `sent_notifications` table IS the state. Event keys are
+  deterministic (`goal:<match>:<player>:<n>`, `ft:<match>`, …), re-derived
+  from current snapshots each tick, and an ignore-duplicates insert decides
+  "send?" — restarts (frequent, by design) can neither re-send nor drop. No
+  tick-to-tick diffing anywhere; don't introduce any.
+  API cost: with zero push-subscribed devices the tick exits before any data
+  work; otherwise each tick calls service.getMatches(), which costs the same
+  as one browser tab polling (cache hits + the shared 60s 'live' overlay).
+  `_test` exports the derivation helpers for hand-built-snapshot checks (demo
+  data has no assists/squadStatus/trackedStats). `/api/admin/stats` now shows
+  push sent/error counters. Logs: `[notify]`, `[push]`.
+
+## Ads prep (Sept 2026 — slots OFF until launch)
+
+Ad slots exist but render NOTHING while `server/config/ads.json` has
+`enabled: false` (client imports it at build time, like site.json).
+`AdSlot.jsx` placements: Schedule after the 4th card (lists ≥5 only), News
+above the footer, Stats below the leaderboard — never inside sheets (slots
+have no z-index; sheet backdrops are z-index 100). Preview placeholders on a
+device: `localStorage.setItem('unclesamfc-settings','{"adPreview":true}')` +
+reload. The AdSense loader sits COMMENTED OUT in client/index.html. The whole
+enable procedure (custom domain UncleSamFC.com, AdSense application, ads.txt,
+Google's CMP for consent, privacy-policy rewrite) is
+`docs/ads-launch-checklist.md`. Legal pages: `/privacy` and `/terms`
+(server/privacy.html, server/terms.html, served like /admin; both marked
+draft pending lawyer review; linked from the News footer and My Club).
+
 ## Data sources (server/adapters/)
 
 Four sources in two adapter groups; each has one job. In production only two are
@@ -402,10 +476,12 @@ everyone using it:
 Per-user choices live in `client/src/settings.js` — a localStorage-backed
 preferences layer (`getSetting`/`setSetting`, defaults in `DEFAULTS`). Its key is
 `unclesamfc-settings`; reads fall back to the pre-rename `usafc-settings` key so
-old devices keep their preferences. Currently
-just `units` (`imperial` default, `metric` supported), used for height/weight in
-`PlayerProfile.jsx`. There is no settings UI yet; new per-user display
-preferences should route through this module rather than being hard-coded.
+old devices keep their preferences. Currently `units` (`imperial` default,
+`metric` supported; toggleable in the My Club tab) and `adPreview` (console-only
+dev flag, see Ads prep). settings.js is synchronous and non-reactive BY DESIGN —
+reactive per-user state (favorites) lives in `client/src/favorites.js` instead;
+route new display preferences through settings.js, new reactive state through a
+store like favorites.js.
 
 ## Data files (server/data/)
 
@@ -470,6 +546,12 @@ preferences should route through this module rather than being hard-coded.
 
 ## Client notes (client/src/)
 
+- My Club tab (`MyClubTab.jsx`, 5th tab, Sept 2026): favorites list, push
+  enable/prefs (with iOS add-to-home-screen guidance), optional sign-in, the
+  units setting, Privacy/Terms links. Favorite stars (`FavoriteStar.jsx`) sit
+  on Players-tab cards (corner-pinned) and in the profile sheet hero; both
+  stopPropagation so starring never opens a sheet. The Players tab pins a
+  "⭐ Favorites" section above the league groups when any exist.
 - Overlay sheets (player profile, match, team) render through React portals to
   `document.body` — the leaderboard's sticky column creates stacking contexts that
   otherwise paint over them. Modal backdrop z-index is 100, above the sticky topbar (40).
@@ -771,9 +853,18 @@ monetized launch). What keeps the News tab low-risk:
   2025-26), A-League (2026-27 US arrangement unannounced as of Sept 2026;
   season starts mid-October — ESPN carried 2025-26), Eliteserien (league-run
   international OTT only, no stable US brand to cite).
-- There is no settings UI: per-user preferences (`client/src/settings.js`, currently
-  just `units`) can only be changed from the browser console. Build a small settings
-  screen once a second preference exists.
+- Profiles/push are BUILT BUT DARK (Sept 2026): the code ships disabled until
+  Seth creates the Supabase project, runs `docs/supabase-schema.sql`, sets up
+  the auth providers (Google OAuth client + magic-link email), generates VAPID
+  keys, and adds the seven env vars in the Render dashboard + local `.env`
+  (list in .env.example). Until then: favorites work per-device via
+  localStorage only; no push, no sign-in. Google sign-in needs an OAuth client
+  in Google Cloud Console with Supabase's callback URL. After the first deploy
+  with push, delete + re-add the PWA on the iPad/phone once (new sw.js).
+- `/privacy` and `/terms` are drafts — a lawyer must review before public
+  launch; the terms' governing-law placeholder waits on the LLC. The domain
+  for launch is UncleSamFC.com (purchased/decided Sept 2026; not yet pointed
+  at Render — step 1 of docs/ads-launch-checklist.md).
 
 ## Working style
 
