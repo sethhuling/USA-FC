@@ -17,9 +17,9 @@ scheduler.
 
 Tabs: Schedule (past/live/upcoming, with US streaming info), Stats (leaderboards),
 Players (profiles with bio and season stats), News (hand-picked headline links +
-an auto-written daily roundup), MVPs (favorites, notification settings,
-optional sign-in; renamed from "My Club" Sept 14, 2026). App settings (units)
-live behind the ⚙ gear in the topbar's LEFT corner (SettingsSheet.jsx) — a
+an auto-written daily roundup), MVPs (the favorites list ONLY; renamed from
+"My Club" Sept 14, 2026). Notifications, account/sign-in, and display settings
+all live behind the ⚙ gear in the topbar's LEFT corner (SettingsSheet.jsx) — a
 user-requested placement mirroring the LIVE dot; the gear stops propagation so
 it doesn't trigger the header's brand tap. Primary user is Seth, mostly on an iPad
 and phone — mobile/tablet layout is the priority, not desktop.
@@ -378,12 +378,12 @@ notes and the final session summary; schema SQL: `docs/supabase-schema.sql`.
   (useSyncExternalStore; settings.js stays non-reactive by design) —
   localStorage-first for instant/offline UI, best-effort server sync, union
   reconcile on boot. Star toggles: `FavoriteStar.jsx` (Players cards, profile
-  sheet hero). The 5th tab `MvpsTab.jsx` holds favorites, notification
+  sheet hero). The 5th tab `MvpsTab.jsx` holds ONLY the favorites list; SettingsSheet.jsx (topbar gear) holds notification
   toggles, sign-in, units setting, and Privacy/Terms links.
 - Push: standard Web Push/VAPID (`web-push` package; NO Firebase). sw.js has
   the push/notificationclick handlers (cache name bumped to unclesamfc-v2).
   iOS requires the PWA installed to the Home Screen (16.4+) and the permission
-  request inside a tap — MvpsTab shows add-to-home-screen guidance when
+  request inside a tap — SettingsSheet shows add-to-home-screen guidance when
   needed. After a sw.js change, delete + re-add the PWA once on each device.
 - Notifier (`profile/notifier.js`): ONE 60s timer started from index.js.
   Five notification types, per-device prefs: kickoff reminders (≤30 min out,
@@ -550,7 +550,7 @@ store like favorites.js.
 
 ## Client notes (client/src/)
 
-- MVPs tab (`MvpsTab.jsx`, 5th tab, Sept 2026): favorites list, push
+- MVPs tab (`MvpsTab.jsx`, 5th tab, Sept 2026): the favorites list; SettingsSheet.jsx (topbar ⚙ gear) holds push
   enable/prefs (with iOS add-to-home-screen guidance), optional sign-in, the
   units setting, Privacy/Terms links. Favorite stars (`FavoriteStar.jsx`) sit
   on Players-tab cards (corner-pinned) and in the profile sheet hero; both

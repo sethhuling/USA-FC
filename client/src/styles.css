@@ -763,7 +763,7 @@ section h2.section-live { color: var(--live); }
 .signin-row { display: flex; gap: 8px; }
 .signin-input { flex: 1; margin: 0; }
 
-.settings-sheet { max-height: 60vh; }
+.settings-sheet { max-height: 86vh; }
 .settings-sheet .news-footer { margin-top: 10px; }
 
 /* ---------- Ad slots (see AdSlot.jsx; nothing renders until enabled) ---------- */
