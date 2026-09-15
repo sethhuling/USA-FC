@@ -1,12 +1,13 @@
-// Cross-checks the app's schedule against ESPN's public scoreboard feeds — an
-// independent source — and reports fixtures whose kickoff, home/away order, or
-// opponent disagree, plus tracked-club fixtures the source has that the app lacks.
+// Cross-checks the app's schedule against independent fixture sources
+// (schedule-sources.js) and reports fixtures whose kickoff, home/away order, or
+// opponent disagree, plus tracked-club fixtures a source has that the app lacks.
 // Spends ZERO API-Football requests: it reads the app's own /api/matches.
-// Competitions ESPN doesn't carry fall back to the sources in
-// schedule-sources.js (league/federation sites, or 90minut.pl for Poland).
 //
-// For finished matches in the window it also compares every tracked American's
-// start / sub / bench / out status against ESPN's lineup (ESPN only).
+// ESPN was REMOVED (Sept 15, 2026): espn.com's robots.txt disallows
+// anthropic-ai, and the Disney Terms of Use that cover ESPN forbid automated
+// access/data mining and any commercial use. Don't re-add it. Competitions
+// without an allowed source are listed as unverifiable; a licensed second data
+// provider is the intended replacement.
 //
 //   node server/scripts/check-schedule.js [appBaseUrl] [--days=N] [--back=N] [--teams] [--json]
 //
@@ -52,27 +53,6 @@ const AS_JSON = process.argv.includes('--json');
 // --teams also checks the further-out fixtures on every tracked club's team
 // page (the same list player profiles show), not just the Schedule tab.
 const WITH_TEAMS = process.argv.includes('--teams');
-
-// App competition label (coverage.json) → ESPN league slug. Competitions with
-// no working ESPN feed are listed as null and reported as "unverifiable".
-const ESPN_SLUG = {
-  'Premier League': 'eng.1', Championship: 'eng.2', 'League One': 'eng.3',
-  'La Liga': 'esp.1', 'La Liga 2': 'esp.2', 'Serie A': 'ita.1', 'Serie B': 'ita.2',
-  Bundesliga: 'ger.1', 'Bundesliga 2': 'ger.2', 'Ligue 1': 'fra.1', 'Ligue 2': 'fra.2',
-  'Liga MX': 'mex.1', Eredivisie: 'ned.1', 'Scottish Premiership': 'sco.1',
-  'Primeira Liga': 'por.1', 'Belgian Pro League': 'bel.1', 'Süper Lig': 'tur.1',
-  'Brasileirão': 'bra.1', 'Liga Profesional (Argentina)': 'arg.1',
-  'Austrian Bundesliga': 'aut.1', 'J. League': 'jpn.1', 'A-League': 'aus.1',
-  'Super League': 'sui.1', Eliteserien: 'nor.1', 'K League 1': null, Ekstraklasa: null,
-  'Champions League': 'uefa.champions', 'Europa League': 'uefa.europa',
-  'Conference League': 'uefa.europa.conf', 'FA Cup': 'eng.fa', 'EFL Cup': 'eng.league_cup',
-  'Copa del Rey': 'esp.copa_del_rey', 'Coppa Italia': 'ita.coppa_italia',
-  'DFB Pokal': 'ger.dfb_pokal', 'Coupe de France': 'fra.coupe_de_france',
-  'KNVB Beker': 'ned.cup', 'Taça de Portugal': 'por.taca.portugal',
-  'Copa do Brasil': 'bra.copa_do_brazil', 'Copa Argentina': 'arg.copa',
-  'Scottish Cup': 'sco.tennents', 'Scottish League Cup': 'sco.cis',
-  'Belgian Cup': null, 'Turkish Cup': null, 'Austrian Cup': null, 'Polish Cup': null,
-};
 
 // Names the two feeds spell too differently for token matching.
 const ALIASES = {
@@ -126,52 +106,6 @@ async function getJson(url) {
   return null;
 }
 
-async function espnEvents(slug, from, to) {
-  const d = await getJson(`https://site.api.espn.com/apis/site/v2/sports/soccer/${slug}/scoreboard?dates=${ymd(from)}-${ymd(to)}&limit=1000`);
-  if (!d) return null;
-  return (d.events || []).map((e) => {
-    const comp = e.competitions?.[0] || {};
-    const home = comp.competitors?.find((c) => c.homeAway === 'home')?.team?.displayName;
-    const away = comp.competitors?.find((c) => c.homeAway === 'away')?.team?.displayName;
-    return { id: e.id, kickoff: e.date, home, away, status: e.status?.type?.name, timeValid: comp.timeValid !== false };
-  }).filter((e) => e.home && e.away);
-}
-
-// For a finished match, compares each tracked American's squad status in the
-// app (start / on / played / bench / out) with ESPN's lineup for his side.
-// A player ESPN doesn't list at all is "out" there; an ESPN lineup with no
-// players (lower-division cup ties) proves nothing, so it is skipped.
-// Surname tokens: everything after the first name, minus suffixes — Latin
-// American double surnames ("Gómez Mendoza") often appear on ESPN with only
-// the first of the two, so ANY surname token counts as a hit.
-const surnames = (name) => norm(name).replace(/\b(jr|sr|ii|iii)\b\.?/g, '').split(/\s+/).filter(Boolean).slice(1).flatMap((w) => w.split('-')).filter((t) => t.length > 2 && !['de', 'la', 'del', 'van', 'von'].includes(t));
-// Players ESPN lists under a different surname than the roster does.
-const OTHER_SURNAMES = { 'siebatcheu-theosonjordan': ['pefok'] };
-
-async function lineupFindings(slug, e, m, tag) {
-  const s = await getJson(`https://site.api.espn.com/apis/site/v2/sports/soccer/${slug}/summary?event=${e.id}`);
-  const sides = s?.rosters || [];
-  if (sides.length < 2 || sides.some((r) => !r.roster?.length)) return [];
-  const out = [];
-  for (const p of m.trackedPlayers) {
-    const appSide = p.club === m.home ? 'home' : p.club === m.away ? 'away' : null;
-    const side = sides.find((r) => r.homeAway === appSide);
-    if (!side) continue;
-    const keys = [...surnames(p.name), ...(OTHER_SURNAMES[p.playerId] || [])];
-    const hits = side.roster.filter((r) => norm(r.athlete?.displayName || '').split(/[\s-]+/).some((t) => keys.includes(t)));
-    if (hits.length > 1) continue; // two players share the surname — can't tell them apart safely
-    const r = hits[0];
-    const espnStatus = !r ? 'out' : r.starter ? 'start' : r.subbedIn ? 'on' : 'bench';
-    const appStatus = p.squadStatus === 'played' ? 'on' : p.squadStatus;
-    if (!appStatus) continue;
-    if (process.env.DEBUG_LINEUPS) console.error(`${p.name} → ${r ? r.athlete.displayName : '(none)'}: app ${p.squadStatus}, espn ${espnStatus}`);
-    if (appStatus !== espnStatus && !(p.squadStatus === 'played' && espnStatus === 'start')) {
-      out.push({ ...tag, type: 'LINEUP', source: 'ESPN', ref: `${e.home} vs ${e.away}`, players: p.name, detail: `${p.name}: app says ${p.squadStatus}, ESPN says ${espnStatus}${r ? ` (${r.athlete.displayName})` : ''}` });
-    }
-  }
-  return out;
-}
-
 const fmtET = (iso) => new Date(iso).toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET';
 
 async function main() {
@@ -179,7 +113,7 @@ async function main() {
   const from = new Date(now - DAYS_BACK * 864e5), to = new Date(now + DAYS_AHEAD * 864e5);
   const appData = await getJson(`${APP}/api/matches`);
   if (!appData) throw new Error(`could not load ${APP}/api/matches`);
-  // The Schedule tab only reaches ~a week ahead; ESPN fixtures past its last
+  // The Schedule tab only reaches ~a week ahead; source fixtures past its last
   // kickoff aren't "missing" from it.
   const scheduleEnd = Math.max(...appData.matches.map((m) => Date.parse(m.kickoff)));
   const all = [...appData.matches];
@@ -202,21 +136,17 @@ async function main() {
   const findings = [], unverifiable = [], ok = [];
 
   for (const [comp, list] of byComp) {
-    const slug = ESPN_SLUG[comp];
     // Pad the source window two days each way so date-shifted fixtures still pair up.
     const padFrom = new Date(from.getTime() - 2 * 864e5), padTo = new Date(to.getTime() + 2 * 864e5);
-    let events = slug ? await espnEvents(slug, padFrom, padTo) : null;
-    let source = 'ESPN';
-    let reason = !slug ? 'no ESPN feed'
-      : events ? 'ESPN feed empty' : 'ESPN feed could not be loaded (see Source access problems)';
-    if (!events?.length && BACKUP_SOURCES[comp]) {
+    let events = null;
+    let source = null;
+    let reason = NO_SOURCE_REASONS[comp] ? `no allowed source (${NO_SOURCE_REASONS[comp]})` : 'no allowed source';
+    if (BACKUP_SOURCES[comp]) {
       const backup = BACKUP_SOURCES[comp];
       source = backup.label;
       events = await backup.fetch(padFrom, padTo).catch(() => null);
       if (events) events = events.filter((e) => Date.parse(e.kickoff) >= padFrom.getTime() && Date.parse(e.kickoff) <= padTo.getTime());
-      reason = `${reason}; backup ${backup.label} ${events ? 'has no fixtures in this window' : 'could not be loaded (see Source access problems)'}`;
-    } else if (!events?.length && NO_SOURCE_REASONS[comp]) {
-      reason = `${reason}; no backup source (${NO_SOURCE_REASONS[comp]})`;
+      reason = `${backup.label} ${events ? 'has no fixtures in this window' : 'could not be loaded (see Source access problems)'}`;
     }
     if (!events || !events.length) {
       for (const m of list) unverifiable.push({ comp, match: m, reason });
@@ -252,9 +182,8 @@ async function main() {
         ok.push({ ...tag, source, ref });
       }
       e.matched = true;
-      if (source === 'ESPN' && m.status === 'finished' && best.straight >= 0.5) findings.push(...await lineupFindings(slug, e, m, tag));
     }
-    // ESPN fixtures for a tracked club in the window that the app doesn't have.
+    // Source fixtures for a tracked club in the window that the app doesn't have.
     const appTeams = new Set(list.flatMap((m) => m.trackedPlayers.map((p) => p.club)));
     for (const e of events) {
       const t = Date.parse(e.kickoff);

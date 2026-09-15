@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- user-scalable=no / maximum-scale=1: no pinch-zoom (user request, Sept 2026);
+         maximum-scale=1 also stops iOS auto-zooming the page when a text field
+         (email/code sign-in) is focused. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#0A3161" />
     <link rel="icon" type="image/png" href="/crest.png" />
     <link rel="manifest" href="/manifest.webmanifest" />

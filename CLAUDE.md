@@ -612,6 +612,10 @@ store like favorites.js.
   consecutive cards (user request, Sept 14; inherits the `section h2` style so
   it matches the "Upcoming" heading exactly) — built into `withInlineAd()` in
   ScheduleTab.jsx alongside the ad slot after the 4th card.
+- Pinch-zoom is DISABLED (user request, Sept 2026): the viewport meta in
+  client/index.html carries `maximum-scale=1, user-scalable=no` — this also
+  stops iOS auto-zooming when the sign-in text fields get focus. Don't remove
+  it as an accessibility "fix" without asking.
 - Overlay sheets (player profile, match, team) render through React portals to
   `document.body` — the leaderboard's sticky column creates stacking contexts that
   otherwise paint over them. Modal backdrop z-index is 100, above the sticky topbar (40).
