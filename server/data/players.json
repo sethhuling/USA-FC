@@ -378,18 +378,6 @@
     "capTied": true
   },
   {
-    "id": "bindon-tyler",
-    "name": "Tyler Bindon",
-    "club": "Charlton",
-    "league": "Championship",
-    "position": "DF",
-    "positionGroup": "DF",
-    "nationality": "USA",
-    "apiFootballId": 430835,
-    "apiFootballTeamId": 1335,
-    "capTied": true
-  },
-  {
     "id": "wesseh-gabriel",
     "name": "Gabriel Wesseh",
     "club": "Fredrikstad",
@@ -545,18 +533,6 @@
     "capTied": true
   },
   {
-    "id": "gutierrez-brian",
-    "name": "Brian Gutiérrez",
-    "club": "Guadalajara Chivas",
-    "league": "Liga MX",
-    "position": "MF",
-    "positionGroup": "MF",
-    "nationality": "USA",
-    "apiFootballId": 212233,
-    "apiFootballTeamId": 2278,
-    "capTied": true
-  },
-  {
     "id": "aguirre-daniel",
     "name": "Daniel Aguirre",
     "club": "Guadalajara Chivas",
@@ -636,34 +612,6 @@
     "nationality": "USA",
     "apiFootballId": 71219,
     "apiFootballTeamId": 2285,
-    "otherEligibility": [
-      "Mexico"
-    ]
-  },
-  {
-    "id": "ledezma-richard",
-    "name": "Richard Ledezma",
-    "club": "Guadalajara Chivas",
-    "league": "Liga MX",
-    "position": "MF",
-    "positionGroup": "MF",
-    "nationality": "USA",
-    "apiFootballId": 102851,
-    "apiFootballTeamId": 2278,
-    "otherEligibility": [
-      "Mexico"
-    ]
-  },
-  {
-    "id": "castillo-aguayo-sergio",
-    "name": "Sergio Aguayo Castillo",
-    "club": "Guadalajara Chivas",
-    "league": "Liga MX",
-    "position": "FW",
-    "positionGroup": "FW",
-    "nationality": "USA",
-    "apiFootballId": 454038,
-    "apiFootballTeamId": 2278,
     "otherEligibility": [
       "Mexico"
     ]
@@ -892,20 +840,6 @@
     ]
   },
   {
-    "id": "osundina-oluwakorede",
-    "name": "Oluwakorede Osundina",
-    "club": "Casa Pia",
-    "league": "Primeira Liga",
-    "position": "FW",
-    "positionGroup": "FW",
-    "nationality": "USA",
-    "apiFootballId": 359436,
-    "apiFootballTeamId": 4716,
-    "otherEligibility": [
-      "Nigeria"
-    ]
-  },
-  {
     "id": "trusty-auston",
     "name": "Auston Trusty",
     "club": "Celtic",
@@ -939,20 +873,6 @@
     "apiFootballId": 19314,
     "apiFootballTeamId": 247,
     "capTied": true
-  },
-  {
-    "id": "brown-ethan",
-    "name": "Ethan Brown",
-    "club": "Kilmarnock",
-    "league": "Scottish Premiership",
-    "position": "DF",
-    "positionGroup": "DF",
-    "nationality": "USA",
-    "apiFootballId": 418054,
-    "apiFootballTeamId": 250,
-    "otherEligibility": [
-      "Canada"
-    ]
   },
   {
     "id": "murrell-jacob",

@@ -522,7 +522,17 @@ store like favorites.js.
   mid-season (moved to MLS or an uncovered league, e.g. Johan Gómez → Chicago
   Fire, Ian Hoffmann → Mjällby/Allsvenskan) — without this, their old league's
   season stat rows would re-add them on every scan; remove the id if the
-  player returns to a covered league. Season stats count only the player's
+  player returns to a covered league. Sept 15, 2026 additions (all
+  source-verified): excluded — Obed Vargas, Brian Gutiérrez, Richard Ledezma
+  (FIFA-approved switches to Mexico; Vargas 2024, the other two Jan 2026) and
+  Tyler Bindon (chose New Zealand, 2023); departed — all season-long LOANS,
+  so re-add when they return: Sergio Aguayo (Chivas → Deportes Tolima,
+  Colombia), Ethan Schilte-Brown (Kilmarnock → Glentoran, N. Ireland), Korede
+  Osundina (Casa Pia → Muğlaspor, TFF 1. Lig, to June 2027). The `capTied`
+  flag says a player is tied, NOT to which country — Gutiérrez and Bindon
+  carried it while tied elsewhere, and API-Football national rows didn't show
+  their other caps, so verify the country from a real source when auditing.
+  Season stats count only the player's
   current club — no prior-club (MLS) or national-team numbers; a mid-season
   transfer starts the line fresh.
 - `hometowns.json` — hand-verified US birth states (and rare country corrections)
