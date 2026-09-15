@@ -970,9 +970,21 @@ monetized launch). What keeps the News tab low-risk:
   (Postgres + Auth; schema from docs/supabase-schema.sql is applied), VAPID
   keys generated, all seven env vars set in the Render dashboard and local
   `.env`. Verified end-to-end in production (test push delivered; notifier
-  running). Sign-in: email magic link is enabled; GOOGLE OAuth setup is in
-  progress by Seth (Google Cloud OAuth client → paste into Supabase's Google
-  provider; callback `https://ggswnidgabtinbuvfztp.supabase.co/auth/v1/callback`).
+  running). Sign-in is LIVE (Sept 15, 2026), two flows:
+  - GOOGLE OAuth (works in regular browsers only): Google Cloud project
+    "Uncle Sam FC" → OAuth client → pasted into Supabase's Google provider;
+    callback `https://ggswnidgabtinbuvfztp.supabase.co/auth/v1/callback`.
+  - EMAIL CODE (the ONLY flow inside the installed iOS app): iOS walls off the
+    home-screen app's storage from the browser context where OAuth redirects
+    and magic-link taps complete, so neither can hand a session back — the
+    user types the emailed one-time code instead (`verifyOtp`; Supabase sends
+    8-digit codes on this project, the input accepts 6-10). The Google button
+    is HIDDEN in the installed iOS app on purpose. Sign-in emails go out via
+    Supabase custom SMTP through Gmail (smtp.gmail.com:465,
+    UncleSamFCapp@gmail.com + app password, configured in the Supabase
+    dashboard Sept 15) — custom SMTP is also what makes the email template
+    editable; the "Magic link or OTP" template MUST keep `{{ .Token }}` (the
+    code) or in-app sign-in breaks.
   APPLE sign-in is deliberately deferred until the LLC exists (needs a $99/yr
   Apple Developer membership — enroll the LLC, not Seth personally). The
   Supabase dashboard uses the NEW key style (sb_publishable_/sb_secret_), not
@@ -982,9 +994,8 @@ monetized launch). What keeps the News tab low-risk:
   The onrender.com subdomain stays enabled — Seth's installed PWAs live on
   that origin; don't force-redirect onrender → the domain without a plan for
   reinstalling the PWAs and re-doing their push subscriptions. Supabase Site
-  URL should be https://unclesamfc.com (asked of Seth Sept 14 — NOT yet
-  confirmed done; check the Supabase dashboard before relying on it) with
-  redirect URLs kept for onrender + localhosts.
+  URL is https://unclesamfc.com (set by Seth Sept 15) with redirect URLs for
+  the domain, uncle-sam-fc.onrender.com, and both localhosts.
 - `/privacy` and `/terms` are drafts — a lawyer must review before public
   launch; the terms' governing-law placeholder waits on the LLC.
 
