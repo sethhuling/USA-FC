@@ -1,14 +1,18 @@
 // Cross-checks the app's schedule against ESPN's public scoreboard feeds — an
 // independent source — and reports fixtures whose kickoff, home/away order, or
-// opponent disagree, plus tracked-club fixtures ESPN has that the app lacks.
+// opponent disagree, plus tracked-club fixtures the source has that the app lacks.
 // Spends ZERO API-Football requests: it reads the app's own /api/matches.
+// Competitions ESPN doesn't carry fall back to the sources in
+// schedule-sources.js (league/federation sites, or 90minut.pl for Poland).
 //
 // For finished matches in the window it also compares every tracked American's
-// start / sub / bench / out status against ESPN's lineup.
+// start / sub / bench / out status against ESPN's lineup (ESPN only).
 //
 //   node server/scripts/check-schedule.js [appBaseUrl] [--days=N] [--back=N] [--teams] [--json]
 //
 // Default app URL is production. Exit code 1 when any mismatch is found.
+
+const { BACKUP_SOURCES, NO_SOURCE_REASONS } = require('./schedule-sources');
 
 const APP = (process.argv.slice(2).find((a) => !a.startsWith('--')) || 'https://uncle-sam-fc.onrender.com').replace(/\/$/, '');
 const arg = (name, def) => {
@@ -65,10 +69,11 @@ const ALIASES = {
   'celta de vigo ii': 'celta fortuna', 'ulsan hyundai fc': 'ulsan hd',
 };
 
-const TOKEN_ALIASES = { utd: 'united', koln: 'cologne', olympiakos: 'olympiacos', piraeus: '', 'l.p.': '' };
+const TOKEN_ALIASES = { utd: 'united', koln: 'cologne', olympiakos: 'olympiacos', piraeus: '', 'l.p.': '', kulubu: '' };
 const STOP = new Set(['fc', 'cf', 'sc', 'ac', 'afc', 'sv', 'vfl', 'vfb', 'tsv', 'fk', 'bk', 'sk', 'cd', 'ud', 'rc', 'club', 'de', 'the', '1.', 'ssc', 'us', 'as', 'rcd', 'sd', 'ca', 'cp', 'kv', 'krc', 'nk', 'if', 'ff', 'tc', 'jk']);
 const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-  .replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/ß/g, 'ss').replace(/[’']/g, '').trim();
+  .replace(/æ/g, 'ae').replace(/ø/g, 'o').replace(/ß/g, 'ss').replace(/ł/g, 'l').replace(/ı/g, 'i')
+  .replace(/[’']/g, '').trim();
 const tokens = (s) => {
   const n = norm(s);
   return new Set((ALIASES[n] || n).split(/[\s\-./()]+/).map((t) => TOKEN_ALIASES[t] || t).filter((t) => t && !STOP.has(t)));
@@ -133,7 +138,7 @@ async function lineupFindings(slug, e, m, tag) {
     if (!appStatus) continue;
     if (process.env.DEBUG_LINEUPS) console.error(`${p.name} → ${r ? r.athlete.displayName : '(none)'}: app ${p.squadStatus}, espn ${espnStatus}`);
     if (appStatus !== espnStatus && !(p.squadStatus === 'played' && espnStatus === 'start')) {
-      out.push({ ...tag, type: 'LINEUP', espn: `${e.home} vs ${e.away}`, players: p.name, detail: `${p.name}: app says ${p.squadStatus}, ESPN says ${espnStatus}${r ? ` (${r.athlete.displayName})` : ''}` });
+      out.push({ ...tag, type: 'LINEUP', source: 'ESPN', ref: `${e.home} vs ${e.away}`, players: p.name, detail: `${p.name}: app says ${p.squadStatus}, ESPN says ${espnStatus}${r ? ` (${r.athlete.displayName})` : ''}` });
     }
   }
   return out;
@@ -170,10 +175,22 @@ async function main() {
 
   for (const [comp, list] of byComp) {
     const slug = ESPN_SLUG[comp];
-    // Pad the ESPN window a day each way so date-shifted fixtures still pair up.
-    const events = slug ? await espnEvents(slug, new Date(from.getTime() - 2 * 864e5), new Date(to.getTime() + 2 * 864e5)) : null;
+    // Pad the source window two days each way so date-shifted fixtures still pair up.
+    const padFrom = new Date(from.getTime() - 2 * 864e5), padTo = new Date(to.getTime() + 2 * 864e5);
+    let events = slug ? await espnEvents(slug, padFrom, padTo) : null;
+    let source = 'ESPN';
+    let reason = slug ? 'ESPN feed empty' : 'no ESPN feed';
+    if (!events?.length && BACKUP_SOURCES[comp]) {
+      const backup = BACKUP_SOURCES[comp];
+      source = backup.label;
+      events = await backup.fetch(padFrom, padTo).catch(() => null);
+      if (events) events = events.filter((e) => Date.parse(e.kickoff) >= padFrom.getTime() && Date.parse(e.kickoff) <= padTo.getTime());
+      reason = `${reason}; backup ${backup.label} ${events ? 'has no fixtures in this window' : 'could not be loaded'}`;
+    } else if (!events?.length && NO_SOURCE_REASONS[comp]) {
+      reason = `${reason}; no backup source (${NO_SOURCE_REASONS[comp]})`;
+    }
     if (!events || !events.length) {
-      for (const m of list) unverifiable.push({ comp, match: m, reason: slug ? 'ESPN feed empty' : 'no ESPN feed' });
+      for (const m of list) unverifiable.push({ comp, match: m, reason });
       continue;
     }
     for (const m of list) {
@@ -188,22 +205,25 @@ async function main() {
       }
       const tag = { comp, id: m.id, app: `${m.home} vs ${m.away} — ${fmtET(m.kickoff)}`, players: m.trackedPlayers.map((p) => p.name).join(', ') };
       if (!best || best.one < 0.5) {
-        findings.push({ ...tag, type: 'NOT_FOUND', detail: 'no ESPN fixture with either team in this competition' });
+        findings.push({ ...tag, source, type: 'NOT_FOUND', detail: `no ${source} fixture with either team in this competition` });
         continue;
       }
       const { e } = best;
-      const espn = `${e.home} vs ${e.away} — ${fmtET(e.kickoff)}${e.timeValid ? '' : ' (time TBD)'}`;
+      const ref = `${e.home} vs ${e.away} — ${fmtET(e.kickoff)}${e.timeValid ? '' : ' (time TBD)'}`;
       if (Math.max(best.straight, best.swapped) < 0.5) {
-        findings.push({ ...tag, espn, type: 'OPPONENT', detail: 'ESPN has a different opponent for this club' });
+        findings.push({ ...tag, source, ref, type: 'OPPONENT', detail: `${source} has a different opponent for this club` });
       } else if (best.swapped > best.straight) {
-        findings.push({ ...tag, espn, type: 'HOME_AWAY', detail: 'home/away reversed' });
+        findings.push({ ...tag, source, ref, type: 'HOME_AWAY', detail: 'home/away reversed' });
       } else if (best.dt >= 0.25 && e.timeValid) {
-        findings.push({ ...tag, espn, type: 'KICKOFF', detail: `kickoff differs by ${best.dt.toFixed(2)}h` });
+        findings.push({ ...tag, source, ref, type: 'KICKOFF', detail: `kickoff differs by ${best.dt.toFixed(2)}h` });
+      } else if (best.dt >= 36 && !e.timeValid) {
+        // Untimed on the source side: only a different DAY is a finding.
+        findings.push({ ...tag, source, ref, type: 'DATE', detail: `date differs (source has no kickoff time yet)` });
       } else {
-        ok.push({ ...tag, espn });
+        ok.push({ ...tag, source, ref });
       }
       e.matched = true;
-      if (m.status === 'finished' && best.straight >= 0.5) findings.push(...await lineupFindings(slug, e, m, tag));
+      if (source === 'ESPN' && m.status === 'finished' && best.straight >= 0.5) findings.push(...await lineupFindings(slug, e, m, tag));
     }
     // ESPN fixtures for a tracked club in the window that the app doesn't have.
     const appTeams = new Set(list.flatMap((m) => m.trackedPlayers.map((p) => p.club)));
@@ -212,16 +232,18 @@ async function main() {
       if (e.matched || t < from.getTime() || t > Math.min(to.getTime(), scheduleEnd)) continue;
       const same = (a, b) => sim(a, b) >= 0.99 && tokens(a).size === tokens(b).size;
       const club = [...appTeams].find((c) => same(c, e.home) || same(c, e.away));
-      if (club) findings.push({ comp, type: 'MISSING', app: '—', espn: `${e.home} vs ${e.away} — ${fmtET(e.kickoff)}`, detail: `ESPN lists a ${club} fixture the app doesn't show` });
+      if (club) findings.push({ comp, source, type: 'MISSING', app: '—', ref: `${e.home} vs ${e.away} — ${fmtET(e.kickoff)}`, detail: `${source} lists a ${club} fixture the app doesn't show` });
     }
   }
 
   if (AS_JSON) {
     console.log(JSON.stringify({ checked: matches.length, ok: ok.length, pairs: ok, findings, unverifiable: unverifiable.map((u) => ({ comp: u.comp, reason: u.reason, fixture: `${u.match.home} vs ${u.match.away} — ${fmtET(u.match.kickoff)}` })) }, null, 2));
   } else {
-    console.log(`Checked ${matches.length} app fixtures (${fmtET(from.toISOString())} → ${fmtET(to.toISOString())}) against ESPN: ${ok.length} agree, ${findings.length} findings, ${unverifiable.length} unverifiable.\n`);
+    const bySource = {};
+    for (const o of ok) bySource[o.source] = (bySource[o.source] || 0) + 1;
+    console.log(`Checked ${matches.length} app fixtures (${fmtET(from.toISOString())} → ${fmtET(to.toISOString())}): ${ok.length} agree (${Object.entries(bySource).map(([k, v]) => `${k} ${v}`).join(', ')}), ${findings.length} findings, ${unverifiable.length} unverifiable.\n`);
     for (const f of findings) {
-      console.log(`[${f.type}] ${f.comp} (#${f.id ?? '-'}) ${f.detail}\n   app:  ${f.app}\n   espn: ${f.espn ?? '—'}${f.players ? `\n   players: ${f.players}` : ''}`);
+      console.log(`[${f.type}] ${f.comp} (#${f.id ?? '-'}) ${f.detail}\n   app:    ${f.app}\n   source: ${f.ref ?? '—'} [${f.source}]${f.players ? `\n   players: ${f.players}` : ''}`);
     }
     if (unverifiable.length) {
       console.log('\nUnverifiable (no independent feed):');

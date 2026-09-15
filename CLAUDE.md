@@ -867,7 +867,20 @@ API still had every tie at Tue 19:00 UTC on Sept 15) and La Liga 2 jornada 8.
 The app has no fix for upstream-stale times — report them. ESPN spells some
 names differently (Jordan Pefok = Siebatcheu, Cole Campbell = William
 Campbell); add aliases in the script rather than treating those as mismatches.
-K League, the Austrian/Belgian/Turkish cups have no ESPN feed (unverifiable).
+Competitions ESPN doesn't carry fall back to `server/scripts/schedule-sources.js`
+(added Sept 15, 2026 at Seth's request): K League 1 → kleague.com schedule JSON
+(official), Belgian Cup → RBFA GraphQL (official), Turkish Cup → tff.org
+(official, current round only), Ekstraklasa and Polish Cup → 90minut.pl
+(independent volunteer results site — NOT official; label it so in reports).
+Source rule: nothing whose robots.txt blocks AI agents, since the check runs in
+a Claude routine — ekstraklasa.org, oefb.at, ligaportal.at and
+fussballoesterreich.at all do, so the Austrian Cup stays unverifiable and
+Ekstraklasa uses 90minut. K League/TFF terms forbid republishing their data:
+verification only, never display it. Season-specific ids (90minut league
+pages, RBFA series `CUP_3726`) change each summer; a stale one shows as "could
+not be loaded"/"no fixtures" in the unverifiable list. Backup rows without a
+kickoff time (unscheduled rounds) only flag a different DATE, never a time.
+Lineup comparison stays ESPN-only.
 
 WHEN A PLAYER IS MISSING FROM THE ROUNDUP, walk the pipeline in this order —
 each step rules out a whole layer, and the answer has never yet been the one
