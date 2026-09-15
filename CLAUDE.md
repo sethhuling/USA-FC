@@ -857,42 +857,44 @@ he has two clubs inside one season (Barnsley + DC United, 2023), a five-season
 run, and overlapping DC United / Loudoun United rows.
 
 Schedule cross-check (`server/scripts/check-schedule.js`, added Sept 15, 2026):
-compares the deployed app's fixtures against ESPN's public scoreboard feeds
-(independent of API-Football; zero API-Football calls) — kickoff, home/away,
-opponent, fixtures missing for a tracked club, and for finished matches each
-American's start/sub/bench/out vs ESPN's lineup. `--teams` adds the further-out
-fixtures from team pages/profiles. Runs weekly as a LOCAL desktop scheduled
-task on Seth's Mac, "uncle-sam-fc-schedule-check" (Mondays ~7 AM ET, report
-only, runs the scripts from an origin/main worktree so local work is never
-touched). It is local, not cloud, on purpose: ESPN's Akamai edge answers
-Anthropic's cloud sandbox with 403 "Access Denied" even with
-site.api.espn.com on the environment allowlist (tested twice Sept 15, 2026),
-so the cloud routine of the same name (trig_01K3YjpuoC6irjCqTZJT6goy) is
-PAUSED — re-enable it only if official league sources that work from the
-cloud replace ESPN (research requested Sept 15, 2026). Don't try to get past
-ESPN's block (user agents etc.). Known, expected findings: rounds
-the league hasn't timed yet ("Termin offen" in 2. Bundesliga, far-out La Liga 2
-weeks) carry a placeholder kickoff in BOTH feeds, so a KICKOFF diff there is
-not an error until the league publishes times. First run found API-Football
-lagging official announcements: DFB-Pokal round 2 (DFB published times Sept 10;
-API still had every tie at Tue 19:00 UTC on Sept 15) and La Liga 2 jornada 8.
-The app has no fix for upstream-stale times — report them. ESPN spells some
-names differently (Jordan Pefok = Siebatcheu, Cole Campbell = William
-Campbell); add aliases in the script rather than treating those as mismatches.
-Competitions ESPN doesn't carry fall back to `server/scripts/schedule-sources.js`
-(added Sept 15, 2026 at Seth's request): K League 1 → kleague.com schedule JSON
+compares the deployed app's fixtures (zero API-Football calls) against
+independent sources in `server/scripts/schedule-sources.js` — kickoff,
+home/away, opponent, and fixtures missing for a tracked club. `--teams` adds the
+further-out fixtures from team pages/profiles. Report only.
+STATUS: PAUSED (Sept 15, 2026). Both the local desktop task
+"uncle-sam-fc-schedule-check" and the cloud routine of the same name
+(trig_01K3YjpuoC6irjCqTZJT6goy) are disabled, pending Seth's decision on a
+LICENSED second data provider (research requested Sept 15, 2026). Reason: the
+check was built on ESPN's unofficial site.api.espn.com feeds, which were then
+ruled out — espn.com's robots.txt has `User-agent: anthropic-ai / Disallow: /`
+(site.api.espn.com's robots.txt answers 403), and the Disney Terms of Use
+(linked from espn.com, cover "ESPN"-branded products) forbid access "using a
+robot, spider, script, or other automated means… data mining or web scraping"
+(§2.B.x) and any "commercial or business-related use" (§2.B.viii). ESPN is
+REMOVED from the script — never re-add it. (ESPN also answered Anthropic's
+cloud sandbox with an Akamai 403.) Without ESPN the script covers only its
+allowed sources and lists every other competition as unverifiable.
+Source rule for any source: official or clearly independent, robots.txt must
+not block AI agents (the check runs as Claude), and terms must not forbid
+automated access. Current sources: K League 1 → kleague.com schedule JSON
 (official), Belgian Cup → RBFA GraphQL (official), Turkish Cup → tff.org
 (official, current round only), Ekstraklasa and Polish Cup → 90minut.pl
 (independent volunteer results site — NOT official; label it so in reports).
-Source rule: nothing whose robots.txt blocks AI agents, since the check runs in
-a Claude routine — ekstraklasa.org, oefb.at, ligaportal.at and
-fussballoesterreich.at all do, so the Austrian Cup stays unverifiable and
-Ekstraklasa uses 90minut. K League/TFF terms forbid republishing their data:
-verification only, never display it. Season-specific ids (90minut league
-pages, RBFA series `CUP_3726`) change each summer; a stale one shows as "could
-not be loaded"/"no fixtures" in the unverifiable list. Backup rows without a
-kickoff time (unscheduled rounds) only flag a different DATE, never a time.
-Lineup comparison stays ESPN-only.
+ekstraklasa.org, oefb.at, ligaportal.at, fussballoesterreich.at, ligamx.net,
+eliteserien.no/fotball.no block AI agents; DFB (datencenter.dfb.de) and Lega
+Serie A terms ban automated collection; several other league sites allow it by
+robots.txt but limit use to personal/non-commercial (researched Sept 15, 2026).
+K League/TFF terms forbid republishing their data: verification only, never
+display it. Season-specific ids (90minut league pages, RBFA series `CUP_3726`)
+change each summer; a stale one shows as "could not be loaded"/"no fixtures".
+Rows without a kickoff time (unscheduled rounds) only flag a different DATE.
+Known, expected findings: rounds the league hasn't timed yet ("Termin offen" in
+2. Bundesliga, far-out La Liga 2 weeks) carry placeholder kickoffs, so a
+KICKOFF diff there is not an error until the league publishes times. The first
+(ESPN-era) run found API-Football lagging official announcements: DFB-Pokal
+round 2 (DFB published times Sept 10; API still had every tie at Tue 19:00 UTC
+on Sept 15) and La Liga 2 jornada 8 — the app has no fix for upstream-stale
+times; report them.
 
 WHEN A PLAYER IS MISSING FROM THE ROUNDUP, walk the pipeline in this order —
 each step rules out a whole layer, and the answer has never yet been the one
