@@ -58,7 +58,7 @@ export async function signInWithEmail(email) {
   if (error) throw new Error(error.message);
 }
 
-// The 6-digit code from the sign-in email, typed straight into the app. This
+// The one-time code from the sign-in email (6-10 digits depending on Supabase config), typed straight into the app. This
 // is the ONLY flow that works inside the installed iOS app: OAuth redirects
 // and magic-link taps both open a separate browser context whose session iOS
 // won't share with the home-screen app. Requires {{ .Token }} in Supabase's

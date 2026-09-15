@@ -259,18 +259,18 @@ function AccountSection({ me }) {
       {sent ? (
         <div className="signin">
           <p className="club-note">
-            <strong>Check your email</strong> — enter the 6-digit code we sent
+            <strong>Check your email</strong> — enter the sign-in code we sent
             to {email.trim()}.{!inIOSApp && ' (The link in the email works too.)'}
           </p>
           <div className="signin-row">
             <input
               className="search signin-input code-input" type="text" inputMode="numeric"
-              autoComplete="one-time-code" maxLength={6} placeholder="123456"
+              autoComplete="one-time-code" maxLength={10} placeholder="Code"
               value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              aria-label="6-digit sign-in code"
-              onKeyDown={(e) => { if (e.key === 'Enter' && code.length === 6) submitCode(); }}
+              aria-label="Sign-in code"
+              onKeyDown={(e) => { if (e.key === 'Enter' && code.length >= 6) submitCode(); }}
             />
-            <button className="btn-ghost" disabled={busy || code.length !== 6} onClick={submitCode}>
+            <button className="btn-ghost" disabled={busy || code.length < 6} onClick={submitCode}>
               Sign in
             </button>
           </div>
