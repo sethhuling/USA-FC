@@ -95,6 +95,16 @@ const queue = (pending, device, eventKey, payload) => {
 };
 
 /* ---------- Event derivation ---------- */
+// Does this device want a `type` alert about this player? Only favorites ever
+// notify. A per-player choice (prefs.players[playerId][type], set in the
+// settings sheet's Players list) wins; a type the user never touched for that
+// player follows the device's global toggle for the type.
+function wants(device, playerId, type) {
+  if (!device.favs.has(playerId)) return false;
+  const own = device.prefs.players?.[playerId]?.[type];
+  return typeof own === 'boolean' ? own : device.prefs[type] !== false;
+}
+
 const score = (m) => `${m.home} ${m.homeScore ?? 0}–${m.awayScore ?? 0} ${m.away}`;
 
 function playerLine(tp, stats) {
@@ -122,11 +132,11 @@ async function collectEvents(pending, audience, matches) {
     const ko = new Date(m.kickoff).getTime();
     const favTracked = (m.trackedPlayers || []).filter((tp) => audience.allFavs.has(tp.playerId));
 
-    // Kickoff reminders (per device: names its own favorites in the match).
+    // Kickoff reminders (per device: names its own favorites in the match that
+    // have kickoff reminders on — one reminder per match, never one per player).
     if (m.status === 'scheduled' && ko - now <= KICKOFF_LEAD_MS && now - ko < KICKOFF_STALE_MS) {
       for (const device of audience.devices) {
-        if (!device.prefs.kickoff) continue;
-        const mine = favTracked.filter((tp) => device.favs.has(tp.playerId));
+        const mine = favTracked.filter((tp) => wants(device, tp.playerId, 'kickoff'));
         if (!mine.length) continue;
         const names = mine.map((tp) => tp.name).join(' and ');
         const where = m.streaming?.service ? ` on ${m.streaming.service}` : '';
@@ -145,7 +155,7 @@ async function collectEvents(pending, audience, matches) {
     for (const tp of favTracked) {
       (tp.goals || []).forEach((minute, i) => {
         for (const device of audience.devices) {
-          if (!device.prefs.goals || !device.favs.has(tp.playerId)) continue;
+          if (!wants(device, tp.playerId, 'goals')) continue;
           queue(pending, device, `goal:${m.id}:${tp.playerId}:${i + 1}`, {
             title: `⚽ ${tp.name} scores!`,
             body: `${score(m)} · ${minute}′`,
@@ -155,7 +165,7 @@ async function collectEvents(pending, audience, matches) {
       });
       (tp.assists || []).forEach((minute, i) => {
         for (const device of audience.devices) {
-          if (!device.prefs.goals || !device.favs.has(tp.playerId)) continue;
+          if (!wants(device, tp.playerId, 'goals')) continue;
           queue(pending, device, `assist:${m.id}:${tp.playerId}:${i + 1}`, {
             title: `${tp.name} with an assist`,
             body: `${score(m)} · ${minute}′`,
@@ -165,7 +175,7 @@ async function collectEvents(pending, audience, matches) {
       });
       if (m.status === 'live' && tp.squadStatus === 'on') {
         for (const device of audience.devices) {
-          if (!device.prefs.subbedOn || !device.favs.has(tp.playerId)) continue;
+          if (!wants(device, tp.playerId, 'subbedOn')) continue;
           queue(pending, device, `subon:${m.id}:${tp.playerId}`, {
             title: `${tp.name} is coming on`,
             body: `${score(m)}${m.minute ? ` · ${m.minute}′` : ''}`,
@@ -175,18 +185,18 @@ async function collectEvents(pending, audience, matches) {
       }
     }
 
-    // Full-time summary — one per match per device, with each favorite's line.
+    // Full-time summary — one per match per device, with a line for each
+    // favorite in the match whose full-time summaries are on.
     if (m.status === 'finished') {
       const targets = audience.devices.filter((d) =>
-        d.prefs.fullTime &&
-        favTracked.some((tp) => d.favs.has(tp.playerId)) &&
+        favTracked.some((tp) => wants(d, tp.playerId, 'fullTime')) &&
         !sentMemo.has(`ft:${m.id}|${d.id}`));
       if (targets.length) {
         let stats = {};
         try { stats = (await service.getMatchDetail(m.id))?.trackedStats || {}; }
         catch { /* fall back to event-derived lines */ }
         for (const device of targets) {
-          const lines = favTracked.filter((tp) => device.favs.has(tp.playerId))
+          const lines = favTracked.filter((tp) => wants(device, tp.playerId, 'fullTime'))
             .map((tp) => playerLine(tp, stats[tp.playerId]));
           queue(pending, device, `ft:${m.id}`, {
             title: `FT: ${score(m)}`,
@@ -227,7 +237,7 @@ function collectInjuries(pending, audience) {
     const player = players.find((p) => p.id === playerId);
     if (!player) continue;
     for (const device of audience.devices) {
-      if (!device.prefs.injury || !device.favs.has(playerId)) continue;
+      if (!wants(device, playerId, 'injury')) continue;
       queue(pending, device, injuryKey(playerId, note), {
         title: `Injury update: ${player.name}`,
         body: injuryBody(note),
@@ -289,4 +299,4 @@ function start() {
 // _test: key-derivation internals for hand-built-snapshot checks (demo data
 // carries no assists/squadStatus/trackedStats, so those paths are verified
 // against fixtures — see CLAUDE.md "Testing against real data").
-module.exports = { start, _test: { collectEvents, collectInjuries, injuryKey, playerLine } };
+module.exports = { start, _test: { collectEvents, collectInjuries, injuryKey, playerLine, wants } };

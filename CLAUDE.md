@@ -396,6 +396,18 @@ notes and the final session summary; schema SQL: `docs/supabase-schema.sql`.
   a full-color icon (as it did until Sept 15, 2026) shows a white square; any
   replacement must stay single-color on a transparent background.
 - Notifier (`profile/notifier.js`): ONE 60s timer started from index.js.
+  PER-PLAYER PREFS (user request, Sept 15, 2026): Settings → Notifications →
+  "Players" dropdown lists every favorite; each opens the same five toggles.
+  Stored per device as `prefs.players[playerId] = { goals: false, ... }` via
+  `PUT /api/me/prefs/players/:playerId` (boolean = explicit choice, null =
+  follow global, `{ reset: true }` = clear all; unfavoriting clears them). A
+  type never touched for a player FOLLOWS the global toggle (the user's
+  spec: defaults follow the global settings); once flipped it sticks until
+  "Use my default settings". The notifier's `wants(device, playerId, type)` is
+  the single decision point: per-player boolean if set, else global. Match-level
+  alerts stay one per match: a kickoff reminder names (and fires for) only the
+  favorites in the match that want kickoff reminders; the full-time summary
+  fires if any favorite wants it and lists only those players' lines.
   Five notification types, per-device prefs: kickoff reminders (≤30 min out,
   with broadcaster, suppressed >5 min after kickoff), live goals & assists,
   subbed-on, full-time summary (trackedStats lines, falling back to
@@ -917,7 +929,8 @@ monetized launch). What keeps the News tab low-risk:
   change. Finding a licensed broadcast-data source is a future task, not something to
   attempt ad hoc. Entries verified Sept 2026 (only add source-verified carriers;
   no entry = "Unknown" in the UI). Ekstraklasa (Poland, added to coverage Sept
-  15, 2026 at Seth's request; league only, no Polish cup) = "beIN SPORTS /
+  15, 2026 at Seth's request; the Polish Cup — API-Football 108 — was added
+  the same day and has NO verified US carrier, so it shows "Unknown") = "beIN SPORTS /
   Ekstraklasa TV": the league's own 2026/27 broadcaster list gives beIN SPORTS
   for the USA/Canada but only 3 matches per round, and its Ekstraklasa TV
   service streams the full library worldwide outside Poland — so both names,

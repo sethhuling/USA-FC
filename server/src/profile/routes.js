@@ -118,6 +118,15 @@ router.delete('/favorites/:playerId', async (req, res) => {
     const { error } = await db.from('favorites')
       .delete().in('device_id', ids).eq('player_id', playerId);
     throwIf(error);
+    // Drop per-player notification choices with the favorite, so starring the
+    // player again starts from the global defaults. Best effort.
+    const { data: rows } = await db.from('devices').select('id,prefs').in('id', ids);
+    for (const row of rows || []) {
+      if (!row.prefs?.players?.[playerId]) continue;
+      const players = { ...row.prefs.players };
+      delete players[playerId];
+      await db.from('devices').update({ prefs: { ...row.prefs, players } }).eq('id', row.id);
+    }
     res.json({ ok: true });
   } catch (e) { fail(res, e); }
 });
@@ -131,6 +140,40 @@ router.put('/prefs', async (req, res) => {
     if (!Object.keys(patch).length) return res.status(400).json({ error: 'no valid prefs' });
     const device = await getDeviceRow(req.deviceId);
     const prefs = { ...DEFAULT_PREFS, ...(device.prefs || {}), ...patch };
+    const { error } = await db.from('devices').update({ prefs }).eq('id', req.deviceId);
+    throwIf(error);
+    res.json({ ok: true, prefs });
+  } catch (e) { fail(res, e); }
+});
+
+// Per-player notification choices, stored under prefs.players[playerId]
+// ({ goals: false, ... }). Body: any PREF_KEYS set to true/false (an explicit
+// choice for this player) or null (back to following the global toggle);
+// { reset: true } clears every choice for the player. The notifier's wants()
+// reads them. Per device, like the global prefs.
+router.put('/prefs/players/:playerId', async (req, res) => {
+  try {
+    const playerId = String(req.params.playerId);
+    if (!trackedPlayers().some((p) => p.id === playerId)) {
+      return res.status(404).json({ error: 'unknown player' });
+    }
+    const device = await getDeviceRow(req.deviceId);
+    const prefs = { ...DEFAULT_PREFS, ...(device.prefs || {}) };
+    const players = { ...(prefs.players && typeof prefs.players === 'object' ? prefs.players : {}) };
+    const mine = req.body?.reset === true ? {} : { ...(players[playerId] || {}) };
+    let touched = req.body?.reset === true;
+    for (const k of PREF_KEYS) {
+      const v = req.body?.[k];
+      if (typeof v === 'boolean') { mine[k] = v; touched = true; }
+      else if (v === null) { delete mine[k]; touched = true; }
+    }
+    if (!touched) return res.status(400).json({ error: 'no valid prefs' });
+    if (Object.keys(mine).length) players[playerId] = mine;
+    else delete players[playerId];
+    if (Object.keys(players).length > MAX_FAVORITES) {
+      return res.status(429).json({ error: 'too many per-player settings' });
+    }
+    prefs.players = players;
     const { error } = await db.from('devices').update({ prefs }).eq('id', req.deviceId);
     throwIf(error);
     res.json({ ok: true, prefs });

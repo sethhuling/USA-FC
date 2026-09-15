@@ -177,7 +177,7 @@ export default function App() {
         ))}
       </nav>
 
-      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && <SettingsSheet players={players} onClose={() => setSettingsOpen(false)} />}
       {!splashDone && <Splash out={booted} />}
     </div>
     </TeamProvider>

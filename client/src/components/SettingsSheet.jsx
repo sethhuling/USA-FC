@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { getSetting, setSetting } from '../settings.js';
-import { fetchMe, savePrefs } from '../api.js';
+import { fetchMe, savePrefs, savePlayerPrefs } from '../api.js';
+import { useFavorites } from '../favorites.js';
 import {
   pushSupported, isIOS, isStandalone, getExistingSubscription, enablePush, disablePush,
 } from '../push.js';
@@ -35,7 +36,91 @@ function Toggle({ on, onChange, label }) {
   );
 }
 
-function NotificationsSection({ me, refreshMe }) {
+// "Players" dropdown under the global toggles: every favorite, each opening its
+// own set of the same five toggles. A type the user hasn't touched for a player
+// shows (and follows) the global toggle; flipping it stores a choice for that
+// player alone, which "Use my default settings" clears again.
+function PlayerNotifications({ players, prefs, setPrefs }) {
+  const favs = useFavorites();
+  const [open, setOpen] = useState(false);
+  const [openPlayer, setOpenPlayer] = useState(null);
+  const favorites = useMemo(
+    () => (players || []).filter((p) => favs.has(p.id)).sort((a, b) => a.name.localeCompare(b.name)),
+    [players, favs],
+  );
+
+  const choicesFor = (id) => prefs.players?.[id] || {};
+  const apply = (id, nextChoices, body) => {
+    const nextPlayers = { ...(prefs.players || {}) };
+    if (Object.keys(nextChoices).length) nextPlayers[id] = nextChoices;
+    else delete nextPlayers[id];
+    setPrefs({ ...prefs, players: nextPlayers });
+    savePlayerPrefs(id, body).catch(() => {});
+  };
+  const setChoice = (id, key, value) => apply(id, { ...choicesFor(id), [key]: value }, { [key]: value });
+  const reset = (id) => apply(id, {}, { reset: true });
+
+  return (
+    <div className={`pp${open ? ' open' : ''}`}>
+      <button className="pp-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <span className="spell-caret">▸</span>
+        <span className="pref-label">Players</span>
+        <span className="pp-count">{favorites.length}</span>
+      </button>
+      {open && (
+        favorites.length === 0 ? (
+          <p className="club-note">
+            Star players to fine-tune their notifications one by one.
+          </p>
+        ) : (
+          <ul className="pp-list">
+            {favorites.map((p) => {
+              const choices = choicesFor(p.id);
+              const custom = PREFS.some(([key]) => typeof choices[key] === 'boolean');
+              const isOpen = openPlayer === p.id;
+              return (
+                <li key={p.id} className={`pp-player${isOpen ? ' open' : ''}`}>
+                  <button
+                    className="pp-player-toggle" aria-expanded={isOpen}
+                    onClick={() => setOpenPlayer(isOpen ? null : p.id)}
+                  >
+                    <span className="spell-caret">▸</span>
+                    <span className="pp-name">
+                      <span className="pref-label">{p.name}</span>
+                      <span className="pref-sub">{p.club} · {custom ? 'Custom' : 'Your defaults'}</span>
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <>
+                      <ul className="pref-list pp-prefs">
+                        {PREFS.map(([key, label]) => {
+                          const on = typeof choices[key] === 'boolean' ? choices[key] : prefs[key] !== false;
+                          return (
+                            <li key={key} className="pref-row">
+                              <div className="pref-label">{label}</div>
+                              <Toggle on={on} onChange={(v) => setChoice(p.id, key, v)} label={`${label} for ${p.name}`} />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {custom && (
+                        <button className="btn-ghost pp-reset" onClick={() => reset(p.id)}>
+                          Use my default settings
+                        </button>
+                      )}
+                    </>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )
+      )}
+    </div>
+  );
+}
+
+function NotificationsSection({ me, refreshMe, players }) {
   const [subscribed, setSubscribed] = useState(null); // null = still checking
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState(null);
@@ -111,6 +196,7 @@ function NotificationsSection({ me, refreshMe }) {
               </li>
             ))}
           </ul>
+          <PlayerNotifications players={players} prefs={prefs} setPrefs={setPrefs} />
           <div className="club-actions">
             <button className="btn-ghost danger" disabled={busy} onClick={onDisable}>Turn off on this device</button>
           </div>
@@ -218,7 +304,7 @@ function AccountSection({ me }) {
   );
 }
 
-export default function SettingsSheet({ onClose }) {
+export default function SettingsSheet({ players, onClose }) {
   const [units, setUnits] = useState(() => getSetting('units'));
   const [me, setMe] = useState(null);
 
@@ -235,7 +321,7 @@ export default function SettingsSheet({ onClose }) {
 
         <section className="p-section">
           <h4 className="profile-h">Notifications</h4>
-          <NotificationsSection me={me} refreshMe={refreshMe} />
+          <NotificationsSection me={me} refreshMe={refreshMe} players={players} />
         </section>
 
         <section className="p-section">

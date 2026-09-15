@@ -40,7 +40,7 @@ const ESPN_SLUG = {
   'KNVB Beker': 'ned.cup', 'Taça de Portugal': 'por.taca.portugal',
   'Copa do Brasil': 'bra.copa_do_brazil', 'Copa Argentina': 'arg.copa',
   'Scottish Cup': 'sco.tennents', 'Scottish League Cup': 'sco.cis',
-  'Belgian Cup': null, 'Turkish Cup': null, 'Austrian Cup': null,
+  'Belgian Cup': null, 'Turkish Cup': null, 'Austrian Cup': null, 'Polish Cup': null,
 };
 
 // Names the two feeds spell too differently for token matching.

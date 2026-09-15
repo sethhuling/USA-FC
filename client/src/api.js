@@ -29,6 +29,8 @@ export const fetchMe = () => me('/api/me');
 export const addFavorite = (id) => me(`/api/me/favorites/${encodeURIComponent(id)}`, { method: 'PUT' });
 export const removeFavorite = (id) => me(`/api/me/favorites/${encodeURIComponent(id)}`, { method: 'DELETE' });
 export const savePrefs = (prefs) => me('/api/me/prefs', { method: 'PUT', body: prefs });
+export const savePlayerPrefs = (playerId, prefs) =>
+  me(`/api/me/prefs/players/${encodeURIComponent(playerId)}`, { method: 'PUT', body: prefs });
 export const savePushSubscription = (sub) => me('/api/me/push', { method: 'POST', body: sub });
 export const deletePushSubscription = () => me('/api/me/push', { method: 'DELETE' });
 export const sendTestPush = () => me('/api/me/push/test', { method: 'POST' });

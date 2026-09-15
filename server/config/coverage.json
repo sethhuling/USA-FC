@@ -76,6 +76,7 @@
     "Copa Argentina": { "id": 130, "country": "Argentina" },
     "Scottish Cup": { "id": 181, "country": "Scotland" },
     "Scottish League Cup": { "id": 185, "country": "Scotland" },
-    "Austrian Cup": { "id": 220, "country": "Austria" }
+    "Austrian Cup": { "id": 220, "country": "Austria" },
+    "Polish Cup": { "id": 108, "country": "Poland" }
   }
 }
