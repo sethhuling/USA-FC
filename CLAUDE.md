@@ -815,6 +815,23 @@ a broken build. Donovan Pines is the standing test case for career grouping:
 he has two clubs inside one season (Barnsley + DC United, 2023), a five-season
 run, and overlapping DC United / Loudoun United rows.
 
+Schedule cross-check (`server/scripts/check-schedule.js`, added Sept 15, 2026):
+compares the deployed app's fixtures against ESPN's public scoreboard feeds
+(independent of API-Football; zero API-Football calls) — kickoff, home/away,
+opponent, fixtures missing for a tracked club, and for finished matches each
+American's start/sub/bench/out vs ESPN's lineup. `--teams` adds the further-out
+fixtures from team pages/profiles. Run weekly by the cloud routine "Uncle Sam
+FC schedule check" (report only, never pushes). Known, expected findings: rounds
+the league hasn't timed yet ("Termin offen" in 2. Bundesliga, far-out La Liga 2
+weeks) carry a placeholder kickoff in BOTH feeds, so a KICKOFF diff there is
+not an error until the league publishes times. First run found API-Football
+lagging official announcements: DFB-Pokal round 2 (DFB published times Sept 10;
+API still had every tie at Tue 19:00 UTC on Sept 15) and La Liga 2 jornada 8.
+The app has no fix for upstream-stale times — report them. ESPN spells some
+names differently (Jordan Pefok = Siebatcheu, Cole Campbell = William
+Campbell); add aliases in the script rather than treating those as mismatches.
+K League, the Austrian/Belgian/Turkish cups have no ESPN feed (unverifiable).
+
 WHEN A PLAYER IS MISSING FROM THE ROUNDUP, walk the pipeline in this order —
 each step rules out a whole layer, and the answer has never yet been the one
 that looks most likely (the roster):
