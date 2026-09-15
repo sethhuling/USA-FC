@@ -43,6 +43,7 @@ async function getText(url, { encoding = 'utf-8', ...init } = {}) {
     try {
       const r = await fetch(url, init);
       if (r.ok) return new TextDecoder(encoding).decode(Buffer.from(await r.arrayBuffer()));
+      if (r.status < 500 && r.status !== 429) return null; // blocked / not found: retrying won't help
     } catch { /* retry */ }
     await new Promise((res) => setTimeout(res, 1000 * (i + 1)));
   }

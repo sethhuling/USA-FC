@@ -12,6 +12,33 @@
 //
 // Default app URL is production. Exit code 1 when any mismatch is found.
 
+// Record every request's outcome per host, so a blocked or failing source is
+// reported as exactly that — not silently counted as "no fixtures". Cloud
+// routines sit behind a network allowlist; a blocked host answers 403 with a
+// proxy message, which the report quotes. Installed before the sources module
+// loads so its requests are recorded too.
+const access = new Map(); // host -> { ok, failures: Map(detail -> count) }
+const realFetch = globalThis.fetch;
+globalThis.fetch = async (input, init) => {
+  const host = new URL(typeof input === 'string' ? input : input.url).host;
+  const rec = access.get(host) || { ok: 0, failures: new Map() };
+  access.set(host, rec);
+  const fail = (detail) => rec.failures.set(detail, (rec.failures.get(detail) || 0) + 1);
+  try {
+    const res = await realFetch(input, init);
+    if (res.ok) rec.ok++;
+    else {
+      const body = await res.clone().text().catch(() => '');
+      fail(`HTTP ${res.status}${body ? `: ${body.replace(/\s+/g, ' ').slice(0, 100)}` : ''}`);
+    }
+    return res;
+  } catch (e) {
+    fail(`network error: ${e.cause?.code || e.cause?.message || e.message}`);
+    throw e;
+  }
+};
+const hostFailed = (host) => { const r = access.get(host); return Boolean(r && r.failures.size && !r.ok); };
+
 const { BACKUP_SOURCES, NO_SOURCE_REASONS } = require('./schedule-sources');
 
 const APP = (process.argv.slice(2).find((a) => !a.startsWith('--')) || 'https://uncle-sam-fc.onrender.com').replace(/\/$/, '');
@@ -92,6 +119,7 @@ async function getJson(url) {
     try {
       const r = await fetch(url);
       if (r.ok) return await r.json();
+      if (r.status < 500 && r.status !== 429) return null; // blocked / not found: retrying won't help
     } catch { /* retry */ }
     await new Promise((res) => setTimeout(res, 1000 * (i + 1)));
   }
@@ -179,13 +207,14 @@ async function main() {
     const padFrom = new Date(from.getTime() - 2 * 864e5), padTo = new Date(to.getTime() + 2 * 864e5);
     let events = slug ? await espnEvents(slug, padFrom, padTo) : null;
     let source = 'ESPN';
-    let reason = slug ? 'ESPN feed empty' : 'no ESPN feed';
+    let reason = !slug ? 'no ESPN feed'
+      : events ? 'ESPN feed empty' : 'ESPN feed could not be loaded (see Source access problems)';
     if (!events?.length && BACKUP_SOURCES[comp]) {
       const backup = BACKUP_SOURCES[comp];
       source = backup.label;
       events = await backup.fetch(padFrom, padTo).catch(() => null);
       if (events) events = events.filter((e) => Date.parse(e.kickoff) >= padFrom.getTime() && Date.parse(e.kickoff) <= padTo.getTime());
-      reason = `${reason}; backup ${backup.label} ${events ? 'has no fixtures in this window' : 'could not be loaded'}`;
+      reason = `${reason}; backup ${backup.label} ${events ? 'has no fixtures in this window' : 'could not be loaded (see Source access problems)'}`;
     } else if (!events?.length && NO_SOURCE_REASONS[comp]) {
       reason = `${reason}; no backup source (${NO_SOURCE_REASONS[comp]})`;
     }
@@ -236,14 +265,22 @@ async function main() {
     }
   }
 
+  const accessProblems = [...access].filter(([, r]) => r.failures.size)
+    .map(([host, r]) => ({ host, okRequests: r.ok, failures: Object.fromEntries(r.failures), blocked: !r.ok }));
   if (AS_JSON) {
-    console.log(JSON.stringify({ checked: matches.length, ok: ok.length, pairs: ok, findings, unverifiable: unverifiable.map((u) => ({ comp: u.comp, reason: u.reason, fixture: `${u.match.home} vs ${u.match.away} — ${fmtET(u.match.kickoff)}` })) }, null, 2));
+    console.log(JSON.stringify({ accessProblems, checked: matches.length, ok: ok.length, pairs: ok, findings, unverifiable: unverifiable.map((u) => ({ comp: u.comp, reason: u.reason, fixture: `${u.match.home} vs ${u.match.away} — ${fmtET(u.match.kickoff)}` })) }, null, 2));
   } else {
     const bySource = {};
     for (const o of ok) bySource[o.source] = (bySource[o.source] || 0) + 1;
     console.log(`Checked ${matches.length} app fixtures (${fmtET(from.toISOString())} → ${fmtET(to.toISOString())}): ${ok.length} agree (${Object.entries(bySource).map(([k, v]) => `${k} ${v}`).join(', ')}), ${findings.length} findings, ${unverifiable.length} unverifiable.\n`);
     for (const f of findings) {
       console.log(`[${f.type}] ${f.comp} (#${f.id ?? '-'}) ${f.detail}\n   app:    ${f.app}\n   source: ${f.ref ?? '—'} [${f.source}]${f.players ? `\n   players: ${f.players}` : ''}`);
+    }
+    if (accessProblems.length) {
+      console.log('\nSource access problems (a host with 0 successful requests was unreachable — in a cloud routine usually the network allowlist):');
+      for (const a of accessProblems) {
+        console.log(`   ${a.host}: ${a.okRequests} ok; ${Object.entries(a.failures).map(([d, n]) => `${n}× ${d}`).join('; ')}`);
+      }
     }
     if (unverifiable.length) {
       console.log('\nUnverifiable (no independent feed):');
