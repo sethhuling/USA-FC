@@ -1,5 +1,5 @@
 {
-  "_readme": "Hand-verified US birth states, keyed by player id. API-Football birth places have no state; the server merges these into profile bios (service.js). `state` is appended to the displayed hometown; `country` overrides a wrong API country. Only add entries verified against a real source (Wikipedia, club sites) — never guess: city names repeat across states (Clovis NM vs CA, Birmingham AL vs MI).",
+  "_readme": "Hand-verified US birth states, keyed by player id. API-Football birth places have no state; the server merges these into profile bios (service.js). `place` overrides a wrong API birth town/city; `state` is appended to the displayed hometown; `country` overrides a wrong API country. Only add entries verified against a real source (Wikipedia, club sites) — never guess: city names repeat across states (Clovis NM vs CA, Birmingham AL vs MI).",
   "adeniran-samuel": {
     "state": "Texas"
   },
@@ -174,5 +174,8 @@
   },
   "michel-stanley-benjamin": {
     "state": "Florida"
+  },
+  "leekelman-charlie": {
+    "place": "Basildon"
   }
 }

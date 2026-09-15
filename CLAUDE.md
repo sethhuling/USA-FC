@@ -535,7 +535,10 @@ store like favorites.js.
   Season stats count only the player's
   current club — no prior-club (MLS) or national-team numbers; a mid-season
   transfer starts the line fresh.
-- `hometowns.json` — hand-verified US birth states (and rare country corrections)
+- `hometowns.json` — hand-verified US birth states (and rare town/country
+  corrections: `place` overrides the API's birth town — added Sept 15, 2026
+  for Charlie Kelman, whom the API places in Brentwood while Charlton and
+  Wikipedia say Basildon — and `country` its country)
   keyed by player id; API-Football birth places have no state. Merged into profile
   bios by `withHometown()` in service.js, read fresh each call so edits need no
   restart. Only add entries verified against a real source — city names repeat

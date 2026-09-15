@@ -222,9 +222,10 @@ async function getMatchDetail(id) {
   return { ...detail, streaming: await streaming.forMatch(detail) };
 }
 
-// API-Football birth places carry no US state; merge hand-verified ones
-// (server/data/hometowns.json) into the bio. Read fresh each call so
-// hand-edits apply without a restart, like players.json.
+// API-Football birth places carry no US state (and are sometimes the wrong
+// town); merge hand-verified corrections (server/data/hometowns.json) into the
+// bio. Read fresh each call so hand-edits apply without a restart, like
+// players.json.
 function withHometown(profile, id) {
   if (!profile?.bio?.birth) return profile;
   let entry;
@@ -232,13 +233,14 @@ function withHometown(profile, id) {
     const file = path.join(__dirname, '..', 'data', 'hometowns.json');
     entry = JSON.parse(fs.readFileSync(file, 'utf8'))[id];
   } catch { return profile; }
-  if (!entry?.state && !entry?.country) return profile;
+  if (!entry?.place && !entry?.state && !entry?.country) return profile;
   return {
     ...profile,
     bio: {
       ...profile.bio,
       birth: {
         ...profile.bio.birth,
+        ...(entry.place ? { place: entry.place } : {}),
         ...(entry.state ? { state: entry.state } : {}),
         ...(entry.country ? { country: entry.country } : {}),
       },
