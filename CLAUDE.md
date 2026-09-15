@@ -857,8 +857,16 @@ compares the deployed app's fixtures against ESPN's public scoreboard feeds
 (independent of API-Football; zero API-Football calls) — kickoff, home/away,
 opponent, fixtures missing for a tracked club, and for finished matches each
 American's start/sub/bench/out vs ESPN's lineup. `--teams` adds the further-out
-fixtures from team pages/profiles. Run weekly by the cloud routine "Uncle Sam
-FC schedule check" (report only, never pushes). Known, expected findings: rounds
+fixtures from team pages/profiles. Runs weekly as a LOCAL desktop scheduled
+task on Seth's Mac, "uncle-sam-fc-schedule-check" (Mondays ~7 AM ET, report
+only, runs the scripts from an origin/main worktree so local work is never
+touched). It is local, not cloud, on purpose: ESPN's Akamai edge answers
+Anthropic's cloud sandbox with 403 "Access Denied" even with
+site.api.espn.com on the environment allowlist (tested twice Sept 15, 2026),
+so the cloud routine of the same name (trig_01K3YjpuoC6irjCqTZJT6goy) is
+PAUSED — re-enable it only if official league sources that work from the
+cloud replace ESPN (research requested Sept 15, 2026). Don't try to get past
+ESPN's block (user agents etc.). Known, expected findings: rounds
 the league hasn't timed yet ("Termin offen" in 2. Bundesliga, far-out La Liga 2
 weeks) carry a placeholder kickoff in BOTH feeds, so a KICKOFF diff there is
 not an error until the league publishes times. First run found API-Football
