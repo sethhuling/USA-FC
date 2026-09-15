@@ -294,6 +294,20 @@
     "apiFootballTeamId": 59
   },
   {
+    "id": "leekelman-charlie",
+    "name": "Charlie Kelman",
+    "club": "Charlton",
+    "league": "Championship",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 20352,
+    "apiFootballTeamId": 1335,
+    "otherEligibility": [
+      "England"
+    ]
+  },
+  {
     "id": "campbell-george",
     "name": "George Campbell",
     "club": "West Brom",
