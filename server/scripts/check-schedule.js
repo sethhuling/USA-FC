@@ -32,7 +32,7 @@ const ESPN_SLUG = {
   'Primeira Liga': 'por.1', 'Belgian Pro League': 'bel.1', 'Süper Lig': 'tur.1',
   'Brasileirão': 'bra.1', 'Liga Profesional (Argentina)': 'arg.1',
   'Austrian Bundesliga': 'aut.1', 'J. League': 'jpn.1', 'A-League': 'aus.1',
-  'Super League': 'sui.1', Eliteserien: 'nor.1', 'K League 1': null,
+  'Super League': 'sui.1', Eliteserien: 'nor.1', 'K League 1': null, Ekstraklasa: null,
   'Champions League': 'uefa.champions', 'Europa League': 'uefa.europa',
   'Conference League': 'uefa.europa.conf', 'FA Cup': 'eng.fa', 'EFL Cup': 'eng.league_cup',
   'Copa del Rey': 'esp.copa_del_rey', 'Coppa Italia': 'ita.coppa_italia',

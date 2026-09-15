@@ -1001,5 +1001,59 @@
     "apiFootballId": 162106,
     "apiFootballTeamId": 489,
     "capTied": true
+  },
+  {
+    "id": "perryacosta-kellyn",
+    "name": "Kellyn Acosta",
+    "club": "Pogon Szczecin",
+    "league": "Ekstraklasa",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 51310,
+    "apiFootballTeamId": 348,
+    "capTied": true
+  },
+  {
+    "id": "dietz-maximilian",
+    "name": "Maximilian Dietz",
+    "club": "Gornik Zabrze",
+    "league": "Ekstraklasa",
+    "position": "MF",
+    "positionGroup": "MF",
+    "nationality": "USA",
+    "apiFootballId": 202774,
+    "apiFootballTeamId": 340,
+    "otherEligibility": [
+      "Germany"
+    ]
+  },
+  {
+    "id": "zahiroleslam-kahveh",
+    "name": "Kahveh Zahiroleslam",
+    "club": "Cracovia Krakow",
+    "league": "Ekstraklasa",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 431405,
+    "apiFootballTeamId": 350,
+    "otherEligibility": [
+      "Iran"
+    ]
+  },
+  {
+    "id": "basse-adam",
+    "name": "Adam Basse",
+    "club": "Raków Częstochowa",
+    "league": "Ekstraklasa",
+    "position": "FW",
+    "positionGroup": "FW",
+    "nationality": "USA",
+    "apiFootballId": 462316,
+    "apiFootballTeamId": 3491,
+    "otherEligibility": [
+      "Poland"
+    ]
   }
 ]

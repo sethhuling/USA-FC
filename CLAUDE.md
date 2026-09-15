@@ -916,7 +916,18 @@ monetized launch). What keeps the News tab low-risk:
 - streaming.json is hand-maintained by competition. Review each August when US rights
   change. Finding a licensed broadcast-data source is a future task, not something to
   attempt ad hoc. Entries verified Sept 2026 (only add source-verified carriers;
-  no entry = "Unknown" in the UI). Three gaps pending announcements — re-check:
+  no entry = "Unknown" in the UI). Ekstraklasa (Poland, added to coverage Sept
+  15, 2026 at Seth's request; league only, no Polish cup) = "beIN SPORTS /
+  Ekstraklasa TV": the league's own 2026/27 broadcaster list gives beIN SPORTS
+  for the USA/Canada but only 3 matches per round, and its Ekstraklasa TV
+  service streams the full library worldwide outside Poland — so both names,
+  since most matches aren't on beIN. ESPN has no Ekstraklasa feed, so the
+  schedule cross-check reports it as unverifiable. Roster at launch: Kellyn
+  Acosta, Maximilian Dietz, Kahveh Zahiroleslam, Adam Basse. ELIGIBILITY RULE
+  (Seth, Sept 15, 2026): only a SENIOR-level choice of another country
+  excludes a player — Basse (NYC-born, Poland U-18/U-19 only) counts as
+  American; Ben Lederman (accepted a senior Poland call-up in 2023, listed as
+  Polish by the API) does not and isn't tracked. Three gaps pending announcements — re-check:
   Bundesliga 2 (no US home announced after its ESPN+ package ended with
   2025-26), A-League (2026-27 US arrangement unannounced as of Sept 2026;
   season starts mid-October — ESPN carried 2025-26), Eliteserien (league-run

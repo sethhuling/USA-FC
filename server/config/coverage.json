@@ -27,6 +27,7 @@
     "Switzerland": "🇨🇭",
     "Norway": "🇳🇴",
     "South Korea": "🇰🇷",
+    "Poland": "🇵🇱",
     "Europe": "🇪🇺"
   },
   "leagues": {
@@ -54,7 +55,8 @@
     "A-League": { "id": 188, "country": "Australia", "code": "AUS" },
     "Super League": { "id": 207, "country": "Switzerland", "code": "SUI" },
     "Eliteserien": { "id": 103, "country": "Norway", "code": "NOR" },
-    "K League 1": { "id": 292, "country": "South Korea", "code": "KOR" }
+    "K League 1": { "id": 292, "country": "South Korea", "code": "KOR" },
+    "Ekstraklasa": { "id": 106, "country": "Poland", "code": "POL" }
   },
   "cups": {
     "Champions League": { "id": 2, "country": "Europe" },
