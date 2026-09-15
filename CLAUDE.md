@@ -390,13 +390,25 @@ notes and the final session summary; schema SQL: `docs/supabase-schema.sql`.
   iOS requires the PWA installed to the Home Screen (16.4+) and the permission
   request inside a tap — SettingsSheet shows add-to-home-screen guidance when
   needed. After a sw.js change, delete + re-add the PWA once on each device.
+  The notification `badge` (Android status-bar icon) is
+  `client/public/icons/badge-96.png` — a white top-hat silhouette on
+  transparency. Android uses only the badge's alpha channel, so pointing it at
+  a full-color icon (as it did until Sept 15, 2026) shows a white square; any
+  replacement must stay single-color on a transparent background.
 - Notifier (`profile/notifier.js`): ONE 60s timer started from index.js.
   Five notification types, per-device prefs: kickoff reminders (≤30 min out,
   with broadcaster, suppressed >5 min after kickoff), live goals & assists,
   subbed-on, full-time summary (trackedStats lines, falling back to
   event-derived; honors the null-means-zero vs no-stat-line rules), injury
   notes (from injury-notes.json, verified within 7 days — the routine's commit
-  restarts the process, so the startup pass catches new notes).
+  restarts the process, so the startup pass catches new notes). Injury keys
+  are `injury:<player>:<hash of the alert text>` (reason + expected return,
+  case/whitespace-insensitive) — NOT the note's `verified` date: the daily
+  routine re-verifies unchanged notes and bumps that date, which re-sent
+  identical alerts until Sept 15, 2026 (user rule: re-push an injury only when
+  its information changed). For the same reason `cleanup()` keeps injury rows
+  a year instead of 30 days — a long layoff would otherwise re-alert monthly.
+  Existing date-keyed rows were migrated to content keys at deploy time.
   KEY DESIGN: the `sent_notifications` table IS the state. Event keys are
   deterministic (`goal:<match>:<player>:<n>`, `ft:<match>`, …), re-derived
   from current snapshots each tick, and an ignore-duplicates insert decides

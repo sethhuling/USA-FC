@@ -13,6 +13,7 @@
 // browser tab polling the app costs — cache hits except the hourly schedule
 // refresh and the shared 60s 'live' overlay during live tracked matches. With
 // zero push-subscribed devices the tick exits before touching any of it.
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { enabled: dbEnabled, db } = require('./supabase');
@@ -201,6 +202,17 @@ async function collectEvents(pending, audience, matches) {
 /* ---------- Injury notes (hand-verified, committed by the daily routine) ---------- */
 // The routine's commit triggers a deploy → restart, so the startup pass is
 // exactly when new notes appear; the hourly re-read covers hand edits.
+const injuryBody = (note) => `${note.reason || 'Injured'} — expected return ${note.expectedReturn || 'unknown'}`;
+
+// Keyed by WHAT THE ALERT SAYS, never by note.verified: the daily routine
+// re-verifies unchanged notes and bumps that date, which used to re-send the
+// same alert (user rule, Sept 2026: an injury push goes out again only when
+// its information changed). Case/whitespace-only edits don't count as changes.
+function injuryKey(playerId, note) {
+  const text = injuryBody(note).toLowerCase().replace(/\s+/g, ' ').trim();
+  return `injury:${playerId}:${crypto.createHash('sha1').update(text).digest('hex').slice(0, 12)}`;
+}
+
 function collectInjuries(pending, audience) {
   let notes;
   try {
@@ -216,9 +228,9 @@ function collectInjuries(pending, audience) {
     if (!player) continue;
     for (const device of audience.devices) {
       if (!device.prefs.injury || !device.favs.has(playerId)) continue;
-      queue(pending, device, `injury:${playerId}:${note.verified}`, {
+      queue(pending, device, injuryKey(playerId, note), {
         title: `Injury update: ${player.name}`,
-        body: `${note.reason || 'Injured'} — expected return ${note.expectedReturn || 'unknown'}`,
+        body: injuryBody(note),
         tag: `injury:${playerId}`, url: '/',
       });
     }
@@ -229,7 +241,11 @@ function collectInjuries(pending, audience) {
 async function cleanup() {
   const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const yearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
-  await db.from('sent_notifications').delete().lt('sent_at', monthAgo);
+  // Match events are one-offs, so a month of dedupe rows is plenty. Injury rows
+  // must outlive the injury: a long layoff's note stays fresh for months, and
+  // dropping its row after 30 days would re-send the same unchanged alert.
+  await db.from('sent_notifications').delete().lt('sent_at', monthAgo).not('event_key', 'like', 'injury:%');
+  await db.from('sent_notifications').delete().lt('sent_at', yearAgo).like('event_key', 'injury:%');
   await db.from('devices').delete().lt('last_seen_at', yearAgo); // cascades favorites/subs
 }
 
@@ -273,4 +289,4 @@ function start() {
 // _test: key-derivation internals for hand-built-snapshot checks (demo data
 // carries no assists/squadStatus/trackedStats, so those paths are verified
 // against fixtures — see CLAUDE.md "Testing against real data").
-module.exports = { start, _test: { collectEvents, collectInjuries, playerLine } };
+module.exports = { start, _test: { collectEvents, collectInjuries, injuryKey, playerLine } };

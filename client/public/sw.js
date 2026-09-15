@@ -61,7 +61,10 @@ self.addEventListener('push', (e) => {
     body: d.body || '',
     tag: d.tag || undefined,
     icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    // Android draws the status-bar badge from the image's ALPHA channel only,
+    // so a full-color opaque icon shows as a solid white square. This one is a
+    // white top-hat silhouette on transparency (drawn for exactly that use).
+    badge: '/icons/badge-96.png',
     data: { url: d.url || '/' },
   }));
 });
