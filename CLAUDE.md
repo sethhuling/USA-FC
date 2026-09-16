@@ -871,10 +871,16 @@ independent sources in `server/scripts/schedule-sources.js` — kickoff,
 home/away, opponent, and fixtures missing for a tracked club. `--teams` adds the
 further-out fixtures from team pages/profiles. Report only.
 STATUS (Sept 15, 2026): runs as the LOCAL desktop task
-"uncle-sam-fc-schedule-check" (Mondays ~7 AM ET, report only, from an
-origin/main worktree) in FREE spot-check mode — allowed sources plus the
-placeholder scan, no paid feed; Seth asked for a recurring reminder instead of
-paying for a second data source for now. The cloud routine of the same name
+"Uncle Sam FC schedule spot-check (weekly)" (id `uncle-sam-fc-schedule-check`,
+Mondays ~7 AM ET, report only, from an origin/main worktree) in FREE
+spot-check mode — allowed sources plus the placeholder scan, no paid feed;
+Seth asked for a recurring reminder instead of paying for a second data source
+for now. The task's own session must APPROVE its commands on the first run
+(`git fetch` / `git worktree` / `node server/scripts/check-schedule.js` under
+/private/tmp/usfc-check); the "Run now" test on Sept 15 stalled unapproved for
+30+ min and left that worktree behind — clear a stale one with
+`git worktree remove --force /private/tmp/usfc-check`. A run takes ~4 min
+(`--teams` reads every tracked club's team page). The cloud routine of the same name
 (trig_01K3YjpuoC6irjCqTZJT6goy) stays disabled. A licensed provider was
 researched (Sportmonks €79-99/mo for the top 30 competitions covers all 45 at
 €199-249; football-data.org cheaper but no Liga MX below €99; only
@@ -916,6 +922,17 @@ KICKOFF diff there is not an error until the league publishes times. The first
 round 2 (DFB published times Sept 10; API still had every tie at Tue 19:00 UTC
 on Sept 15) and La Liga 2 jornada 8 — the app has no fix for upstream-stale
 times; report them.
+Open leads as of Sept 15, 2026 (nothing confirmed wrong that day): DFB-Pokal
+round of 32 still shows every tie at the placeholder Tue 19:00 UTC; and
+90minut.pl has real, differing kickoffs for the Ekstraklasa round of Oct
+17 (incl. Górnik–Piast on Sun Oct 18 and Wieczysta–Raków on Fri Oct 16) —
+unofficial, so a lead only; ekstraklasa.org can't confirm it (blocks AI).
+SETH-PERSONALLY question (asked Sept 15, 2026): a HUMAN looking a kickoff up
+on ESPN and using the fact is a much smaller issue than a script doing it —
+facts aren't copyrightable — but Disney's terms still limit ESPN to personal,
+non-commercial use, and this app is meant to be a business. Suggested habit:
+check the league's or club's own site; add the question to the pre-launch
+lawyer review. Claude must not fetch ESPN either way.
 
 WHEN A PLAYER IS MISSING FROM THE ROUNDUP, walk the pipeline in this order —
 each step rules out a whole layer, and the answer has never yet been the one
