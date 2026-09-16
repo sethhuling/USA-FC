@@ -221,9 +221,8 @@ built to stay legally above board (see "News legal rules" below):
   editing the list affects only these two in practice. The outlets that should
   be on it after the Sept 15, 2026 robots.txt audit: U.S. Soccer, Goal, CBS,
   Fox, SI, SBI, American Soccer Now, Sky Sports, plus the app's own domains —
-  the AI-blocking outlets should be removed (see "News legal rules"). Seth was
-  walked through that removal on Sept 15, 2026; VERIFY it was actually done
-  before relying on it, since the list can only be read in the web UI. Add a
+  the AI-blocking outlets were REMOVED by Seth on Sept 15, 2026 (he confirmed
+  it; the list itself can only be read in the web UI). Add a
   domain when run reports keep listing it (e.g.
   soccerwire.com was blocked on the first run), but ONLY after checking its
   robots.txt. Editing it: claude.ai/code/routines → routine → pencil → cloud
@@ -960,10 +959,9 @@ monetized launch). What keeps the News tab low-risk:
   http answers), and si.com, which explicitly ALLOWS ClaudeBot/Claude-Web;
   ussoccer.com serves no robots.txt at all. Re-check before trusting this list
   months from now — publishers change it. Both cloud routines carry this as a
-  SITE RULE in their prompts (edited Sept 15, 2026), which is the enforcement
-  that is definitely in place; removing the same domains from the environment's
-  network allowlist is a separate manual step — check the web UI rather than
-  assuming it. OPEN QUESTION for the lawyer: links already in news.json from
+  SITE RULE in their prompts (edited Sept 15, 2026), and Seth removed the same
+  domains from the environment's network allowlist that day, so the block is
+  enforced at both the prompt and network levels. OPEN QUESTION for the lawyer: links already in news.json from
   blocked outlets (20 of 42 on Sept 15, 2026) and the rtvutrecht.nl source URL
   in injury-notes.json were obtained by opening pages those sites disallow.
   Plain link-outs aren't automated access, so they may be fine to keep — Seth
