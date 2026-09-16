@@ -214,17 +214,25 @@ built to stay legally above board (see "News legal rules" below):
   origin/main, so they leave no stray `claude/*` branches on GitHub. Cloud runs can only open sites on
   that environment's network allowlist; a blocked publisher can't be
   verified, so its stories are dropped, and each run's report lists blocked
-  domains. Since Sept 11, 2026 "USFC website" uses a CUSTOM allowlist of the
-  app itself plus major outlets (ESPN, Guardian, U.S. Soccer, Goal, CBS, Fox,
-  Yahoo Sports, SI, USA Today, SBI, American Soccer Now, Stars and Stripes FC,
-  NYT/The Athletic, Reuters, AP, BBC, Sky Sports) — chosen over Full access
-  because these runs can push to main. Add a domain there when run reports
-  keep listing it (e.g. soccerwire.com was blocked on the first run). Editing
-  it: claude.ai/code/routines → routine → pencil → cloud icon under
-  Instructions → HOVER the environment row → gear icon → Network access. The
-  gear only appears on mouse hover, so it can't be done from the iPad/phone.
-  Verification falls back to `curl` + og:title/published_time when WebFetch
-  refuses a site (USA Today, Reuters, AP). It pushes only
+  domains. Since Sept 11, 2026 "USFC website" uses a CUSTOM allowlist (the app
+  itself plus outlets) rather than Full access, because these runs can push to
+  main. All four routines share environment `env_013DuTwsyqnTASxNhNYBmH2d`
+  (these two plus the disabled schedule check and the DMCA reminder), so
+  editing the list affects only these two in practice. The outlets that should
+  be on it after the Sept 15, 2026 robots.txt audit: U.S. Soccer, Goal, CBS,
+  Fox, SI, SBI, American Soccer Now, Sky Sports, plus the app's own domains —
+  the AI-blocking outlets should be removed (see "News legal rules"). Seth was
+  walked through that removal on Sept 15, 2026; VERIFY it was actually done
+  before relying on it, since the list can only be read in the web UI. Add a
+  domain when run reports keep listing it (e.g.
+  soccerwire.com was blocked on the first run), but ONLY after checking its
+  robots.txt. Editing it: claude.ai/code/routines → routine → pencil → cloud
+  icon under Instructions → HOVER the environment row → gear icon → Network
+  access. The gear only appears on mouse hover, so it can't be done from the
+  iPad/phone. Verification is WebFetch, which honors robots.txt; `curl` +
+  og:title/published_time is a fallback ONLY for technical failures on allowed
+  sites, with an honest `UncleSamFC-link-check` user agent — never to re-fetch
+  something WebFetch declined on robots.txt grounds. It pushes only
   news.json and only when a run ADDED a link, because every push redeploys
   (restart → cold caches, full startup warm + roster sync, ~2,400 calls).
   Those restarts often land mid-match, which is why warm.js starts
@@ -578,14 +586,16 @@ store like favorites.js.
   source (the API publishes no return dates; this file is the ONLY place they
   come from). No automated scraping in the app itself — the notes are
   refreshed by the "Uncle Sam FC injury news scan" cloud routine (08:00 UTC
-  daily, game days only; web search + verified sources, pushes this file
+  daily, game days only; web search + verified sources from publishers that
+  allow AI agents — see "News legal rules" — pushes this file
   only), or on request (ask Claude to re-check the news for flagged players).
 - `news.json` — News-tab headline links (`headlines` array + `blockedSources`).
   Each entry: exact published `title`, publisher `source` name, canonical
   `url`, `published` date, `category` (abroad | usmnt | youth), `players`
   (roster ids), optional `paywall`, `added`. Maintained by the "Uncle Sam FC
   news headlines" cloud routine (see News tab above); every entry must be verified against the live page (no
-  fabrication). Pruned to ~14 days. To honor a publisher's removal request, add
+  fabrication) and its publisher must allow AI agents (see "News legal rules").
+  Pruned to ~14 days. To honor a publisher's removal request, add
   its domain to `blockedSources` (hides all its links) and delete its entries.
 - `demo/` — demo-mode dataset (fixtures generated relative to server start, includes a
   simulated live match so the 60s poll path works keyless).
@@ -937,6 +947,27 @@ monetized launch). What keeps the News tab low-risk:
   named in plain text. No article text, excerpts, publisher RSS descriptions,
   or news photos (copying ledes lost in AP v. Meltwater; wire/Getty photos are
   actively enforced). No framing/in-app reader views.
+- Never fetch a page from a publisher whose robots.txt disallows AI agents
+  (anthropic-ai, ClaudeBot, Claude-Web, Claude-User, Claude-SearchBot), and
+  never add a link to one. Audited Sept 15, 2026 — BLOCKED: espn.com (plus the
+  Disney Terms of Use, see "Schedule cross-check"), nytimes.com,
+  theathletic.com, theguardian.com, apnews.com, bbc.com, usatoday.com, all
+  sports.yahoo.com domains, starsandstripesfc.com (all but /sp/), rtvutrecht.nl,
+  and reuters.com (blanket `* → Disallow: /` with a named-crawler allowlist
+  Claude isn't on). ALLOWED: cbssports.com (blocks only GPTBot), skysports.com
+  (CCBot + GPTBot only), foxsports.com, goal.com, sbisoccer.com,
+  americansoccernow.com (open, but its https port refuses connections — only
+  http answers), and si.com, which explicitly ALLOWS ClaudeBot/Claude-Web;
+  ussoccer.com serves no robots.txt at all. Re-check before trusting this list
+  months from now — publishers change it. Both cloud routines carry this as a
+  SITE RULE in their prompts (edited Sept 15, 2026), which is the enforcement
+  that is definitely in place; removing the same domains from the environment's
+  network allowlist is a separate manual step — check the web UI rather than
+  assuming it. OPEN QUESTION for the lawyer: links already in news.json from
+  blocked outlets (20 of 42 on Sept 15, 2026) and the rtvutrecht.nl source URL
+  in injury-notes.json were obtained by opening pages those sites disallow.
+  Plain link-outs aren't automated access, so they may be fine to keep — Seth
+  held that cleanup pending advice. Don't decide it unilaterally.
 - Never use publisher RSS feeds or news-search APIs as the source: nearly all
   forbid commercial use (checked Sept 2026 — Google News RSS, The Athletic,
   Stars and Stripes FC/PMC, Fox, CBS, Guardian free RSS, Reddit). The headlines
