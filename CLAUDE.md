@@ -861,10 +861,16 @@ compares the deployed app's fixtures (zero API-Football calls) against
 independent sources in `server/scripts/schedule-sources.js` — kickoff,
 home/away, opponent, and fixtures missing for a tracked club. `--teams` adds the
 further-out fixtures from team pages/profiles. Report only.
-STATUS: PAUSED (Sept 15, 2026). Both the local desktop task
-"uncle-sam-fc-schedule-check" and the cloud routine of the same name
-(trig_01K3YjpuoC6irjCqTZJT6goy) are disabled, pending Seth's decision on a
-LICENSED second data provider (research requested Sept 15, 2026). Reason: the
+STATUS (Sept 15, 2026): runs as the LOCAL desktop task
+"uncle-sam-fc-schedule-check" (Mondays ~7 AM ET, report only, from an
+origin/main worktree) in FREE spot-check mode — allowed sources plus the
+placeholder scan, no paid feed; Seth asked for a recurring reminder instead of
+paying for a second data source for now. The cloud routine of the same name
+(trig_01K3YjpuoC6irjCqTZJT6goy) stays disabled. A licensed provider was
+researched (Sportmonks €79-99/mo for the top 30 competitions covers all 45 at
+€199-249; football-data.org cheaper but no Liga MX below €99; only
+Sportradar/Opta verifiably collect their own data, sales-contract only) —
+Seth's call, undecided. Reason ESPN is gone: the
 check was built on ESPN's unofficial site.api.espn.com feeds, which were then
 ruled out — espn.com's robots.txt has `User-agent: anthropic-ai / Disallow: /`
 (site.api.espn.com's robots.txt answers 403), and the Disney Terms of Use
@@ -888,6 +894,12 @@ K League/TFF terms forbid republishing their data: verification only, never
 display it. Season-specific ids (90minut league pages, RBFA series `CUP_3726`)
 change each summer; a stale one shows as "could not be loaded"/"no fixtures".
 Rows without a kickoff time (unscheduled rounds) only flag a different DATE.
+PLACEHOLDER SCAN (added Sept 15, 2026, needs NO outside source): when ≥4
+fixtures and ≥75% of one league round share the identical kickoff, the report
+lists the round as a possible placeholder. Every confirmed error that day
+looked like this (DFB-Pokal R2, La Liga 2 jornada 8, Ekstraklasa round 11,
+untimed 2. Bundesliga rounds). Genuinely simultaneous rounds exist (a league's
+final matchday), so it is a prompt to look, not a finding.
 Known, expected findings: rounds the league hasn't timed yet ("Termin offen" in
 2. Bundesliga, far-out La Liga 2 weeks) carry placeholder kickoffs, so a
 KICKOFF diff there is not an error until the league publishes times. The first

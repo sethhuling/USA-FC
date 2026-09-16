@@ -194,16 +194,46 @@ async function main() {
     }
   }
 
+  // Placeholder kickoffs, found WITHOUT any outside source: when most fixtures
+  // of one league round carry the identical kickoff time, the provider hasn't
+  // got the real times yet (every confirmed error found on Sept 15, 2026 —
+  // DFB-Pokal round 2, La Liga 2 jornada 8 — looked exactly like this). Real
+  // simultaneous rounds exist (a league's final matchday, cup ties on one
+  // slot), so this is a "worth a look", not a finding.
+  const placeholders = [];
+  const byRound = new Map();
+  for (const m of matches) {
+    if (m.status !== 'scheduled' || !m.round) continue;
+    const key = `${m.competition}|${m.round}`;
+    byRound.set(key, [...(byRound.get(key) || []), m]);
+  }
+  for (const [key, list] of byRound) {
+    const times = new Map();
+    for (const m of list) times.set(m.kickoff, (times.get(m.kickoff) || 0) + 1);
+    const [kickoff, n] = [...times].sort((a, b) => b[1] - a[1])[0];
+    if (n >= 4 && n / list.length >= 0.75) {
+      const [comp, round] = key.split('|');
+      placeholders.push({ comp, round, kickoff, shared: n, of: list.length,
+        players: [...new Set(list.flatMap((m) => m.trackedPlayers.map((p) => p.name)))] });
+    }
+  }
+
   const accessProblems = [...access].filter(([, r]) => r.failures.size)
     .map(([host, r]) => ({ host, okRequests: r.ok, failures: Object.fromEntries(r.failures), blocked: !r.ok }));
   if (AS_JSON) {
-    console.log(JSON.stringify({ accessProblems, checked: matches.length, ok: ok.length, pairs: ok, findings, unverifiable: unverifiable.map((u) => ({ comp: u.comp, reason: u.reason, fixture: `${u.match.home} vs ${u.match.away} — ${fmtET(u.match.kickoff)}` })) }, null, 2));
+    console.log(JSON.stringify({ placeholders, accessProblems, checked: matches.length, ok: ok.length, pairs: ok, findings, unverifiable: unverifiable.map((u) => ({ comp: u.comp, reason: u.reason, fixture: `${u.match.home} vs ${u.match.away} — ${fmtET(u.match.kickoff)}` })) }, null, 2));
   } else {
     const bySource = {};
     for (const o of ok) bySource[o.source] = (bySource[o.source] || 0) + 1;
     console.log(`Checked ${matches.length} app fixtures (${fmtET(from.toISOString())} → ${fmtET(to.toISOString())}): ${ok.length} agree (${Object.entries(bySource).map(([k, v]) => `${k} ${v}`).join(', ')}), ${findings.length} findings, ${unverifiable.length} unverifiable.\n`);
     for (const f of findings) {
       console.log(`[${f.type}] ${f.comp} (#${f.id ?? '-'}) ${f.detail}\n   app:    ${f.app}\n   source: ${f.ref ?? '—'} [${f.source}]${f.players ? `\n   players: ${f.players}` : ''}`);
+    }
+    if (placeholders.length) {
+      console.log('\nPossible placeholder kickoffs (same time across a round — no outside source needed; check the league\'s own schedule):');
+      for (const p of placeholders.sort((a, b) => a.kickoff.localeCompare(b.kickoff))) {
+        console.log(`   ${p.comp} ${p.round}: ${p.shared} of ${p.of} fixtures all at ${fmtET(p.kickoff)}${p.players.length ? ` — ${p.players.join(', ')}` : ''}`);
+      }
     }
     if (accessProblems.length) {
       console.log('\nSource access problems (a host with 0 successful requests was unreachable — in a cloud routine usually the network allowlist):');
